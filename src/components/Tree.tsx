@@ -19,16 +19,13 @@ const trunkColors = [
 ];
 
 const leafColors = [
-  "#1b4d3e", // Dark forest green
   "#228b22", // Forest green
-  "#2e8b57", // Sea green
-  "#355e3b", // Hunter green
   "#3a5f0b", // Dark olive green
 ];
 
 export default function Tree({ 
   health, 
-  position = new Vector3(0, 1.5, -5),
+  position = new Vector3(0, 2, -5),
   scale = 1,
   isInteractive = false 
 }: TreeProps) {
@@ -56,8 +53,8 @@ export default function Tree({
   if (isInteractive && health <= 0) return null;
 
   // Calculate trunk dimensions based on scale
-  const trunkRadius = 0.35 * scale;
-  const trunkHeight = 4 * scale;
+  const trunkRadius = 0.25 * scale;
+  const trunkHeight = 4.2 * scale;
   const leafSize = 1.5 * scale;
   const leafHeight = 2 * scale;
 
@@ -86,7 +83,7 @@ export default function Tree({
         <mesh position={[0, trunkHeight * 0.8, 0]} name="tree-top-2">
           <coneGeometry args={[leafSize * 0.7, leafHeight * 0.7, 8]} />
           <meshStandardMaterial 
-            color={varyColor(leafColor, 0.15)}
+            color={varyColor(leafColor, 0.1)}
             roughness={0.8}
             metalness={0.1}
           />

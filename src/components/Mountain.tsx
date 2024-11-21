@@ -23,12 +23,44 @@ const Mountain: React.FC<MountainProps> = ({ position, scale = 1, isInteractive 
   return (
     <group name="mountain" position={position} scale={scale}>
       <mesh ref={mountainRef} castShadow receiveShadow>
-        <coneGeometry args={[7.5, 35, 48]} />
+        <coneGeometry args={[23, 35, 6]} />
         <meshStandardMaterial 
-          color="#1a1a1a"
+          color="#2a2a2a"
+          metalness={0.1}
+          roughness={0.9}
+          emissive="#222222"
+        />
+      </mesh>
+      <mesh position={[-4, -5, -2]} rotation={[0, 0.5, 0.1]} castShadow>
+        <coneGeometry args={[24, 28, 5]} />
+        <meshStandardMaterial 
+          color="#252525"
+          metalness={0.1}
+          roughness={0.9}
+        />
+      </mesh>
+      <mesh position={[0, 15, 0]} castShadow>
+        <coneGeometry args={[5, 8, 6]} />
+        <meshStandardMaterial
+          color="#ffffff"
+          metalness={0.1}
+          roughness={0.6}
+        />
+      </mesh>
+      <mesh position={[-2, 10, -1]} rotation={[0.1, 0.3, 0.1]} castShadow>
+        <coneGeometry args={[3, 6, 5]} />
+        <meshStandardMaterial
+          color="#f0f0f0"
+          metalness={0.1}
+          roughness={0.7}
+        />
+      </mesh>
+      <mesh position={[3, 5, 2]} rotation={[0.2, -0.3, 0]} castShadow>
+        <coneGeometry args={[6, 15, 4]} />
+        <meshStandardMaterial
+          color="#1f1f1f"
           metalness={0.2}
-          roughness={0.8}
-          emissive="#000000"
+          roughness={1}
         />
       </mesh>
     </group>

@@ -1,9 +1,10 @@
 import { useRef, useState, useEffect } from 'react';
 import { Mesh, Vector3, Group } from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
-import Sword from './Sword';
 import Fireball from './Fireball';
 import { OrbitControls as OrbitControlsImpl } from 'three/examples/jsm/controls/OrbitControls';
+import Scythe from './Scythe';
+import GhostTrail from './GhostTrail';
 
 interface UnitProps {
   onHit: () => void;
@@ -13,9 +14,9 @@ interface UnitProps {
 // New component for orbiting particles
 const OrbitalParticles = ({ parentRef }: { parentRef: React.RefObject<Group> }) => {
   const particlesRef = useRef<Mesh[]>([]);
-  const particleCount = 16;
-  const orbitRadius = 1.5;
-  const orbitSpeed = 0.8;
+  const particleCount = 10;
+  const orbitRadius = 1.3;
+  const orbitSpeed = 1;
 
   useFrame(() => {
     if (!parentRef.current) return;
@@ -144,7 +145,7 @@ export default function Unit({ onHit, controlsRef }: UnitProps) {
       if (e.key.toLowerCase() in keys.current) {
         keys.current[e.key.toLowerCase() as keyof typeof keys.current] = true;
       }
-      if (e.code === 'Space' && !isSwinging) {
+      if (e.key.toLowerCase() === 'q' && !isSwinging) {
         setIsSwinging(true);
       }
       if (e.key.toLowerCase() === 'e') {
@@ -174,43 +175,46 @@ export default function Unit({ onHit, controlsRef }: UnitProps) {
   return (
     <>
       <group ref={groupRef} position={[0, 1, 0]}>
-        {/* Main undead orb */}
+        {/* Main undead orb with more ethereal appearance */}
         <mesh>
-          {/* Core sphere */}
           <sphereGeometry args={[0.5, 32, 32]} />
-          <meshBasicMaterial
+          <meshPhongMaterial
             color="#1a472a"
             transparent
-            opacity={0.9}
+            opacity={0.7}
+            shininess={100}
           />
         </mesh>
         
-        {/* Outer glow */}
-        <mesh scale={1.3}>
+        {/* Enhanced outer glow */}
+        <mesh scale={1.4}>
           <sphereGeometry args={[0.5, 32, 32]} />
           <meshBasicMaterial
             color="#39ff14"
             transparent
-            opacity={0.2}
+            opacity={0.15}
+            depthWrite={false}
           />
         </mesh>
 
-        {/* Skull decoration */}
+        {/* Skull decoration with ethereal effect */}
         <mesh position={[0, 0.2, 0.3]} scale={0.4}>
           <sphereGeometry args={[0.4, 32, 32]} />
-          <meshBasicMaterial
+          <meshPhongMaterial
             color="#2f4f4f"
             transparent
             opacity={0.9}
+            emissive="#000000"
+            emissiveIntensity={0.2}
           />
         </mesh>
 
-        {/* Add orbiting particles */}
         <OrbitalParticles parentRef={groupRef} />
-
-        {/* Keep the sword with updated color */}
-        <Sword isSwinging={isSwinging} onSwingComplete={handleSwingComplete} />
+        <Scythe isSwinging={isSwinging} onSwingComplete={handleSwingComplete} />
       </group>
+
+      {/* Add ghost trail effect */}
+      <GhostTrail parentRef={groupRef} />
 
       {/* Fireballs with updated color */}
       {fireballs.map(fireball => (

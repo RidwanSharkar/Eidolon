@@ -2,8 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Mesh, Vector3, Clock, Color } from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import FireballTrail from './FireballTrail';
-import * as THREE from 'three';
-import Explosion from './Explosion';
+import * as THREE from 'three'
 
 interface FireballProps {
   position: Vector3;
@@ -50,6 +49,7 @@ export default function Fireball({ position, direction, onImpact }: FireballProp
       const hit = intersects[0];
       const movementDistance = currentPosition.current.distanceTo(nextPosition);
       if (hit.distance <= movementDistance) {
+        console.log('Collision detected:', hit.point);
         collisionPoint.current = hit.point.clone();
         return true;
       }
@@ -60,11 +60,13 @@ export default function Fireball({ position, direction, onImpact }: FireballProp
 
   // Function to remove explosion from state
   const removeExplosion = (key: string) => {
+    console.log('Removing explosion:', key);
     setExplosions(prev => prev.filter(explosion => explosion.key !== key));
   };
 
   const startExplosion = () => {
     if (!isExploding.current && collisionPoint.current instanceof Vector3) {
+      console.log('Starting explosion at position:', collisionPoint.current);
       isExploding.current = true;
       if (fireballRef.current) {
         fireballRef.current.visible = false;
@@ -72,26 +74,34 @@ export default function Fireball({ position, direction, onImpact }: FireballProp
       onImpact();
 
       const explosionKey = `explosion-${Date.now()}`;
-      
       const explosionPosition = collisionPoint.current.clone();
       
-      setExplosions(prev => [
-        ...prev,
-        <Explosion
-          key={explosionKey}
-          position={explosionPosition}
-          color="#00ff44"
-          size={2}
-          duration={1}
-          particleCount={100}
-          onComplete={() => {
-            removeExplosion(explosionKey);
-            if (fireballRef.current) {
-              fireballRef.current.removeFromParent();
-            }
-          }}
-        />
-      ]);
+      // Lower the explosion position
+      explosionPosition.y += 1;
+      
+      setExplosions(prev => {
+        const newExplosions = [
+          ...prev,
+          <Explosion
+            key={explosionKey}
+            position={explosionPosition}
+            color="#ff4400" // Bright orange color
+            size={5} // Much larger size
+            duration={5} // Longer duration
+            onComplete={() => {
+              console.log('Explosion complete:', explosionKey);
+              setTimeout(() => {
+                removeExplosion(explosionKey);
+                if (fireballRef.current) {
+                  fireballRef.current.removeFromParent();
+                }
+              }, 2000);
+            }}
+          />
+        ];
+        console.log('Created new explosion at:', explosionPosition);
+        return newExplosions;
+      });
     }
   };
 
@@ -135,7 +145,9 @@ export default function Fireball({ position, direction, onImpact }: FireballProp
           opacity={1}
         />
       )}
-      {explosions}
+      <group key="explosions-container">
+        {explosions}
+      </group>
     </group>
   );
 }
