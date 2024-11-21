@@ -1,0 +1,22 @@
+.leftPanel {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .rightPanel {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    /* Additional styling */
+  }
+  
+  .leftPanel img {
+    width: 50px;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
