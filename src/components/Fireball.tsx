@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Mesh, Vector3, Clock, Color } from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import FireballTrail from './FireballTrail';
@@ -15,13 +15,10 @@ export default function Fireball({ position, direction, onImpact }: FireballProp
   const clock = useRef(new Clock());
   const speed = 0.5;
   const lifespan = 10;
-  const isExploding = useRef(false);
   const currentPosition = useRef(position.clone());
   const { scene } = useThree();
   const size = 0.3;
   const color = new Color('#00ff44');
-  const collisionPoint = useRef<Vector3 | null>(null);
-  const [explosions, setExplosions] = useState<JSX.Element[]>([]);
 
   const checkCollision = (nextPosition: Vector3): boolean => {
     const raycaster = new THREE.Raycaster();
@@ -50,7 +47,6 @@ export default function Fireball({ position, direction, onImpact }: FireballProp
       const movementDistance = currentPosition.current.distanceTo(nextPosition);
       if (hit.distance <= movementDistance) {
         console.log('Collision detected:', hit.point);
-        collisionPoint.current = hit.point.clone();
         return true;
       }
     }
@@ -58,55 +54,8 @@ export default function Fireball({ position, direction, onImpact }: FireballProp
     return false;
   };
 
-  // Function to remove explosion from state
-  const removeExplosion = (key: string) => {
-    console.log('Removing explosion:', key);
-    setExplosions(prev => prev.filter(explosion => explosion.key !== key));
-  };
-
-  const startExplosion = () => {
-    if (!isExploding.current && collisionPoint.current instanceof Vector3) {
-      console.log('Starting explosion at position:', collisionPoint.current);
-      isExploding.current = true;
-      if (fireballRef.current) {
-        fireballRef.current.visible = false;
-      }
-      onImpact();
-
-      const explosionKey = `explosion-${Date.now()}`;
-      const explosionPosition = collisionPoint.current.clone();
-      
-      // Lower the explosion position
-      explosionPosition.y += 1;
-      
-      setExplosions(prev => {
-        const newExplosions = [
-          ...prev,
-          <Explosion
-            key={explosionKey}
-            position={explosionPosition}
-            color="#ff4400" // Bright orange color
-            size={5} // Much larger size
-            duration={5} // Longer duration
-            onComplete={() => {
-              console.log('Explosion complete:', explosionKey);
-              setTimeout(() => {
-                removeExplosion(explosionKey);
-                if (fireballRef.current) {
-                  fireballRef.current.removeFromParent();
-                }
-              }, 2000);
-            }}
-          />
-        ];
-        console.log('Created new explosion at:', explosionPosition);
-        return newExplosions;
-      });
-    }
-  };
-
   useFrame((_, delta) => {
-    if (!fireballRef.current || isExploding.current) return;
+    if (!fireballRef.current) return;
 
     if (clock.current.getElapsedTime() > lifespan) {
       fireballRef.current.removeFromParent();
@@ -116,9 +65,11 @@ export default function Fireball({ position, direction, onImpact }: FireballProp
     const movement = direction.clone().multiplyScalar(speed * delta * 60);
     const nextPosition = currentPosition.current.clone().add(movement);
 
-    // Check for collisions before moving
     if (checkCollision(nextPosition)) {
-      startExplosion();
+      if (fireballRef.current) {
+        fireballRef.current.removeFromParent();
+      }
+      onImpact();
     } else {
       currentPosition.current.copy(nextPosition);
       fireballRef.current.position.copy(currentPosition.current);
@@ -136,18 +87,12 @@ export default function Fireball({ position, direction, onImpact }: FireballProp
         />
         <pointLight color={color} intensity={8} distance={12} />
       </mesh>
-
-      {!isExploding.current && (
-        <FireballTrail
-          color={color}
-          size={size}
-          meshRef={fireballRef}
-          opacity={1}
-        />
-      )}
-      <group key="explosions-container">
-        {explosions}
-      </group>
+      <FireballTrail
+        color={color}
+        size={size}
+        meshRef={fireballRef}
+        opacity={1}
+      />
     </group>
   );
 }

@@ -11,12 +11,12 @@ interface UnitProps {
   controlsRef: React.RefObject<OrbitControlsImpl>;
 }
 
-// New component for orbiting particles
+// ORBIT AURA
 const OrbitalParticles = ({ parentRef }: { parentRef: React.RefObject<Group> }) => {
   const particlesRef = useRef<Mesh[]>([]);
-  const particleCount = 10;
-  const orbitRadius = 1.3;
-  const orbitSpeed = 1;
+  const particleCount = 8;
+  const orbitRadius = 1.0;
+  const orbitSpeed = 1.75;
 
   useFrame(() => {
     if (!parentRef.current) return;
@@ -25,7 +25,7 @@ const OrbitalParticles = ({ parentRef }: { parentRef: React.RefObject<Group> }) 
       const angle = (i / particleCount) * Math.PI * 2 + Date.now() * 0.001 * orbitSpeed;
       const x = Math.cos(angle) * orbitRadius;
       const z = Math.sin(angle) * orbitRadius;
-      const y = Math.sin(Date.now() * 0.002 + i) * 0.3;
+      const y = Math.sin(Date.now() * 0.002 + i) * 0.2;
 
       particle.position.set(x, y, z);
     });
@@ -57,7 +57,7 @@ export default function Unit({ onHit, controlsRef }: UnitProps) {
   const [isSwinging, setIsSwinging] = useState(false);
   const [fireballs, setFireballs] = useState<{ id: number; position: Vector3; direction: Vector3 }[]>([]);
   const nextFireballId = useRef(0);
-  const speed = 0.15;
+  const speed = 0.25;       // MOVEMENT SPEED
   const { camera } = useThree();
   const keys = useRef({
     w: false,
@@ -210,7 +210,11 @@ export default function Unit({ onHit, controlsRef }: UnitProps) {
         </mesh>
 
         <OrbitalParticles parentRef={groupRef} />
-        <Scythe isSwinging={isSwinging} onSwingComplete={handleSwingComplete} />
+        <Scythe 
+          parentRef={groupRef}
+          isSwinging={isSwinging} 
+          onSwingComplete={handleSwingComplete} 
+        />
       </group>
 
       {/* Add ghost trail effect */}
