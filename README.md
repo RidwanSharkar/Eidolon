@@ -5,6 +5,10 @@ Super-impulsive prototype game idea inspired by this wallpaper:
 
 Uhh, trying to restore my body while drifting on a floating space island?
 
+## v0.2
+
+
+
 ## v0.1
 ![better scythe](https://github.com/user-attachments/assets/974f8599-24f1-45c0-a624-ba313d6ced2b)
 

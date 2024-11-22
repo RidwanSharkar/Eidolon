@@ -17,6 +17,19 @@ const OrbitalParticles = ({ parentRef }: { parentRef: React.RefObject<Group> }) 
   const particleCount = 8;
   const orbitRadius = 1.0;
   const orbitSpeed = 1.75;
+  const particleSize = 0.13;
+
+  // ORB COLORS x8
+  const colors = [
+    '#39ff14', 
+    '#39ff14', 
+    '#39ff14', 
+    '#39ff14', 
+    '#39ff14', 
+    '#39ff14', 
+    '#39ff14', 
+    '#39ff14' 
+  ];
 
   useFrame(() => {
     if (!parentRef.current) return;
@@ -40,9 +53,9 @@ const OrbitalParticles = ({ parentRef }: { parentRef: React.RefObject<Group> }) 
             if (el) particlesRef.current[i] = el;
           }}
         >
-          <sphereGeometry args={[0.08, 8, 8]} />
+          <sphereGeometry args={[particleSize, 8, 8]} />
           <meshBasicMaterial
-            color="#39ff14"
+            color={colors[i]}
             transparent
             opacity={0.6}
           />
@@ -57,7 +70,7 @@ export default function Unit({ onHit, controlsRef }: UnitProps) {
   const [isSwinging, setIsSwinging] = useState(false);
   const [fireballs, setFireballs] = useState<{ id: number; position: Vector3; direction: Vector3 }[]>([]);
   const nextFireballId = useRef(0);
-  const speed = 0.25;       // MOVEMENT SPEED
+  const speed = 0.20;       // MOVEMENT SPEED
   const { camera } = useThree();
   const keys = useRef({
     w: false,
@@ -175,11 +188,11 @@ export default function Unit({ onHit, controlsRef }: UnitProps) {
   return (
     <>
       <group ref={groupRef} position={[0, 1, 0]}>
-        {/* Main undead orb with more ethereal appearance */}
+        {/* HEAD  undead orb with more ethereal appearance */}
         <mesh>
           <sphereGeometry args={[0.5, 32, 32]} />
           <meshPhongMaterial
-            color="#1a472a"
+            color="#67f2b9"
             transparent
             opacity={0.7}
             shininess={100}
@@ -201,7 +214,7 @@ export default function Unit({ onHit, controlsRef }: UnitProps) {
         <mesh position={[0, 0.2, 0.3]} scale={0.4}>
           <sphereGeometry args={[0.4, 32, 32]} />
           <meshPhongMaterial
-            color="#2f4f4f"
+            color="#67f2b9"
             transparent
             opacity={0.9}
             emissive="#000000"

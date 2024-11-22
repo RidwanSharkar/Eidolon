@@ -181,7 +181,7 @@ export default function Scythe({ isSwinging, onSwingComplete, }: ScytheProps) {
         <Trail
           width={3.5}
           length={8}
-          color={'#39ff14'}
+          color={'#67f2b9'}
           attenuation={(t) => {
             const fadeStart = 0.3;
             if (t < fadeStart) return 1;
@@ -235,7 +235,7 @@ export default function Scythe({ isSwinging, onSwingComplete, }: ScytheProps) {
           <mesh>
             <extrudeGeometry args={[createBladeShape(), bladeExtradeSettings]} />
             <meshStandardMaterial 
-              color="#202020"
+              color="#67f2b9"
               metalness={0.9}
               roughness={0.3}
             />
@@ -245,7 +245,7 @@ export default function Scythe({ isSwinging, onSwingComplete, }: ScytheProps) {
           <mesh>
             <extrudeGeometry args={[createBladeShape(), { ...bladeExtradeSettings, depth: 0.021 }]} />
             <meshStandardMaterial 
-              color="#39ff14"
+              color="#67f2b9"
               emissive="#39ff14"
               emissiveIntensity={2.5}
               metalness={0.9}
