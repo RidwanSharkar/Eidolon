@@ -35,8 +35,8 @@ export default function Scythe({ isSwinging, onSwingComplete, }: ScytheProps) {
       // Apply the pivot point movement
       scytheRef.current.position.set(pivotX, pivotY, pivotZ);
       
-      // Modified rotations to end more horizontally
-      const rotationX = Math.sin(swingPhase * Math.PI * 0.7) * (Math.PI / 4); // Reduced end-swing upward rotation
+      // end more horizontally
+      const rotationX = Math.sin(swingPhase * Math.PI * 0.7) * (Math.PI / 4); //  end-swing upward rotation
       const rotationY = Math.sin(swingPhase * Math.PI) * (Math.PI / 1.5);
       // Adjust Z rotation to maintain more horizontal end position
       const rotationZ = Math.sin(swingPhase * Math.PI * 0.8) * (Math.PI / 4);

@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Mesh, Vector3, Color } from 'three';
 import * as THREE from 'three';
@@ -10,15 +10,20 @@ interface GhostTrailProps {
 export default function GhostTrail({ parentRef }: GhostTrailProps) {
   const trailsRef = useRef<Mesh[]>([]);
   const positions = useRef<Vector3[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
   const trailCount = 12;
   
   useEffect(() => {
-    // Initialize position history
-    positions.current = Array(trailCount).fill(new Vector3());
+    if (parentRef.current) {
+      // Initialize with parent's position instead of (0,0,0)
+      const initialPos = parentRef.current.position.clone();
+      positions.current = Array(trailCount).fill(0).map(() => initialPos.clone());
+      setIsInitialized(true);
+    }
   }, []);
 
   useFrame(() => {
-    if (!parentRef.current) return;
+    if (!parentRef.current || !isInitialized) return;
 
     // Update position history
     const newPos = parentRef.current.position.clone();
@@ -40,6 +45,9 @@ export default function GhostTrail({ parentRef }: GhostTrailProps) {
       }
     });
   });
+
+  // Only render trails after initialization
+  if (!isInitialized) return null;
 
   return (
     <>
