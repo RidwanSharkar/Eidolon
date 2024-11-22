@@ -71,7 +71,7 @@ const CustomSky: React.FC = () => {
   );
 };
 
-// Planet Component
+// Planets - PACK DIS SHIT UP FAM
 const Planet: React.FC = () => {
   return (
     <group position={[100, 80, -150]} scale={[30, 30, 30]}>
@@ -79,10 +79,10 @@ const Planet: React.FC = () => {
       <mesh>
         <sphereGeometry args={[1, 32, 32]} />
         <meshStandardMaterial
-          color="#536282"
+          color="#B8E0D2"
           roughness={0.7}
           metalness={0.2}
-          emissive="#536282"
+          emissive="#B8E0D2"
           emissiveIntensity={0.5}
         />
       </mesh>
@@ -304,7 +304,7 @@ export default function Home() {
           ref={controlsRef}
           enablePan={false}
           maxPolarAngle={Math.PI / 2.2}
-          maxDistance={65} // CAMERA maxDISTANCE
+          maxDistance={75} // CAMERA maxDISTANCE
           mouseButtons={{
             LEFT: undefined,
             MIDDLE: undefined,
