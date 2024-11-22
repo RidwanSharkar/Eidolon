@@ -7,7 +7,7 @@ Uhh, trying to restore my body while drifting on a floating space island?
 
 ## v0.2
 
-
+![island in space](https://github.com/user-attachments/assets/59274513-1c79-44ea-ab8b-1e81c81812d8)
 
 ## v0.1
 ![better scythe](https://github.com/user-attachments/assets/974f8599-24f1-45c0-a624-ba313d6ced2b)
