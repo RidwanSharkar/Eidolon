@@ -1,6 +1,7 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
 import { Mesh, Vector3, Color } from 'three';
 import * as THREE from 'three';
+import React from 'react';
 
 interface TreeProps {
   health: number;
@@ -11,24 +12,27 @@ interface TreeProps {
   leafColor: Color;
 }
 
-export default function Tree({ 
+const varyColor = (baseColor: Color, range: number = 0.1) => {
+  const color = new THREE.Color(baseColor);
+  color.r = THREE.MathUtils.clamp(color.r + (Math.random() - 0.5) * range, 0, 1);
+  color.g = THREE.MathUtils.clamp(color.g + (Math.random() - 0.5) * range, 0, 1);
+  color.b = THREE.MathUtils.clamp(color.b + (Math.random() - 0.5) * range, 0, 1);
+  return color;
+};
+
+const TreeComponent: React.FC<TreeProps> = ({ 
   health, 
   position = new Vector3(0, 2, -5),
   scale = 1,
   isInteractive = false,
   trunkColor,
   leafColor,
-}: TreeProps) {
+}: TreeProps) => {
   const treeRef = useRef<Mesh>(null);
 
-  // Function to slightly vary the provided colors
-  const varyColor = (baseColor: Color, range: number = 0.1) => {
-    const color = new THREE.Color(baseColor);
-    color.r += (Math.random() - 0.5) * range;
-    color.g += (Math.random() - 0.5) * range;
-    color.b += (Math.random() - 0.5) * range;
-    return color;
-  };
+  // Memoize the varied colors to ensure they are calculated only once
+  const variedTrunkColor = useMemo(() => varyColor(trunkColor), [trunkColor]);
+  const variedLeafColor = useMemo(() => varyColor(leafColor), [leafColor]);
 
   useEffect(() => {
     if (isInteractive && health <= 0 && treeRef.current) {
@@ -50,7 +54,7 @@ export default function Tree({
         {/* Trunk */}
         <cylinderGeometry args={[trunkRadius, trunkRadius * 1.2, trunkHeight, 8]} />
         <meshStandardMaterial 
-          color={varyColor(trunkColor)}
+          color={variedTrunkColor}
           roughness={0.8}
           metalness={0.1}
         />
@@ -59,7 +63,7 @@ export default function Tree({
         <mesh position={[0, trunkHeight * 0.6, 0]} name="tree-top">
           <coneGeometry args={[leafSize, leafHeight, 8]} />
           <meshStandardMaterial 
-            color={varyColor(leafColor)}
+            color={variedLeafColor}
             roughness={0.8}
             metalness={0.1}
           />
@@ -69,7 +73,7 @@ export default function Tree({
         <mesh position={[0, trunkHeight * 0.8, 0]} name="tree-top-2">
           <coneGeometry args={[leafSize * 0.7, leafHeight * 0.7, 8]} />
           <meshStandardMaterial 
-            color={varyColor(leafColor, 0.1)}
+            color={variedLeafColor.clone().offsetHSL(0, 0, -0.1)}
             roughness={0.8}
             metalness={0.1}
           />
@@ -79,7 +83,7 @@ export default function Tree({
         <mesh position={[0, trunkHeight, 0]} name="tree-top-3">
           <coneGeometry args={[leafSize * 0.4, leafHeight * 0.4, 8]} />
           <meshStandardMaterial 
-            color={varyColor(leafColor, 0.15)}
+            color={variedLeafColor.clone().offsetHSL(0, 0, -0.15)}
             roughness={0.8}
             metalness={0.1}
           />
@@ -87,4 +91,7 @@ export default function Tree({
       </mesh>
     </group>
   );
-}
+};
+
+// Memoize the Tree component to prevent unnecessary re-renders
+export default React.memo(TreeComponent);

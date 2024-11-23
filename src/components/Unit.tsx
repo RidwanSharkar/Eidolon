@@ -9,7 +9,7 @@ import GhostTrail from './GhostTrail';
 import Sabres from './Sabres';
 import Sabres2 from './Sabres2';
 
-// Add weapon type enum
+// WeaponType enum
 export enum WeaponType {
   SCYTHE = 'scythe',
   SWORD = 'sword',
@@ -21,9 +21,9 @@ interface UnitProps {
   onHit: () => void;
   controlsRef: React.RefObject<OrbitControlsImpl>;
   currentWeapon: WeaponType;
+  onWeaponSelect: (weapon: WeaponType) => void;
 }
 
-// ORBIT AURA
 const OrbitalParticles = ({ parentRef }: { parentRef: React.RefObject<Group> }) => {
   const particlesRef = useRef<Mesh[]>([]);
   const particleCount = 8;
@@ -31,17 +31,7 @@ const OrbitalParticles = ({ parentRef }: { parentRef: React.RefObject<Group> }) 
   const orbitSpeed = 1.75;
   const particleSize = 0.13;
 
-  // ORB COLORS x8
-  const colors = [
-    '#39ff14', 
-    '#39ff14', 
-    '#39ff14', 
-    '#39ff14', 
-    '#39ff14', 
-    '#39ff14', 
-    '#39ff14', 
-    '#39ff14' 
-  ];
+  const colors = Array(particleCount).fill('#39ff14');
 
   useFrame(() => {
     if (!parentRef.current) return;
@@ -77,12 +67,12 @@ const OrbitalParticles = ({ parentRef }: { parentRef: React.RefObject<Group> }) 
   );
 };
 
-export default function Unit({ onHit, controlsRef, currentWeapon }: UnitProps) {
+export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect }: UnitProps) {
   const groupRef = useRef<Group>(null);
   const [isSwinging, setIsSwinging] = useState(false);
   const [fireballs, setFireballs] = useState<{ id: number; position: Vector3; direction: Vector3 }[]>([]);
   const nextFireballId = useRef(0);
-  const speed = 0.20;       // MOVEMENT SPEED
+  const speed = 0.20; // MOVEMENT SPEED
   const { camera } = useThree();
   const keys = useRef({
     w: false,
@@ -94,11 +84,9 @@ export default function Unit({ onHit, controlsRef, currentWeapon }: UnitProps) {
   const shootFireball = () => {
     if (!groupRef.current) return;
 
-    // Get unit's current position and raise it to center height
     const unitPosition = groupRef.current.position.clone();
     unitPosition.y += 1;
 
-    // Get direction unit is facing based on its current rotation
     const direction = new Vector3(0, 0, 1);
     direction.applyQuaternion(groupRef.current.quaternion);
 
@@ -116,20 +104,17 @@ export default function Unit({ onHit, controlsRef, currentWeapon }: UnitProps) {
   useFrame(() => {
     if (!groupRef.current) return;
 
-    // Get camera's forward direction (excluding Y component)
     const cameraDirection = new Vector3();
     camera.getWorldDirection(cameraDirection);
     cameraDirection.y = 0;
     cameraDirection.normalize();
 
-    // Get camera's right direction
     const cameraRight = new Vector3(
       -cameraDirection.z,
       0,
       cameraDirection.x
     );
 
-    // Calculate movement direction based on key inputs
     const moveDirection = new Vector3(0, 0, 0);
 
     if (keys.current.w) moveDirection.add(cameraDirection);
@@ -137,23 +122,19 @@ export default function Unit({ onHit, controlsRef, currentWeapon }: UnitProps) {
     if (keys.current.a) moveDirection.sub(cameraRight);
     if (keys.current.d) moveDirection.add(cameraRight);
 
-    // Normalize and apply movement
     if (moveDirection.length() > 0) {
       moveDirection.normalize();
       groupRef.current.position.add(moveDirection.multiplyScalar(speed));
 
-      // Rotate the character to face movement direction
       const targetRotation = Math.atan2(moveDirection.x, moveDirection.z);
       groupRef.current.rotation.y = targetRotation;
     }
 
-    // Update camera target
     if (controlsRef.current) {
       const unitPosition = groupRef.current.position;
       controlsRef.current.target.set(unitPosition.x, unitPosition.y, unitPosition.z);
     }
 
-    // Rest of the existing code for swing detection
     if (isSwinging && groupRef.current) {
       const unitPosition = groupRef.current.position;
       const treePosition = new Vector3(0, 2, -5);
@@ -167,20 +148,44 @@ export default function Unit({ onHit, controlsRef, currentWeapon }: UnitProps) {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() in keys.current) {
-        keys.current[e.key.toLowerCase() as keyof typeof keys.current] = true;
+      const key = e.key.toLowerCase();
+
+      if (key in keys.current) {
+        keys.current[key as keyof typeof keys.current] = true;
       }
-      if (e.key.toLowerCase() === 'q' && !isSwinging) {
+
+      if (key === 'q' && !isSwinging) {
         setIsSwinging(true);
       }
-      if (e.key.toLowerCase() === 'e') {
+
+      if (key === 'e') {
         shootFireball();
+      }
+
+      // Weapon selection using number keys
+      switch (key) {
+        case '1':
+          onWeaponSelect(WeaponType.SCYTHE);
+          break;
+        case '2':
+          onWeaponSelect(WeaponType.SWORD);
+          break;
+        case '3':
+          onWeaponSelect(WeaponType.SABRES);
+          break;
+        case '4':
+          onWeaponSelect(WeaponType.SABRES2);
+          break;
+        default:
+          break;
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() in keys.current) {
-        keys.current[e.key.toLowerCase() as keyof typeof keys.current] = false;
+      const key = e.key.toLowerCase();
+
+      if (key in keys.current) {
+        keys.current[key as keyof typeof keys.current] = false;
       }
     };
 
@@ -191,7 +196,7 @@ export default function Unit({ onHit, controlsRef, currentWeapon }: UnitProps) {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [isSwinging]);
+  }, [isSwinging, onWeaponSelect]);
 
   const handleSwingComplete = () => {
     setIsSwinging(false);

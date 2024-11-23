@@ -162,7 +162,7 @@ interface GeneratedTree {
 }
 
 // Home Component
-export default function Home() {
+export default function HomePage() {
   const [treeHealth, setTreeHealth] = useState(3);
   const [currentWeapon, setCurrentWeapon] = useState<WeaponType>(WeaponType.SCYTHE);
   const controlsRef = useRef<OrbitControlsImpl>(null);
@@ -194,6 +194,10 @@ export default function Home() {
     new THREE.Color(leafColors[Math.floor(Math.random() * leafColors.length)]),
     []
   );
+
+  const handleWeaponSelect = (weapon: WeaponType) => {
+    setCurrentWeapon(weapon);
+  };
 
   return (
     <div style={{ height: '100vh', position: 'relative' }}>
@@ -266,9 +270,14 @@ export default function Home() {
           leafColor={interactiveLeafColor}   // Now a THREE.Color
         />
 
-        <Unit onHit={handleTreeDamage} controlsRef={controlsRef} currentWeapon={currentWeapon} />
+        <Unit 
+          onHit={handleTreeDamage} 
+          controlsRef={controlsRef} 
+          currentWeapon={currentWeapon} 
+          onWeaponSelect={handleWeaponSelect}
+        />
       </Canvas>
-      <Panel currentWeapon={currentWeapon} onWeaponSelect={setCurrentWeapon} />
+      <Panel currentWeapon={currentWeapon} onWeaponSelect={handleWeaponSelect} />
     </div>
   );
 }

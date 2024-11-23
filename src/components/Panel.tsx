@@ -16,34 +16,38 @@ const weaponIconStyle = {
 export default function Panel({ currentWeapon, onWeaponSelect }: PanelProps) {
   return (
     <div className={styles.bottomPanel}>
-      <img 
-        src="/icons/1.svg" 
-        alt="Scythe" 
-        style={weaponIconStyle}
+      <div 
         className={currentWeapon === WeaponType.SCYTHE ? styles.activeWeapon : ''}
         onClick={() => onWeaponSelect(WeaponType.SCYTHE)}
-      />
-      <img 
-        src="/icons/3.svg" 
-        alt="Sword" 
-        style={weaponIconStyle}
+        style={{ ...weaponIconStyle, position: 'relative' }}
+      >
+        <img src="/icons/1.svg" alt="Scythe" style={weaponIconStyle} />
+        <span className={styles.keyBinding}>1</span>
+      </div>
+      <div 
         className={currentWeapon === WeaponType.SWORD ? styles.activeWeapon : ''}
         onClick={() => onWeaponSelect(WeaponType.SWORD)}
-      />
-      <img 
-        src="/icons/5.svg" 
-        alt="Sabres" 
-        style={weaponIconStyle}
+        style={{ ...weaponIconStyle, position: 'relative' }}
+      >
+        <img src="/icons/3.svg" alt="Sword" style={weaponIconStyle} />
+        <span className={styles.keyBinding}>2</span>
+      </div>
+      <div 
         className={currentWeapon === WeaponType.SABRES ? styles.activeWeapon : ''}
         onClick={() => onWeaponSelect(WeaponType.SABRES)}
-      />
-      <img 
-        src="/icons/7.svg" 
-        alt="Sabres2" 
-        style={weaponIconStyle}
+        style={{ ...weaponIconStyle, position: 'relative' }}
+      >
+        <img src="/icons/5.svg" alt="Sabres" style={weaponIconStyle} />
+        <span className={styles.keyBinding}>3</span>
+      </div>
+      <div 
         className={currentWeapon === WeaponType.SABRES2 ? styles.activeWeapon : ''}
         onClick={() => onWeaponSelect(WeaponType.SABRES2)}
-      />
+        style={{ ...weaponIconStyle, position: 'relative' }}
+      >
+        <img src="/icons/7.svg" alt="Sabres2" style={weaponIconStyle} />
+        <span className={styles.keyBinding}>4</span>
+      </div>
     </div>
   );
 }
