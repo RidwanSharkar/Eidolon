@@ -7,7 +7,6 @@ interface ScytheProps {
 import { useRef,  } from 'react';
 import { Group, Shape,  } from 'three';
 import { useFrame } from '@react-three/fiber';
-import { Trail } from '@react-three/drei';
 
 interface ScytheProps {
   isSwinging: boolean;
@@ -22,7 +21,7 @@ export default function Scythe({ isSwinging, onSwingComplete, }: ScytheProps) {
   
   useFrame((_, delta) => {
     if (isSwinging && scytheRef.current) {
-      swingProgress.current += delta * 6;
+      swingProgress.current += delta * 7;
       
       // Adjust swing phase calculation
       const swingPhase = Math.min(swingProgress.current / Math.PI, 1);
@@ -38,7 +37,7 @@ export default function Scythe({ isSwinging, onSwingComplete, }: ScytheProps) {
       // end more horizontally
       const rotationX = Math.sin(swingPhase * Math.PI * 0.7) * (Math.PI / 4); //  end-swing upward rotation
       const rotationY = Math.sin(swingPhase * Math.PI) * (Math.PI / 1.5);
-      // Adjust Z rotation to maintain more horizontal end position
+      // Z rotation to maintain more horizontal end position
       const rotationZ = Math.sin(swingPhase * Math.PI * 0.8) * (Math.PI / 4);
       
       // Apply the rotations
@@ -177,99 +176,45 @@ export default function Scythe({ isSwinging, onSwingComplete, }: ScytheProps) {
       </group>
       
       {/* Enhanced blade with glowing effect - adjusted position */}
-      {isSwinging ? (
-        <Trail
-          width={3.5}
-          length={8}
-          color={'#67f2b9'}
-          attenuation={(t) => {
-            const fadeStart = 0.3;
-            if (t < fadeStart) return 1;
-            return Math.pow((1 - t) / (1 - fadeStart), 1.5);
-          }}
-          decay={0.8}
-        >
-          <group position={[0, 1.0, 1.3]} rotation={[-1.2, -Math.PI / 2, Math.PI / 2]}> {/* Y position increased from 0.8 to 1.0 */}
-            {/* Base blade */}
-            <mesh>
-              <extrudeGeometry args={[createBladeShape(), bladeExtradeSettings]} />
-              <meshStandardMaterial 
-                color="#202020"     // Darker base for contrast
-                metalness={0.9}
-                roughness={0.3}
-              />
-            </mesh>
-            
-            {/* Primary glow layer */}
-            <mesh>
-              <extrudeGeometry args={[createBladeShape(), { ...bladeExtradeSettings, depth: 0.021 }]} />
-              <meshStandardMaterial 
-                color="#39ff14"     // Bright green
-                emissive="#39ff14"  // Same color emission
-                emissiveIntensity={2.5}
-                metalness={0.9}
-                roughness={0.2}
-                opacity={0.7}
-                transparent
-              />
-            </mesh>
-            
-            {/* Outer glow layer */}
-            <mesh>
-              <extrudeGeometry args={[createBladeShape(), { ...bladeExtradeSettings, depth: 0.022 }]} />
-              <meshStandardMaterial 
-                color="#39ff14"
-                emissive="#39ff14"
-                emissiveIntensity={1.5}
-                metalness={0.8}
-                roughness={0.1}
-                opacity={0.3}
-                transparent
-              />
-            </mesh>
-          </group>
-        </Trail>
-      ) : (
-        <group position={[0, 0.5, 1.3]} rotation={[-0.9, -Math.PI / 2, Math.PI / 2]}>             {/* BLADEEE ANGLEEEE */}
-          {/* Base blade */}
-          <mesh>
-            <extrudeGeometry args={[createBladeShape(), bladeExtradeSettings]} />
-            <meshStandardMaterial 
-              color="#67f2b9"
-              metalness={0.9}
-              roughness={0.3}
-            />
-          </mesh>
-          
-          {/* Primary glow layer */}
-          <mesh>
-            <extrudeGeometry args={[createBladeShape(), { ...bladeExtradeSettings, depth: 0.021 }]} />
-            <meshStandardMaterial 
-              color="#67f2b9"
-              emissive="#39ff14"
-              emissiveIntensity={2.5}
-              metalness={0.9}
-              roughness={0.2}
-              opacity={0.7}
-              transparent
-            />
-          </mesh>
-          
-          {/* Outer glow layer */}
-          <mesh>
-            <extrudeGeometry args={[createBladeShape(), { ...bladeExtradeSettings, depth: 0.022 }]} />
-            <meshStandardMaterial 
-              color="#39ff14"
-              emissive="#39ff14"
-              emissiveIntensity={1.5}
-              metalness={0.8}
-              roughness={0.1}
-              opacity={0.3}
-              transparent
-            />
-          </mesh>
-        </group>
-      )}
+      <group position={[0, 0.5, 1.3]} rotation={[-0.9, -Math.PI / 2, Math.PI / 2]}>
+        {/* Base blade */}
+        <mesh>
+          <extrudeGeometry args={[createBladeShape(), bladeExtradeSettings]} />
+          <meshStandardMaterial 
+            color="#67f2b9"
+            metalness={0.9}
+            roughness={0.3}
+          />
+        </mesh>
+        
+        {/* Primary glow layer */}
+        <mesh>
+          <extrudeGeometry args={[createBladeShape(), { ...bladeExtradeSettings, depth: 0.021 }]} />
+          <meshStandardMaterial 
+            color="#67f2b9"
+            emissive="#39ff14"
+            emissiveIntensity={2.5}
+            metalness={0.9}
+            roughness={0.2}
+            opacity={0.7}
+            transparent
+          />
+        </mesh>
+        
+        {/* Outer glow layer */}
+        <mesh>
+          <extrudeGeometry args={[createBladeShape(), { ...bladeExtradeSettings, depth: 0.022 }]} />
+          <meshStandardMaterial 
+            color="#39ff14"
+            emissive="#39ff14"
+            emissiveIntensity={1.5}
+            metalness={0.8}
+            roughness={0.1}
+            opacity={0.3}
+            transparent
+          />
+        </mesh>
+      </group>
     </group>
   );
 }
