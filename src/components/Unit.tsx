@@ -6,11 +6,15 @@ import { OrbitControls as OrbitControlsImpl } from 'three/examples/jsm/controls/
 import Scythe from './Scythe';
 import Sword from './Sword';
 import GhostTrail from './GhostTrail';
+import Sabres from './Sabres';
+import Sabres2 from './Sabres2';
 
 // Add weapon type enum
 export enum WeaponType {
   SCYTHE = 'scythe',
-  SWORD = 'sword'
+  SWORD = 'sword',
+  SABRES = 'sabres',
+  SABRES2 = 'sabres2'
 }
 
 interface UnitProps {
@@ -231,7 +235,17 @@ export default function Unit({ onHit, controlsRef, currentWeapon }: UnitProps) {
         </mesh>
 
         <OrbitalParticles parentRef={groupRef} />
-        {currentWeapon === WeaponType.SCYTHE ? (
+        {currentWeapon === WeaponType.SABRES2 ? (
+          <Sabres2 
+            isSwinging={isSwinging} 
+            onSwingComplete={handleSwingComplete}
+          />
+        ) : currentWeapon === WeaponType.SABRES ? (
+          <Sabres 
+            isSwinging={isSwinging} 
+            onSwingComplete={handleSwingComplete}
+          />
+        ) : currentWeapon === WeaponType.SCYTHE ? (
           <Scythe 
             parentRef={groupRef}
             isSwinging={isSwinging} 

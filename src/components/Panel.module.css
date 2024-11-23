@@ -33,3 +33,21 @@
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
     border-radius: 50%;
   }
+
+  .bottomPanel {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 15px;
+    border-radius: 10px;
+    z-index: 1000;
+  }
+
+  .activeWeapon {
+    border: 2px solid #39ff14;
+    border-radius: 5px;
+  }
