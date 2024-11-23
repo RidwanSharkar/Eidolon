@@ -12,11 +12,24 @@
     top: 50%;
     right: 10px;
     transform: translateY(-50%);
-    /* Additional styling */
   }
   
   .leftPanel img {
     width: 50px;
     margin-bottom: 10px;
     cursor: pointer;
+    transition: all 0.2s ease;
+    filter: brightness(0.7);
+  }
+
+  .leftPanel img:hover {
+    filter: brightness(0.9);
+    transform: scale(1.1);
+  }
+
+  .activeWeapon {
+    filter: brightness(1) !important;
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
   }

@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { Mesh, Vector3,} from 'three';
+import { Mesh, Vector3, Color } from 'three';
 import * as THREE from 'three';
 
 interface TreeProps {
@@ -7,36 +7,22 @@ interface TreeProps {
   position?: Vector3;
   scale?: number;
   isInteractive?: boolean;
+  trunkColor: Color;
+  leafColor: Color;
 }
-
-// Natural color palettes
-const trunkColors = [
-  "#3b2616", // Dark brown
-  "#4a3421", // Medium brown
-  "#5c4033", // Chestnut
-  "#654321", // Dark golden brown
-  "#8b7355", // Wood brown
-];
-
-const leafColors = [
-  "#228b22", // Forest green
-  "#3a5f0b", // Dark olive green
-];
 
 export default function Tree({ 
   health, 
   position = new Vector3(0, 2, -5),
   scale = 1,
-  isInteractive = false 
+  isInteractive = false,
+  trunkColor,
+  leafColor,
 }: TreeProps) {
   const treeRef = useRef<Mesh>(null);
 
-  // Randomly select colors from palettes
-  const trunkColor = trunkColors[Math.floor(Math.random() * trunkColors.length)];
-  const leafColor = leafColors[Math.floor(Math.random() * leafColors.length)];
-  
-  // Slightly vary the selected colors
-  const varyColor = (baseColor: string, range: number = 0.1) => {
+  // Function to slightly vary the provided colors
+  const varyColor = (baseColor: Color, range: number = 0.1) => {
     const color = new THREE.Color(baseColor);
     color.r += (Math.random() - 0.5) * range;
     color.g += (Math.random() - 0.5) * range;

@@ -4,11 +4,19 @@ import { useFrame, useThree } from '@react-three/fiber';
 import Fireball from './Fireball';
 import { OrbitControls as OrbitControlsImpl } from 'three/examples/jsm/controls/OrbitControls';
 import Scythe from './Scythe';
+import Sword from './Sword';
 import GhostTrail from './GhostTrail';
+
+// Add weapon type enum
+export enum WeaponType {
+  SCYTHE = 'scythe',
+  SWORD = 'sword'
+}
 
 interface UnitProps {
   onHit: () => void;
   controlsRef: React.RefObject<OrbitControlsImpl>;
+  currentWeapon: WeaponType;
 }
 
 // ORBIT AURA
@@ -65,7 +73,7 @@ const OrbitalParticles = ({ parentRef }: { parentRef: React.RefObject<Group> }) 
   );
 };
 
-export default function Unit({ onHit, controlsRef }: UnitProps) {
+export default function Unit({ onHit, controlsRef, currentWeapon }: UnitProps) {
   const groupRef = useRef<Group>(null);
   const [isSwinging, setIsSwinging] = useState(false);
   const [fireballs, setFireballs] = useState<{ id: number; position: Vector3; direction: Vector3 }[]>([]);
@@ -223,11 +231,19 @@ export default function Unit({ onHit, controlsRef }: UnitProps) {
         </mesh>
 
         <OrbitalParticles parentRef={groupRef} />
-        <Scythe 
-          parentRef={groupRef}
-          isSwinging={isSwinging} 
-          onSwingComplete={handleSwingComplete} 
-        />
+        {currentWeapon === WeaponType.SCYTHE ? (
+          <Scythe 
+            parentRef={groupRef}
+            isSwinging={isSwinging} 
+            onSwingComplete={handleSwingComplete} 
+          />
+        ) : (
+          <Sword
+            parentRef={groupRef}
+            isSwinging={isSwinging}
+            onSwingComplete={handleSwingComplete}
+          />
+        )}
       </group>
 
       {/* Add ghost trail effect */}

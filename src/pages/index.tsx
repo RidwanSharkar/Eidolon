@@ -10,6 +10,8 @@ import Tree from '../components/Tree';
 import Unit from '../components/Unit';
 import Panel from '../components/Panel';
 import { Mesh, Color } from 'three';
+import { WeaponType } from '@/components/Unit';
+import { trunkColors, leafColors } from '@/utils/colors';
 
 // DISGUSTINGLY PACKED - MOVE ALL DIS TOM FOOLERY m8
 const SunsetSkyShader = {
@@ -150,129 +152,48 @@ const Mushroom: React.FC<MushroomProps> = ({ position, scale }) => {
   );
 };
 
+// Define the GeneratedTree interface
+interface GeneratedTree {
+  position: THREE.Vector3;
+  scale: number;
+  health: number;
+  trunkColor: THREE.Color;
+  leafColor: THREE.Color;
+}
+
+// Home Component
 export default function Home() {
   const [treeHealth, setTreeHealth] = useState(3);
+  const [currentWeapon, setCurrentWeapon] = useState<WeaponType>(WeaponType.SCYTHE);
   const controlsRef = useRef<OrbitControlsImpl>(null);
+
+  // Define the main tree position
+  const treePositions = useMemo(() => ({
+    mainTree: new THREE.Vector3(0, 2, -5),
+  }), []);
 
   const handleTreeDamage = () => {
     setTreeHealth((prev) => Math.max(0, prev - 1));
   };
 
-  const generateMountains = () => {
-    const positions: Array<{ position: THREE.Vector3; scale: number }> = [];
+  // Memoize mountain data
+  const mountainData = useMemo(() => generateMountains(), []);
 
-    // Parameters for mountain generation
-    const layerCount = 3; // Number of circular layers
-    const baseRadius = 45; // Starting radius
-    const radiusIncrement = 5; // Distance between layers
-    const mountainsPerLayer = 40; // Increased density
-    const angleOffset = (Math.PI * 2) / (mountainsPerLayer * 2); // Offset for staggered placement
+  // Memoize tree data
+  const treeData: GeneratedTree[] = useMemo(() => generateTrees(), []);
 
-    // Generate multiple layers of mountains
-    for (let layer = 0; layer < layerCount; layer++) {
-      const radius = baseRadius + layer * radiusIncrement;
+  // Memoize mushroom data
+  const mushroomData = useMemo(() => generateMushrooms(), []);
 
-      // Generate main mountains for this layer
-      for (let i = 0; i < mountainsPerLayer; i++) {
-        const angle = (i / mountainsPerLayer) * Math.PI * 2;
-        const x = radius * Math.cos(angle);
-        const z = radius * Math.sin(angle);
-
-        // Random scale between 0.7 and 1.3
-        const scale = 0.7 + Math.random() * 0.6;
-
-        positions.push({
-          position: new THREE.Vector3(x, 0, z),
-          scale: scale,
-        });
-
-        // Add intermediate mountains with slight position variation
-        if (layer < layerCount - 1) {
-          const intermediateAngle = angle + angleOffset;
-          const intermediateRadius = radius + radiusIncrement * 0.5;
-          const ix = intermediateRadius * Math.cos(intermediateAngle);
-          const iz = intermediateRadius * Math.sin(intermediateAngle);
-
-          // Slightly smaller scale for intermediate mountains
-          const intermediateScale = 0.6 + Math.random() * 0.4;
-
-          positions.push({
-            position: new THREE.Vector3(ix, 0, iz),
-            scale: intermediateScale,
-          });
-        }
-      }
-    }
-
-    return positions;
-  };
-
-  const mountainData = generateMountains();
-
-  const generateTrees = () => {
-    const trees: Array<{ position: THREE.Vector3; scale: number; health: number }> = [];
-    const numberOfClusters = 15; // Increased from 8 to 15 clusters
-    const treesPerCluster = 8; // Increased base trees per cluster
-
-    // Generate cluster center points
-    for (let i = 0; i < numberOfClusters; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const distance = 10 + Math.random() * 30; // Wider range: between 10 and 40 units
-
-      const clusterX = Math.cos(angle) * distance;
-      const clusterZ = Math.sin(angle) * distance;
-
-      // Generate trees for this cluster
-      const numberOfTreesInCluster = treesPerCluster + Math.floor(Math.random() * 5); // 8-12 trees per cluster
-
-      for (let j = 0; j < numberOfTreesInCluster; j++) {
-        // Random offset from cluster center with varying distances
-        const offsetDistance = Math.random() * (6 + ((j % 3) * 2)); // Creates more natural spread
-        const offsetAngle = Math.random() * Math.PI * 2;
-
-        const treeX = clusterX + Math.cos(offsetAngle) * offsetDistance;
-        const treeZ = clusterZ + Math.sin(offsetAngle) * offsetDistance;
-
-        // More varied tree sizes
-        const scale = 0.4 + Math.random() * 1.6; // Between 0.4 and 2.0
-
-        trees.push({
-          position: new THREE.Vector3(treeX, 0, treeZ),
-          scale: scale,
-          health: 3,
-        });
-      }
-    }
-
-    return trees;
-  };
-
-  const treeData = generateTrees();
-
-  // MUSHROOMS
-  const generateMushrooms = () => {
-    const mushrooms: Array<{ position: THREE.Vector3; scale: number }> = [];
-    const numberOfMushrooms = 100; // Adjust as needed
-
-    for (let i = 0; i < numberOfMushrooms; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const distance = Math.random() * 45; // Within the baseRadius + layers
-
-      const x = distance * Math.cos(angle);
-      const z = distance * Math.sin(angle);
-
-      const scale = 0.3 + Math.random() * 0.2; // Small mushrooms
-
-      mushrooms.push({
-        position: new THREE.Vector3(x, 0, z),
-        scale: scale,
-      });
-    }
-
-    return mushrooms;
-  };
-
-  const mushroomData = generateMushrooms();
+  // Assign consistent colors to the interactive tree using useMemo
+  const interactiveTrunkColor = useMemo(() => 
+    new THREE.Color(trunkColors[Math.floor(Math.random() * trunkColors.length)]),
+    []
+  );
+  const interactiveLeafColor = useMemo(() => 
+    new THREE.Color(leafColors[Math.floor(Math.random() * leafColors.length)]),
+    []
+  );
 
   return (
     <div style={{ height: '100vh', position: 'relative' }}>
@@ -318,9 +239,16 @@ export default function Home() {
         ))}
         <GravelPath />
 
-        {/* Render all trees */}
+        {/* Render all trees with fixed colors */}
         {treeData.map((data, index) => (
-          <Tree key={`tree-${index}`} position={data.position} scale={data.scale} health={3} />
+          <Tree 
+            key={`tree-${index}`} 
+            position={data.position} 
+            scale={data.scale} 
+            health={data.health} 
+            trunkColor={data.trunkColor} // Now a THREE.Color
+            leafColor={data.leafColor}   // Now a THREE.Color
+          />
         ))}
 
         {/* Render all mushrooms */}
@@ -328,12 +256,130 @@ export default function Home() {
           <Mushroom key={`mushroom-${index}`} position={data.position} scale={data.scale} />
         ))}
 
-        {/* Keep the original interactive tree */}
-        <Tree position={new THREE.Vector3(0, 2, -5)} scale={1} health={treeHealth} isInteractive={true} />
+        {/* Keep the original interactive tree with consistent colors */}
+        <Tree 
+          position={treePositions.mainTree} 
+          scale={1} 
+          health={treeHealth} 
+          isInteractive={true} 
+          trunkColor={interactiveTrunkColor} // Now a THREE.Color
+          leafColor={interactiveLeafColor}   // Now a THREE.Color
+        />
 
-        <Unit onHit={handleTreeDamage} controlsRef={controlsRef} />
+        <Unit onHit={handleTreeDamage} controlsRef={controlsRef} currentWeapon={currentWeapon} />
       </Canvas>
-      <Panel />
+      <Panel currentWeapon={currentWeapon} onWeaponSelect={setCurrentWeapon} />
     </div>
   );
 }
+
+// Generation Functions (Move these inside the Home component or outside but ensure they don't rely on component state)
+const generateMountains = () => {
+  const positions: Array<{ position: THREE.Vector3; scale: number }> = [];
+
+  // Parameters for mountain generation
+  const layerCount = 3; // Number of circular layers
+  const baseRadius = 45; // Starting radius
+  const radiusIncrement = 5; // Distance between layers
+  const mountainsPerLayer = 40; // Increased density
+  const angleOffset = (Math.PI * 2) / (mountainsPerLayer * 2); // Offset for staggered placement
+
+  // Generate multiple layers of mountains
+  for (let layer = 0; layer < layerCount; layer++) {
+    const radius = baseRadius + layer * radiusIncrement;
+
+    // Generate main mountains for this layer
+    for (let i = 0; i < mountainsPerLayer; i++) {
+      const angle = (i / mountainsPerLayer) * Math.PI * 2;
+      const x = radius * Math.cos(angle);
+      const z = radius * Math.sin(angle);
+
+      // Random scale between 0.7 and 1.3
+      const scale = 0.7 + Math.random() * 0.6;
+
+      positions.push({
+        position: new THREE.Vector3(x, 0, z),
+        scale: scale,
+      });
+
+      // Add intermediate mountains with slight position variation
+      if (layer < layerCount - 1) {
+        const intermediateAngle = angle + angleOffset;
+        const intermediateRadius = radius + radiusIncrement * 0.5;
+        const ix = intermediateRadius * Math.cos(intermediateAngle);
+        const iz = intermediateRadius * Math.sin(intermediateAngle);
+
+        // Slightly smaller scale for intermediate mountains
+        const intermediateScale = 0.6 + Math.random() * 0.4;
+
+        positions.push({
+          position: new THREE.Vector3(ix, 0, iz),
+          scale: intermediateScale,
+        });
+      }
+    }
+  }
+
+  return positions;
+};
+
+const generateTrees = (): GeneratedTree[] => {
+  const trees: GeneratedTree[] = [];
+  const numberOfClusters = 15;
+  const treesPerCluster = 8;
+
+  for (let i = 0; i < numberOfClusters; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 10 + Math.random() * 30;
+
+    const clusterX = Math.cos(angle) * distance;
+    const clusterZ = Math.sin(angle) * distance;
+
+    const numberOfTreesInCluster = treesPerCluster + Math.floor(Math.random() * 5);
+
+    for (let j = 0; j < numberOfTreesInCluster; j++) {
+      const offsetDistance = Math.random() * (6 + ((j % 3) * 2));
+      const offsetAngle = Math.random() * Math.PI * 2;
+
+      const treeX = clusterX + Math.cos(offsetAngle) * offsetDistance;
+      const treeZ = clusterZ + Math.sin(offsetAngle) * offsetDistance;
+
+      const scale = 0.4 + Math.random() * 1.6;
+
+      const trunkColor = trunkColors[Math.floor(Math.random() * trunkColors.length)];
+      const leafColor = leafColors[Math.floor(Math.random() * leafColors.length)];
+
+      trees.push({
+        position: new THREE.Vector3(treeX, 0, treeZ),
+        scale: scale,
+        health: 3,
+        trunkColor: new THREE.Color(trunkColor), // Ensure it's a THREE.Color
+        leafColor: new THREE.Color(leafColor),   // Ensure it's a THREE.Color
+      });
+    }
+  }
+
+  return trees;
+};
+
+const generateMushrooms = () => {
+  const mushrooms: Array<{ position: THREE.Vector3; scale: number }> = [];
+  const numberOfMushrooms = 100; // Adjust as needed
+
+  for (let i = 0; i < numberOfMushrooms; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const distance = Math.random() * 45; // Within the baseRadius + layers
+
+    const x = distance * Math.cos(angle);
+    const z = distance * Math.sin(angle);
+
+    const scale = 0.3 + Math.random() * 0.2; // Small mushrooms
+
+    mushrooms.push({
+      position: new THREE.Vector3(x, 0, z),
+      scale: scale,
+    });
+  }
+
+  return mushrooms;
+};
