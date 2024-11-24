@@ -9,6 +9,7 @@ import GhostTrail from './GhostTrail';
 import Sabres from './Sabres';
 import Sabres2 from './Sabres2';
 import Billboard from './Billboard';
+import Smite from './Smite';
 
 // WeaponType enum
 export enum WeaponType {
@@ -84,6 +85,9 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
     s: false,
     d: false
   });
+  const [isSmiting, setIsSmiting] = useState(false);
+  const [smiteEffects, setSmiteEffects] = useState<{ id: number; position: Vector3 }[]>();
+  const nextSmiteId = useRef(0);
 
   const shootFireball = () => {
     if (!groupRef.current) return;
@@ -171,7 +175,19 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
       }
 
       if (key === 'e') {
-        shootFireball();
+        if (currentWeapon === WeaponType.SWORD) {
+          if (!isSmiting) {
+            setIsSmiting(true);
+            const targetPos = groupRef.current!.position.clone();
+            targetPos.add(new Vector3(0, 0, 3.5).applyQuaternion(groupRef.current!.quaternion));
+            setSmiteEffects(prev => [...(prev || []), { 
+              id: nextSmiteId.current++, 
+              position: targetPos 
+            }]);
+          }
+        } else {
+          shootFireball();
+        }
       }
 
       // Weapon selection using number keys
@@ -208,10 +224,18 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [isSwinging, onWeaponSelect]);
+  }, [isSwinging, onWeaponSelect, isSmiting, currentWeapon]);
 
   const handleSwingComplete = () => {
     setIsSwinging(false);
+  };
+
+  const handleSmiteComplete = () => {
+    setIsSmiting(false);
+  };
+
+  const handleSmiteEffectComplete = (id: number) => {
+    setSmiteEffects(prev => prev?.filter(effect => effect.id !== id));
   };
 
   // Add hit detection for sword swings
@@ -292,9 +316,10 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
           />
         ) : (
           <Sword
-            parentRef={groupRef}
             isSwinging={isSwinging}
+            isSmiting={isSmiting}
             onSwingComplete={handleSwingComplete}
+            onSmiteComplete={handleSmiteComplete}
           />
         )}
 
@@ -328,6 +353,14 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
           position={fireball.position}
           direction={fireball.direction}
           onImpact={() => handleFireballImpact(fireball.id)}
+        />
+      ))}
+
+      {smiteEffects?.map(effect => (
+        <Smite
+          key={effect.id}
+          position={effect.position}
+          onComplete={() => handleSmiteEffectComplete(effect.id)}
         />
       ))}
     </>

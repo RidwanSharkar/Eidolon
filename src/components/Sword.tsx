@@ -1,32 +1,78 @@
 interface SwordProps {
   isSwinging: boolean;
+  isSmiting: boolean;
   onSwingComplete: () => void;
-  parentRef: React.RefObject<Group>;
+  onSmiteComplete: () => void;
 }
 
 import { useRef } from 'react';
 import { Group, Shape } from 'three';
 import { useFrame } from '@react-three/fiber';
 
-export default function Sword({ isSwinging, onSwingComplete }: SwordProps) {
+export default function Sword({ isSwinging, isSmiting, onSwingComplete, onSmiteComplete }: SwordProps) {
   const swordRef = useRef<Group>(null);
   const swingProgress = useRef(0);
+  const smiteProgress = useRef(0);
   const basePosition = [-1.33, 0.75, 0.75] as const;
   
   useFrame((_, delta) => {
-    if (isSwinging && swordRef.current) {
-      swingProgress.current += delta * 7; // Slightly faster swing
+    if (!swordRef.current) return;
+
+    if (isSmiting) {
+      smiteProgress.current += delta * (smiteProgress.current < Math.PI/2 ? 3 : 6);
+      const smitePhase = Math.min(smiteProgress.current / Math.PI, 1);
       
+      let rotationX, rotationY, positionX, positionY, positionZ;
+      
+      if (smitePhase < 0.5) {
+        // Wind-up phase: pull back and up, with more movement towards center
+        const windupPhase = smitePhase * 2;
+        rotationX = -Math.PI/3 - (windupPhase * Math.PI/3);
+        rotationY = windupPhase * Math.PI/4;
+        
+        // Move even more towards center during windup
+        positionX = basePosition[0] + (windupPhase * 1.5);
+        positionY = basePosition[1] + windupPhase * 1.5;
+        positionZ = basePosition[2] - windupPhase * 1.5;
+      } else {
+        // Strike phase: swing down towards center point
+        const strikePhase = (smitePhase - 0.5) * 2;
+        rotationX = -2*Math.PI/3 + (strikePhase * 3*Math.PI/2);
+        rotationY = (Math.PI/4) * (1 - strikePhase);
+        
+        // Strike further towards center
+        positionX = basePosition[0] + (1.5 * (1 - strikePhase));
+        positionY = basePosition[1] + (1.5 - strikePhase * 2.0);
+        positionZ = basePosition[2] - (1.5 - strikePhase * 3.0);
+      }
+      
+      swordRef.current.position.set(
+        positionX,
+        positionY,
+        positionZ
+      );
+      
+      swordRef.current.rotation.set(rotationX, rotationY, 0);
+      
+      if (smiteProgress.current >= Math.PI) {
+        smiteProgress.current = 0;
+        swordRef.current.rotation.set(0, 0, 0);
+        swordRef.current.position.set(...basePosition);
+        onSmiteComplete();
+      }
+      return;
+    }
+
+    if (isSwinging) {
+      swingProgress.current += delta * 7;
       const swingPhase = Math.min(swingProgress.current / Math.PI, 1);
       
-      // Modified arc movement for a more sword-like slash
       const pivotX = basePosition[0] + Math.sin(swingPhase * Math.PI) * 2.5;
       const pivotY = basePosition[1] + Math.sin(swingPhase * Math.PI) * -1.0;
       const pivotZ = basePosition[2] + Math.cos(swingPhase * Math.PI) * 2.0;
       
       swordRef.current.position.set(pivotX, pivotY, pivotZ);
       
-      // Modified rotation for a diagonal slash
       const rotationX = Math.sin(swingPhase * Math.PI * 0.8) * (Math.PI / 3);
       const rotationY = Math.sin(swingPhase * Math.PI) * Math.PI;
       const rotationZ = Math.sin(swingPhase * Math.PI * 0.9) * (Math.PI / 3);
@@ -36,10 +82,10 @@ export default function Sword({ isSwinging, onSwingComplete }: SwordProps) {
       if (swingProgress.current >= Math.PI) {
         swingProgress.current = 0;
         swordRef.current.rotation.set(0, 0, 0);
-        swordRef.current.position.set(basePosition[0], basePosition[1], basePosition[2]);
+        swordRef.current.position.set(...basePosition);
         onSwingComplete();
       }
-    } else if (!isSwinging && swordRef.current) {
+    } else if (!isSwinging && !isSmiting) {
       swordRef.current.rotation.x *= 0.85;
       swordRef.current.rotation.y *= 0.85;
       swordRef.current.rotation.z *= 0.85;
