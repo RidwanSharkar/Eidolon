@@ -10,6 +10,7 @@ import Sabres from './Sabres';
 import Sabres2 from './Sabres2';
 import Billboard from './Billboard';
 import Smite from './Smite';
+import DamageNumber from './DamageNumber';
 
 // WeaponType enum
 export enum WeaponType {
@@ -19,15 +20,31 @@ export enum WeaponType {
   SABRES2 = 'sabres2'
 }
 
-interface UnitProps {
-  onDummyHit: () => void;
+// Add export to the interface declaration
+export interface UnitProps {
+  onDummyHit: (dummyId: 'dummy1' | 'dummy2', damage: number) => void;
   controlsRef: React.RefObject<OrbitControlsImpl>;
   currentWeapon: WeaponType;
   onWeaponSelect: (weapon: WeaponType) => void;
   health: number;
   maxHealth: number;
   isPlayer?: boolean;
+  abilities: WeaponInfo;
+  onAbilityUse: (weapon: WeaponType, ability: 'q' | 'e') => void;
 }
+
+const calculateDamage = (baseAmount: number): { damage: number; isCritical: boolean } => {
+  const isCritical = Math.random() < 0.15; // 15% chance
+  const damage = isCritical ? baseAmount * 2 : baseAmount;
+  return { damage, isCritical };
+};
+
+const WEAPON_DAMAGES = {
+  [WeaponType.SWORD]: { normal: 10, special: 25 },
+  [WeaponType.SCYTHE]: { normal: 7, special: 15 },
+  [WeaponType.SABRES]: { normal: 6, special: 0 }, // Special not used
+  [WeaponType.SABRES2]: { normal: 6, special: 0 }, // Special not used
+};
 
 const OrbitalParticles = ({ parentRef }: { parentRef: React.RefObject<Group> }) => {
   const particlesRef = useRef<Mesh[]>([]);
@@ -72,7 +89,7 @@ const OrbitalParticles = ({ parentRef }: { parentRef: React.RefObject<Group> }) 
   );
 };
 
-export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponSelect, health, maxHealth, isPlayer = false }: UnitProps) {
+export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponSelect, health, maxHealth, isPlayer = false, abilities, onAbilityUse }: UnitProps) {
   const groupRef = useRef<Group>(null);
   const [isSwinging, setIsSwinging] = useState(false);
   const [fireballs, setFireballs] = useState<{ id: number; position: Vector3; direction: Vector3 }[]>([]);
@@ -88,6 +105,13 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
   const [isSmiting, setIsSmiting] = useState(false);
   const [smiteEffects, setSmiteEffects] = useState<{ id: number; position: Vector3 }[]>();
   const nextSmiteId = useRef(0);
+  const [damageNumbers, setDamageNumbers] = useState<{
+    id: number;
+    damage: number;
+    position: Vector3;
+    isCritical: boolean;
+  }[]>([]);
+  const nextDamageNumberId = useRef(0);
 
   const shootFireball = () => {
     if (!groupRef.current) return;
@@ -107,6 +131,23 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
 
   const handleFireballImpact = (id: number) => {
     setFireballs(prev => prev.filter(fireball => fireball.id !== id));
+  };
+
+  const handleWeaponHit = (targetPosition: Vector3) => {
+    if (!groupRef.current || !isSwinging) return null;
+    
+    const distance = groupRef.current.position.distanceTo(targetPosition);
+    const weaponRange = 3;
+    
+    if (distance <= weaponRange) {
+      const baseDamage = isSmiting && currentWeapon === WeaponType.SWORD
+        ? WEAPON_DAMAGES[WeaponType.SWORD].special 
+        : WEAPON_DAMAGES[currentWeapon].normal;
+
+      const { damage, isCritical } = calculateDamage(baseDamage);
+      return { damage, isCritical };
+    }
+    return null;
   };
 
   useFrame(() => {
@@ -144,20 +185,30 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
     }
 
     if (isSwinging && groupRef.current) {
-      const unitPosition = groupRef.current.position;
-      const treePosition = new Vector3(0, 2, -5);
-      const distance = unitPosition.distanceTo(treePosition);
-      
-      if (distance < 3) {
-        onDummyHit();
-      }
-    }
-
-    // Check for sword hits during swing
-    if (isSwinging && currentWeapon === WeaponType.SWORD && groupRef.current) {
       const dummyPosition = new Vector3(5, 0, 5);
-      if (handleSwordHit(dummyPosition)) {
-        onDummyHit();
+      const dummy2Position = new Vector3(-5, 0, 5);
+      
+      const dummy1Hit = handleWeaponHit(dummyPosition);
+      const dummy2Hit = handleWeaponHit(dummy2Position);
+      
+      if (dummy1Hit) {
+        onDummyHit('dummy1', dummy1Hit.damage);
+        setDamageNumbers(prev => [...prev, {
+          id: nextDamageNumberId.current++,
+          damage: dummy1Hit.damage,
+          position: dummyPosition,
+          isCritical: dummy1Hit.isCritical
+        }]);
+      }
+      
+      if (dummy2Hit) {
+        onDummyHit('dummy2', dummy2Hit.damage);
+        setDamageNumbers(prev => [...prev, {
+          id: nextDamageNumberId.current++,
+          damage: dummy2Hit.damage,
+          position: dummy2Position,
+          isCritical: dummy2Hit.isCritical
+        }]);
       }
     }
   });
@@ -170,13 +221,18 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
         keys.current[key as keyof typeof keys.current] = true;
       }
 
-      if (key === 'q' && !isSwinging) {
-        setIsSwinging(true);
+      if (key === 'q') {
+        const qAbility = abilities[currentWeapon].q;
+        if (qAbility.currentCooldown <= 0 && !isSwinging) {
+          setIsSwinging(true);
+          onAbilityUse(currentWeapon, 'q');
+        }
       }
 
       if (key === 'e') {
-        if (currentWeapon === WeaponType.SWORD) {
-          if (!isSmiting) {
+        const eAbility = abilities[currentWeapon].e;
+        if (eAbility.currentCooldown <= 0) {
+          if (currentWeapon === WeaponType.SWORD && !isSmiting) {
             setIsSmiting(true);
             const targetPos = groupRef.current!.position.clone();
             targetPos.add(new Vector3(0, 0, 3.5).applyQuaternion(groupRef.current!.quaternion));
@@ -184,9 +240,11 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
               id: nextSmiteId.current++, 
               position: targetPos 
             }]);
+            onAbilityUse(currentWeapon, 'e');
+          } else if (currentWeapon !== WeaponType.SWORD) {
+            shootFireball();
+            onAbilityUse(currentWeapon, 'e');
           }
-        } else {
-          shootFireball();
         }
       }
 
@@ -224,7 +282,7 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [isSwinging, onWeaponSelect, isSmiting, currentWeapon]);
+  }, [isSwinging, onWeaponSelect, isSmiting, currentWeapon, abilities, onAbilityUse]);
 
   const handleSwingComplete = () => {
     setIsSwinging(false);
@@ -238,26 +296,8 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
     setSmiteEffects(prev => prev?.filter(effect => effect.id !== id));
   };
 
-  // Add hit detection for sword swings
-  const handleSwordHit = (targetPosition: Vector3) => {
-    if (!groupRef.current || !isSwinging) return false;
-    
-    const distance = groupRef.current.position.distanceTo(targetPosition);
-    const swordRange = 3; // Adjust based on sword size
-    
-    // Check if target is within sword range and swing arc
-    if (distance <= swordRange) {
-      // Calculate angle between unit's forward direction and target
-      const forward = new Vector3(0, 0, 1).applyQuaternion(groupRef.current.quaternion);
-      const toTarget = targetPosition.clone().sub(groupRef.current.position).normalize();
-      const angle = forward.angleTo(toTarget);
-      
-      // Check if target is within swing arc (120 degrees)
-      if (angle <= Math.PI / 1.5) {
-        return true;
-      }
-    }
-    return false;
+  const handleDamageNumberComplete = (id: number) => {
+    setDamageNumbers(prev => prev.filter(dn => dn.id !== id));
   };
 
   return (
@@ -361,6 +401,16 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
           key={effect.id}
           position={effect.position}
           onComplete={() => handleSmiteEffectComplete(effect.id)}
+        />
+      ))}
+
+      {damageNumbers.map(dn => (
+        <DamageNumber
+          key={dn.id}
+          damage={dn.damage}
+          position={dn.position}
+          isCritical={dn.isCritical}
+          onComplete={() => handleDamageNumberComplete(dn.id)}
         />
       ))}
     </>

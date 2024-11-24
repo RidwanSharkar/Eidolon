@@ -125,13 +125,13 @@ interface SabreProps {
       // Ornate guard shape
       shape.lineTo(-0.15, 0.1);
       shape.lineTo(-0.2, 0);  // Deeper notch
-      shape.lineTo(-0.1, -0.05);
+      shape.lineTo(-0.2, -0.05);
       shape.lineTo(0, 0);
   
       // Mirror for right side of guard
       shape.lineTo(0.15, 0.1);
       shape.lineTo(0.2, 0);   // Deeper notch
-      shape.lineTo(0.1, -0.05);
+      shape.lineTo(0.3, 0.0);
       shape.lineTo(0, 0);
   
       // Elegant curved blade shape

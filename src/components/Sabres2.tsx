@@ -16,8 +16,8 @@ interface SabreProps {
     const rightSabreRef = useRef<Group>(null);
     const rightSwingProgress = useRef(0);
   
-    const leftBasePosition = [-0.8, 0.75, 0.75] as const;
-    const rightBasePosition = [0.8, 0.75, 0.75] as const;
+    const leftBasePosition = [-1.2, 0.75, -0] as const;
+    const rightBasePosition = [1.2, 0.75, -0] as const;
   
     // Ref for tracking right swing delay
     const rightSwingDelay = useRef(0);
@@ -54,7 +54,7 @@ interface SabreProps {
   
         // Handle right sabre swing with delay
         if (rightSabreRef.current) {
-          if (rightSwingDelay.current < 0.15) {
+          if (rightSwingDelay.current < 0.1) {
             rightSwingDelay.current += delta;
           } else {
             rightSwingProgress.current += delta * 7; // Slightly faster swing
@@ -118,24 +118,24 @@ interface SabreProps {
       // Start at center
       shape.moveTo(0, 0);
   
-      // Narrow guard shape
-      shape.lineTo(-0.125, 0.075);
-      shape.lineTo(-0.075, -0.075);
+      // Narrow guard shape - scaled up by ~20%
+      shape.lineTo(-0.15, 0.09);    // Increased from -0.125, 0.075
+      shape.lineTo(-0.09, -0.09);   // Increased from -0.075, -0.075
       shape.lineTo(0, 0);
   
       // Mirror for right side
-      shape.lineTo(0.125, 0.075);
-      shape.lineTo(0.075, -0.075);
+      shape.lineTo(0.15, 0.09);     // Increased from 0.125, 0.075
+      shape.lineTo(0.09, -0.09);    // Increased from 0.075, -0.075
       shape.lineTo(0, 0);
   
-      // Narrow blade shape
-      shape.lineTo(0, 0.06);
-      shape.lineTo(0.125, 0.125);
-      shape.quadraticCurveTo(0.5, 0.1, 0.75, 0.125); // Reduced height
-      shape.quadraticCurveTo(1.0, 0.075, 1.1, 0);     // Reduced height
-      shape.quadraticCurveTo(1.0, -0.075, 0.75, -0.125);
-      shape.quadraticCurveTo(0.5, -0.1, 0.125, -0.125);
-      shape.lineTo(0, -0.06);
+      // Narrow blade shape - scaled up by ~20%
+      shape.lineTo(0, 0.072);       // Increased from 0.06
+      shape.lineTo(0.15, 0.15);     // Increased from 0.125, 0.125
+      shape.quadraticCurveTo(0.6, 0.12, 0.9, 0.15);    // Increased from 0.5, 0.1, 0.75, 0.125
+      shape.quadraticCurveTo(1.2, 0.09, 1.32, 0);      // Increased from 1.0, 0.075, 1.1, 0
+      shape.quadraticCurveTo(1.2, -0.09, 0.9, -0.15);  // Increased from 1.0, -0.075, 0.75, -0.125
+      shape.quadraticCurveTo(0.6, -0.12, 0.15, -0.15); // Increased from 0.5, -0.1, 0.125, -0.125
+      shape.lineTo(0, -0.072);      // Increased from -0.06
       shape.lineTo(0, 0);
   
       return shape;
@@ -149,23 +149,23 @@ interface SabreProps {
       shape.moveTo(0, 0);
   
       // Match outer guard shape but slightly smaller
-      shape.lineTo(-0.1, 0.09);
-      shape.lineTo(-0.06, -0.09);
+      shape.lineTo(-0.12, 0.108);   // Increased from -0.1, 0.09
+      shape.lineTo(-0.072, -0.108); // Increased from -0.06, -0.09
       shape.lineTo(0, 0);
   
       // Mirror for right side
-      shape.lineTo(0.1, 0.09);
-      shape.lineTo(0.06, -0.09);
+      shape.lineTo(0.12, 0.108);    // Increased from 0.1, 0.09
+      shape.lineTo(0.072, -0.108);  // Increased from 0.06, -0.09
       shape.lineTo(0, 0);
   
       // Match outer blade shape but slightly smaller
-      shape.lineTo(0, 0.05);
-      shape.lineTo(0.1, 0.1);
-      shape.quadraticCurveTo(0.5, 0.075, 0.75, 0.1);
-      shape.quadraticCurveTo(1.0, 0.06, 1.1, 0);
-      shape.quadraticCurveTo(1.0, -0.06, 0.75, -0.1);
-      shape.quadraticCurveTo(0.5, -0.075, 0.1, -0.1);
-      shape.lineTo(0, -0.05);
+      shape.lineTo(0, 0.06);
+      shape.lineTo(0.12, 0.12);     // Increased from 0.1, 0.1
+      shape.quadraticCurveTo(0.6, 0.09, 0.9, 0.12);   // Increased from 0.5, 0.075, 0.75, 0.1
+      shape.quadraticCurveTo(1.2, 0.072, 1.32, 0);    // Increased from 1.0, 0.06, 1.1, 0
+      shape.quadraticCurveTo(1.2, -0.072, 0.9, -0.12); // Increased from 1.0, -0.06, 0.75, -0.1
+      shape.quadraticCurveTo(0.6, -0.09, 0.12, -0.12); // Increased from 0.5, -0.075, 0.1, -0.1
+      shape.lineTo(0, -0.06);
       shape.lineTo(0, 0);
   
       return shape;
@@ -173,26 +173,26 @@ interface SabreProps {
   
     const bladeExtrudeSettings = {
       steps: 2,
-      depth: 0.02,
+      depth: 0.024,           // Increased from 0.02
       bevelEnabled: true,
-      bevelThickness: 0.005,
-      bevelSize: 0.01,
+      bevelThickness: 0.006,  // Increased from 0.005
+      bevelSize: 0.012,       // Increased from 0.01
       bevelSegments: 2,
     };
   
     const innerBladeExtrudeSettings = {
       ...bladeExtrudeSettings,
-      depth: 0.03,            // Slightly thinner
-      bevelThickness: 0.005, // Smaller bevel
-      bevelSize: 0.005,       // Smaller bevel size
-      bevelOffset: 0,         // Ensure it's centered
+      depth: 0.036,           // Increased from 0.03
+      bevelThickness: 0.006,  // Increased from 0.005
+      bevelSize: 0.006,       // Increased from 0.005
+      bevelOffset: 0,
     };
   
     return (
       <group 
         position={[0, 0, 0]} 
         rotation={[0, 0, 0]}
-        scale={[0.8, 0.8, 0.8]}
+        scale={[1.0, 1.0, 1.0]}  // Increased from [0.8, 0.8, 0.8]
       >
         {/* Left Sabre */}
         <group 
@@ -223,9 +223,9 @@ interface SabreProps {
             <mesh>
               <extrudeGeometry args={[createBladeShape(), bladeExtrudeSettings]} />
               <meshStandardMaterial 
-                color="#d8e8ff"
-                metalness={0.4}
-                roughness={0.1}
+                color="#ff1a1a"
+                metalness={0.9}
+                roughness={0.3}
               />
             </mesh>
             
@@ -234,8 +234,8 @@ interface SabreProps {
               <extrudeGeometry args={[createInnerBladeShape(), innerBladeExtrudeSettings]} />
               <meshStandardMaterial 
                 color="#ffffff"
-                emissive="#a0d4ff"
-                emissiveIntensity={4}
+                emissive="#ff0000"
+                emissiveIntensity={5}
                 metalness={0.2}
                 roughness={0.1}
                 opacity={0.8}
@@ -250,9 +250,9 @@ interface SabreProps {
                 depth: 0.06
               }]} />
               <meshStandardMaterial 
-                color="#ffffff"
-                emissive="#c0e0ff"
-                emissiveIntensity={3}
+                color="#ff3333"
+                emissive="#ff0000"
+                emissiveIntensity={4}
                 metalness={0.2}
                 roughness={0.1}
                 opacity={0.4}
@@ -291,9 +291,9 @@ interface SabreProps {
             <mesh>
               <extrudeGeometry args={[createBladeShape(), bladeExtrudeSettings]} />
               <meshStandardMaterial 
-                color="#d8e8ff"
-                metalness={0.4}
-                roughness={0.1}
+                color="#ff1a1a"
+                metalness={0.9}
+                roughness={0.3}
               />
             </mesh>
             
@@ -302,8 +302,8 @@ interface SabreProps {
               <extrudeGeometry args={[createInnerBladeShape(), innerBladeExtrudeSettings]} />
               <meshStandardMaterial 
                 color="#ffffff"
-                emissive="#a0d4ff"
-                emissiveIntensity={4}
+                emissive="#ff0000"
+                emissiveIntensity={5}
                 metalness={0.2}
                 roughness={0.1}
                 opacity={0.8}
@@ -318,9 +318,9 @@ interface SabreProps {
                 depth: 0.06
               }]} />
               <meshStandardMaterial 
-                color="#ffffff"
-                emissive="#c0e0ff"
-                emissiveIntensity={3}
+                color="#ff3333"
+                emissive="#ff0000"
+                emissiveIntensity={4}
                 metalness={0.2}
                 roughness={0.1}
                 opacity={0.4}

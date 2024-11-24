@@ -14,6 +14,32 @@ import { WeaponType } from '@/components/Unit';
 import { trunkColors, leafColors } from '@/utils/colors';
 import TrainingDummy from '../components/TrainingDummy';
 
+// Add these type definitions at the top of the file, after the imports
+interface AbilityButton {
+  key: string;
+  cooldown: number;
+  currentCooldown: number;
+  icon: string;
+}
+
+interface WeaponInfo {
+  [WeaponType.SWORD]: {
+    q: AbilityButton;
+    e: AbilityButton;
+  };
+  [WeaponType.SCYTHE]: {
+    q: AbilityButton;
+    e: AbilityButton;
+  };
+  [WeaponType.SABRES]: {
+    q: AbilityButton;
+    e: AbilityButton;
+  };
+  [WeaponType.SABRES2]: {
+    q: AbilityButton;
+    e: AbilityButton;
+  };
+}
 
 // DISGUSTINGLY PACKED - MOVE ALL DIS TOM FOOLERY m8
 const SunsetSkyShader = {
@@ -244,14 +270,35 @@ const generateMushrooms = () => {
   return mushrooms;
 };
 
+// Add this type
+type DummyId = 'dummy1' | 'dummy2';
+
 // Home Component
 export default function HomePage() {
   const [currentWeapon, setCurrentWeapon] = useState<WeaponType>(WeaponType.SCYTHE);
   const controlsRef = useRef<OrbitControlsImpl>(null);
-  const [playerHealth, setPlayerHealth] = useState(200);
+  const [playerHealth ] = useState(200);
   const [dummyHealth, setDummyHealth] = useState(300);
-  const [treeHealth, setTreeHealth] = useState(50);
   const [lastHitTime, setLastHitTime] = useState(0);
+  const [dummy2Health, setDummy2Health] = useState(300);
+  const [abilities, setAbilities] = useState<WeaponInfo>({
+    [WeaponType.SWORD]: {
+      q: { key: 'q', cooldown: 2, currentCooldown: 0, icon: '/icons/sword_q.svg' },
+      e: { key: 'e', cooldown: 5, currentCooldown: 0, icon: '/icons/sword_e.svg' }
+    },
+    [WeaponType.SCYTHE]: {
+      q: { key: 'q', cooldown: 2, currentCooldown: 0, icon: '/icons/scythe_q.svg' },
+      e: { key: 'e', cooldown: 5, currentCooldown: 0, icon: '/icons/scythe_e.svg' }
+    },
+    [WeaponType.SABRES]: {
+      q: { key: 'q', cooldown: 2, currentCooldown: 0, icon: '/icons/sabres_q.svg' },
+      e: { key: 'e', cooldown: 5, currentCooldown: 0, icon: '/icons/sabres_e.svg' }
+    },
+    [WeaponType.SABRES2]: {
+      q: { key: 'q', cooldown: 2, currentCooldown: 0, icon: '/icons/sabres2_q.svg' },
+      e: { key: 'e', cooldown: 5, currentCooldown: 0, icon: '/icons/sabres2_e.svg' }
+    }
+  });
 
   // Define the main tree position
   const treePositions = useMemo(() => ({
@@ -281,40 +328,40 @@ export default function HomePage() {
     setCurrentWeapon(weapon);
   };
 
-  const handleDummyHit = () => {
+  const handleDummyHit = (dummyId: DummyId, damage: number) => {
     const currentTime = Date.now();
     if (currentTime - lastHitTime > 100) { // 100ms cooldown
-      setDummyHealth(prev => Math.max(0, prev - 10));
+      if (dummyId === 'dummy1') {
+        setDummyHealth(prev => Math.max(0, prev - damage));
+      } else {
+        setDummy2Health(prev => Math.max(0, prev - damage));
+      }
       setLastHitTime(currentTime);
     }
   };
 
-  const handleTreeHit = () => {
-    const currentTime = Date.now();
-    if (currentTime - lastHitTime > 100) { // 100ms cooldown
-      setTreeHealth(prev => Math.max(0, prev - 10));
-      setLastHitTime(currentTime);
-    }
-  };
-
-  // Placeholder function to use setPlayerHealth and prevent unused variable error
-  const handlePlayerDamage = () => {
-    // Placeholder: Log a message when player takes damage
-    console.log('Player takes damage!');
-    // Example: Reduce player health by 10
-    setPlayerHealth(prev => {
-      const newHealth = Math.max(0, prev - 10);
-      console.log('Player health:', newHealth);
-      return newHealth;
+  const handleAbilityUse = (weapon: WeaponType, ability: 'q' | 'e') => {
+    setAbilities(prev => {
+      const newAbilities = { ...prev };
+      newAbilities[weapon][ability].currentCooldown = newAbilities[weapon][ability].cooldown;
+      return newAbilities;
     });
   };
 
-  // **Use `handlePlayerDamage` in an effect to prevent "unused" errors**
   useEffect(() => {
-    // Example usage: Reduce player health every 10 seconds
     const interval = setInterval(() => {
-      handlePlayerDamage();
-    }, 10000); // 10 seconds
+      setAbilities((prev: WeaponInfo) => {
+        const newAbilities = { ...prev };
+        Object.keys(newAbilities).forEach(weapon => {
+          ['q', 'e'].forEach(ability => {
+            if (newAbilities[weapon as WeaponType][ability as 'q' | 'e'].currentCooldown > 0) {
+              newAbilities[weapon as WeaponType][ability as 'q' | 'e'].currentCooldown -= 0.1;
+            }
+          });
+        });
+        return newAbilities;
+      });
+    }, 100);
 
     return () => clearInterval(interval);
   }, []);
@@ -373,7 +420,6 @@ export default function HomePage() {
             key={`tree-${index}`} 
             position={data.position} 
             scale={data.scale} 
-            health={treeHealth} // Pass current tree health
             trunkColor={data.trunkColor}
             leafColor={data.leafColor}
           />
@@ -388,20 +434,20 @@ export default function HomePage() {
         <Tree 
           position={treePositions.mainTree} 
           scale={1} 
-          health={treeHealth} // Pass current tree health
           trunkColor={interactiveTrunkColor}
           leafColor={interactiveLeafColor}
         />
 
         <Unit 
           onDummyHit={handleDummyHit}
-          onTreeHit={handleTreeHit}
           controlsRef={controlsRef} 
           currentWeapon={currentWeapon} 
           onWeaponSelect={handleWeaponSelect}
           health={playerHealth}
           maxHealth={200}
           isPlayer={true}
+          abilities={abilities}
+          onAbilityUse={handleAbilityUse}
         />
 
         <TrainingDummy 
@@ -410,12 +456,19 @@ export default function HomePage() {
           maxHealth={300}
           onHit={() => setDummyHealth(300)}
         />
+        <TrainingDummy 
+          position={new THREE.Vector3(-5, 0, 5)}
+          health={dummy2Health}
+          maxHealth={300}
+          onHit={() => setDummy2Health(300)}
+        />
       </Canvas>
       <Panel 
         currentWeapon={currentWeapon} 
         onWeaponSelect={handleWeaponSelect}
         playerHealth={playerHealth}
         maxHealth={200}
+        abilities={abilities}
       />
     </div>
   );

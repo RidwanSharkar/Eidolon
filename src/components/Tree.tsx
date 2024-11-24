@@ -6,7 +6,6 @@ import React from 'react';
 interface TreeProps {
   position: Vector3;
   scale: number;
-  health: number;
   trunkColor: Color;
   leafColor: Color;
 }
@@ -22,14 +21,13 @@ const varyColor = (baseColor: Color, range: number = 0.1) => {
 const TreeComponent: React.FC<TreeProps> = ({ 
   position = new Vector3(0, 2, -5),
   scale = 1,
-  health,
   trunkColor,
   leafColor,
 }: TreeProps) => {
   const variedTrunkColor = useMemo(() => varyColor(trunkColor), [trunkColor]);
   const variedLeafColor = useMemo(() => varyColor(leafColor), [leafColor]);
 
-  if (health <= 0) return null;
+
 
   const trunkRadius = 0.25 * scale;
   const trunkHeight = 4.2 * scale;

@@ -6,6 +6,7 @@ interface PanelProps {
   onWeaponSelect: (weapon: WeaponType) => void;
   playerHealth: number;
   maxHealth: number;
+  abilities: WeaponInfo;
 }
 
 const weaponIconStyle = {
@@ -15,7 +16,33 @@ const weaponIconStyle = {
   cursor: 'pointer'
 };
 
-export default function Panel({ currentWeapon, onWeaponSelect, playerHealth, maxHealth }: PanelProps) {
+interface AbilityButton {
+  key: string;
+  cooldown: number;
+  currentCooldown: number;
+  icon: string;
+}
+
+interface WeaponInfo {
+  [WeaponType.SWORD]: {
+    q: AbilityButton;
+    e: AbilityButton;
+  };
+  [WeaponType.SCYTHE]: {
+    q: AbilityButton;
+    e: AbilityButton;
+  };
+  [WeaponType.SABRES]: {
+    q: AbilityButton;
+    e: AbilityButton;
+  };
+  [WeaponType.SABRES2]: {
+    q: AbilityButton;
+    e: AbilityButton;
+  };
+}
+
+export default function Panel({ currentWeapon, onWeaponSelect, playerHealth, maxHealth, abilities }: PanelProps) {
   return (
     <div className={styles.bottomPanel}>
       <div className={styles.healthBar}>
@@ -57,6 +84,42 @@ export default function Panel({ currentWeapon, onWeaponSelect, playerHealth, max
       >
         <img src="/icons/7.svg" alt="Sabres2" style={weaponIconStyle} />
         <span className={styles.keyBinding}>4</span>
+      </div>
+      <div className={styles.abilityContainer}>
+        <div className={styles.ability}>
+          <div 
+            className={styles.abilityIcon} 
+            style={{
+              opacity: abilities[currentWeapon].q.currentCooldown > 0 ? 0.5 : 1,
+              position: 'relative'
+            }}
+          >
+            <img src={abilities[currentWeapon].q.icon} alt="Q ability" />
+            {abilities[currentWeapon].q.currentCooldown > 0 && (
+              <div className={styles.cooldownOverlay}>
+                {Math.ceil(abilities[currentWeapon].q.currentCooldown)}
+              </div>
+            )}
+            <span className={styles.keyBinding}>Q</span>
+          </div>
+        </div>
+        <div className={styles.ability}>
+          <div 
+            className={styles.abilityIcon}
+            style={{
+              opacity: abilities[currentWeapon].e.currentCooldown > 0 ? 0.5 : 1,
+              position: 'relative'
+            }}
+          >
+            <img src={abilities[currentWeapon].e.icon} alt="E ability" />
+            {abilities[currentWeapon].e.currentCooldown > 0 && (
+              <div className={styles.cooldownOverlay}>
+                {Math.ceil(abilities[currentWeapon].e.currentCooldown)}
+              </div>
+            )}
+            <span className={styles.keyBinding}>E</span>
+          </div>
+        </div>
       </div>
     </div>
   );
