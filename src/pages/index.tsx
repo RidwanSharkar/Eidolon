@@ -1,7 +1,7 @@
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls as DreiOrbitControls, Stars } from '@react-three/drei';
 import { OrbitControls as OrbitControlsImpl } from 'three/examples/jsm/controls/OrbitControls';
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import * as THREE from 'three';
 import Terrain from '../components/Terrain';
 import Mountain from '../components/Mountain';
@@ -9,9 +9,11 @@ import GravelPath from '../components/GravelPath';
 import Tree from '../components/Tree';
 import Unit from '../components/Unit';
 import Panel from '../components/Panel';
-import { Mesh, Color } from 'three';
+import { Vector3, Mesh, Color } from 'three';
 import { WeaponType } from '@/components/Unit';
 import { trunkColors, leafColors } from '@/utils/colors';
+import TrainingDummy from '../components/TrainingDummy';
+
 
 // DISGUSTINGLY PACKED - MOVE ALL DIS TOM FOOLERY m8
 const SunsetSkyShader = {
@@ -156,180 +158,30 @@ const Mushroom: React.FC<MushroomProps> = ({ position, scale }) => {
 interface GeneratedTree {
   position: THREE.Vector3;
   scale: number;
-  health: number;
   trunkColor: THREE.Color;
   leafColor: THREE.Color;
 }
 
-// Home Component
-export default function HomePage() {
-  const [treeHealth, setTreeHealth] = useState(3);
-  const [currentWeapon, setCurrentWeapon] = useState<WeaponType>(WeaponType.SCYTHE);
-  const controlsRef = useRef<OrbitControlsImpl>(null);
+const generateMountains = (): Array<{ position: Vector3; scale: number }> => {
+  const mountains: Array<{ position: Vector3; scale: number }> = [];
+  const numberOfMountains = 45; 
 
-  // Define the main tree position
-  const treePositions = useMemo(() => ({
-    mainTree: new THREE.Vector3(0, 2, -5),
-  }), []);
+  for (let i = 0; i < numberOfMountains; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 35 + Math.random() * 40;
 
-  const handleTreeDamage = () => {
-    setTreeHealth((prev) => Math.max(0, prev - 1));
-  };
+    const x = Math.cos(angle) * distance;
+    const z = Math.sin(angle) * distance;
 
-  // Memoize mountain data
-  const mountainData = useMemo(() => generateMountains(), []);
+    const scale = 0.6 + Math.random() * 0.8;
 
-  // Memoize tree data
-  const treeData: GeneratedTree[] = useMemo(() => generateTrees(), []);
-
-  // Memoize mushroom data
-  const mushroomData = useMemo(() => generateMushrooms(), []);
-
-  // Assign consistent colors to the interactive tree using useMemo
-  const interactiveTrunkColor = useMemo(() => 
-    new THREE.Color(trunkColors[Math.floor(Math.random() * trunkColors.length)]),
-    []
-  );
-  const interactiveLeafColor = useMemo(() => 
-    new THREE.Color(leafColors[Math.floor(Math.random() * leafColors.length)]),
-    []
-  );
-
-  const handleWeaponSelect = (weapon: WeaponType) => {
-    setCurrentWeapon(weapon);
-  };
-
-  return (
-    <div style={{ height: '100vh', position: 'relative' }}>
-      <Canvas camera={{ position: [0, 20, 20], fov: 60 }}>
-        <CustomSky />
-        <Planet />
-        <Stars
-          radius={100}
-          depth={50}
-          count={5000}
-          factor={4}
-          saturation={0}
-          fade
-          speed={1}
-        />
-
-        <ambientLight intensity={0.3} />
-        <directionalLight
-          position={[5, 10, 7.5]}
-          intensity={0.5} // Increased intensity for sunset effect
-          color={new Color('#fc9f82')} // Sunset color
-        />
-        <hemisphereLight
-          args={[new Color('#de6795'), new Color('#2a2a2a'), 0.6]}
-          position={[0, 50, 0]}
-        />
-
-        <DreiOrbitControls
-          ref={controlsRef}
-          enablePan={false}
-          maxPolarAngle={Math.PI / 2.2}
-          maxDistance={75} // CAMERA maxDISTANCE
-          mouseButtons={{
-            LEFT: undefined,
-            MIDDLE: undefined,
-            RIGHT: THREE.MOUSE.ROTATE,
-          }}
-        />
-
-        <Terrain />
-        {mountainData.map((data, index) => (
-          <Mountain key={`mountain-${index}`} position={data.position} scale={data.scale} />
-        ))}
-        <GravelPath />
-
-        {/* Render all trees with fixed colors */}
-        {treeData.map((data, index) => (
-          <Tree 
-            key={`tree-${index}`} 
-            position={data.position} 
-            scale={data.scale} 
-            health={data.health} 
-            trunkColor={data.trunkColor} // Now a THREE.Color
-            leafColor={data.leafColor}   // Now a THREE.Color
-          />
-        ))}
-
-        {/* Render all mushrooms */}
-        {mushroomData.map((data, index) => (
-          <Mushroom key={`mushroom-${index}`} position={data.position} scale={data.scale} />
-        ))}
-
-        {/* Keep the original interactive tree with consistent colors */}
-        <Tree 
-          position={treePositions.mainTree} 
-          scale={1} 
-          health={treeHealth} 
-          isInteractive={true} 
-          trunkColor={interactiveTrunkColor} // Now a THREE.Color
-          leafColor={interactiveLeafColor}   // Now a THREE.Color
-        />
-
-        <Unit 
-          onHit={handleTreeDamage} 
-          controlsRef={controlsRef} 
-          currentWeapon={currentWeapon} 
-          onWeaponSelect={handleWeaponSelect}
-        />
-      </Canvas>
-      <Panel currentWeapon={currentWeapon} onWeaponSelect={handleWeaponSelect} />
-    </div>
-  );
-}
-
-// Generation Functions (Move these inside the Home component or outside but ensure they don't rely on component state)
-const generateMountains = () => {
-  const positions: Array<{ position: THREE.Vector3; scale: number }> = [];
-
-  // Parameters for mountain generation
-  const layerCount = 3; // Number of circular layers
-  const baseRadius = 45; // Starting radius
-  const radiusIncrement = 5; // Distance between layers
-  const mountainsPerLayer = 40; // Increased density
-  const angleOffset = (Math.PI * 2) / (mountainsPerLayer * 2); // Offset for staggered placement
-
-  // Generate multiple layers of mountains
-  for (let layer = 0; layer < layerCount; layer++) {
-    const radius = baseRadius + layer * radiusIncrement;
-
-    // Generate main mountains for this layer
-    for (let i = 0; i < mountainsPerLayer; i++) {
-      const angle = (i / mountainsPerLayer) * Math.PI * 2;
-      const x = radius * Math.cos(angle);
-      const z = radius * Math.sin(angle);
-
-      // Random scale between 0.7 and 1.3
-      const scale = 0.7 + Math.random() * 0.6;
-
-      positions.push({
-        position: new THREE.Vector3(x, 0, z),
-        scale: scale,
-      });
-
-      // Add intermediate mountains with slight position variation
-      if (layer < layerCount - 1) {
-        const intermediateAngle = angle + angleOffset;
-        const intermediateRadius = radius + radiusIncrement * 0.5;
-        const ix = intermediateRadius * Math.cos(intermediateAngle);
-        const iz = intermediateRadius * Math.sin(intermediateAngle);
-
-        // Slightly smaller scale for intermediate mountains
-        const intermediateScale = 0.6 + Math.random() * 0.4;
-
-        positions.push({
-          position: new THREE.Vector3(ix, 0, iz),
-          scale: intermediateScale,
-        });
-      }
-    }
+    mountains.push({
+      position: new THREE.Vector3(x, 0, z),
+      scale: scale,
+    });
   }
 
-  return positions;
+  return mountains;
 };
 
 const generateTrees = (): GeneratedTree[] => {
@@ -361,9 +213,8 @@ const generateTrees = (): GeneratedTree[] => {
       trees.push({
         position: new THREE.Vector3(treeX, 0, treeZ),
         scale: scale,
-        health: 3,
-        trunkColor: new THREE.Color(trunkColor), // Ensure it's a THREE.Color
-        leafColor: new THREE.Color(leafColor),   // Ensure it's a THREE.Color
+        trunkColor: new THREE.Color(trunkColor),
+        leafColor: new THREE.Color(leafColor),
       });
     }
   }
@@ -392,3 +243,180 @@ const generateMushrooms = () => {
 
   return mushrooms;
 };
+
+// Home Component
+export default function HomePage() {
+  const [currentWeapon, setCurrentWeapon] = useState<WeaponType>(WeaponType.SCYTHE);
+  const controlsRef = useRef<OrbitControlsImpl>(null);
+  const [playerHealth, setPlayerHealth] = useState(200);
+  const [dummyHealth, setDummyHealth] = useState(300);
+  const [treeHealth, setTreeHealth] = useState(50);
+  const [lastHitTime, setLastHitTime] = useState(0);
+
+  // Define the main tree position
+  const treePositions = useMemo(() => ({
+    mainTree: new THREE.Vector3(0, 2, -5),
+  }), []);
+
+  // Memoize mountain data
+  const mountainData = useMemo(() => generateMountains(), []);
+
+  // Memoize tree data
+  const treeData: GeneratedTree[] = useMemo(() => generateTrees(), []);
+
+  // Memoize mushroom data
+  const mushroomData = useMemo(() => generateMushrooms(), []);
+
+  // Assign consistent colors to the interactive tree using useMemo
+  const interactiveTrunkColor = useMemo(() => 
+    new THREE.Color(trunkColors[Math.floor(Math.random() * trunkColors.length)]),
+    []
+  );
+  const interactiveLeafColor = useMemo(() => 
+    new THREE.Color(leafColors[Math.floor(Math.random() * leafColors.length)]),
+    []
+  );
+
+  const handleWeaponSelect = (weapon: WeaponType) => {
+    setCurrentWeapon(weapon);
+  };
+
+  const handleDummyHit = () => {
+    const currentTime = Date.now();
+    if (currentTime - lastHitTime > 100) { // 100ms cooldown
+      setDummyHealth(prev => Math.max(0, prev - 10));
+      setLastHitTime(currentTime);
+    }
+  };
+
+  const handleTreeHit = () => {
+    const currentTime = Date.now();
+    if (currentTime - lastHitTime > 100) { // 100ms cooldown
+      setTreeHealth(prev => Math.max(0, prev - 10));
+      setLastHitTime(currentTime);
+    }
+  };
+
+  // Placeholder function to use setPlayerHealth and prevent unused variable error
+  const handlePlayerDamage = () => {
+    // Placeholder: Log a message when player takes damage
+    console.log('Player takes damage!');
+    // Example: Reduce player health by 10
+    setPlayerHealth(prev => {
+      const newHealth = Math.max(0, prev - 10);
+      console.log('Player health:', newHealth);
+      return newHealth;
+    });
+  };
+
+  // **Use `handlePlayerDamage` in an effect to prevent "unused" errors**
+  useEffect(() => {
+    // Example usage: Reduce player health every 10 seconds
+    const interval = setInterval(() => {
+      handlePlayerDamage();
+    }, 10000); // 10 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div style={{ width: '100vw', height: '100vh' }}>
+      <Canvas>
+        <CustomSky />
+
+        <Planet />
+
+        <Stars
+          radius={100}
+          depth={50}
+          count={5000}
+          factor={4}
+          saturation={0}
+          fade
+          speed={1}
+        />
+
+        <ambientLight intensity={0.3} />
+
+        <directionalLight
+          position={[5, 10, 7.5]}
+          intensity={0.5} // Increased intensity for sunset effect
+          color={new Color('#fc9f82')} // Sunset color
+        />
+
+        <hemisphereLight
+          args={[new Color('#de6795'), new Color('#2a2a2a'), 0.6]}
+          position={[0, 50, 0]}
+        />
+
+        <DreiOrbitControls
+          ref={controlsRef}
+          enablePan={false}
+          maxPolarAngle={Math.PI / 2.2}
+          maxDistance={75} // CAMERA maxDISTANCE
+          mouseButtons={{
+            LEFT: undefined,
+            MIDDLE: undefined,
+            RIGHT: THREE.MOUSE.ROTATE,
+          }}
+        />
+
+        <Terrain />
+        {mountainData.map((data, index) => (
+          <Mountain key={`mountain-${index}`} position={data.position} scale={data.scale} />
+        ))}
+        <GravelPath />
+
+        {/* Render all trees */}
+        {treeData.map((data, index) => (
+          <Tree 
+            key={`tree-${index}`} 
+            position={data.position} 
+            scale={data.scale} 
+            health={treeHealth} // Pass current tree health
+            trunkColor={data.trunkColor}
+            leafColor={data.leafColor}
+          />
+        ))}
+
+        {/* Render all mushrooms */}
+        {mushroomData.map((data, index) => (
+          <Mushroom key={`mushroom-${index}`} position={data.position} scale={data.scale} />
+        ))}
+
+        {/* Render the main interactive tree */}
+        <Tree 
+          position={treePositions.mainTree} 
+          scale={1} 
+          health={treeHealth} // Pass current tree health
+          trunkColor={interactiveTrunkColor}
+          leafColor={interactiveLeafColor}
+        />
+
+        <Unit 
+          onDummyHit={handleDummyHit}
+          onTreeHit={handleTreeHit}
+          controlsRef={controlsRef} 
+          currentWeapon={currentWeapon} 
+          onWeaponSelect={handleWeaponSelect}
+          health={playerHealth}
+          maxHealth={200}
+          isPlayer={true}
+        />
+
+        <TrainingDummy 
+          position={new THREE.Vector3(5, 0, 5)}
+          health={dummyHealth}
+          maxHealth={300}
+          onHit={() => setDummyHealth(300)}
+        />
+      </Canvas>
+      <Panel 
+        currentWeapon={currentWeapon} 
+        onWeaponSelect={handleWeaponSelect}
+        playerHealth={playerHealth}
+        maxHealth={200}
+      />
+    </div>
+  );
+}

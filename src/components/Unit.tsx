@@ -8,6 +8,7 @@ import Sword from './Sword';
 import GhostTrail from './GhostTrail';
 import Sabres from './Sabres';
 import Sabres2 from './Sabres2';
+import Billboard from './Billboard';
 
 // WeaponType enum
 export enum WeaponType {
@@ -18,10 +19,13 @@ export enum WeaponType {
 }
 
 interface UnitProps {
-  onHit: () => void;
+  onDummyHit: () => void;
   controlsRef: React.RefObject<OrbitControlsImpl>;
   currentWeapon: WeaponType;
   onWeaponSelect: (weapon: WeaponType) => void;
+  health: number;
+  maxHealth: number;
+  isPlayer?: boolean;
 }
 
 const OrbitalParticles = ({ parentRef }: { parentRef: React.RefObject<Group> }) => {
@@ -67,7 +71,7 @@ const OrbitalParticles = ({ parentRef }: { parentRef: React.RefObject<Group> }) 
   );
 };
 
-export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect }: UnitProps) {
+export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponSelect, health, maxHealth, isPlayer = false }: UnitProps) {
   const groupRef = useRef<Group>(null);
   const [isSwinging, setIsSwinging] = useState(false);
   const [fireballs, setFireballs] = useState<{ id: number; position: Vector3; direction: Vector3 }[]>([]);
@@ -141,7 +145,15 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
       const distance = unitPosition.distanceTo(treePosition);
       
       if (distance < 3) {
-        onHit();
+        onDummyHit();
+      }
+    }
+
+    // Check for sword hits during swing
+    if (isSwinging && currentWeapon === WeaponType.SWORD && groupRef.current) {
+      const dummyPosition = new Vector3(5, 0, 5);
+      if (handleSwordHit(dummyPosition)) {
+        onDummyHit();
       }
     }
   });
@@ -200,6 +212,28 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
 
   const handleSwingComplete = () => {
     setIsSwinging(false);
+  };
+
+  // Add hit detection for sword swings
+  const handleSwordHit = (targetPosition: Vector3) => {
+    if (!groupRef.current || !isSwinging) return false;
+    
+    const distance = groupRef.current.position.distanceTo(targetPosition);
+    const swordRange = 3; // Adjust based on sword size
+    
+    // Check if target is within sword range and swing arc
+    if (distance <= swordRange) {
+      // Calculate angle between unit's forward direction and target
+      const forward = new Vector3(0, 0, 1).applyQuaternion(groupRef.current.quaternion);
+      const toTarget = targetPosition.clone().sub(groupRef.current.position).normalize();
+      const angle = forward.angleTo(toTarget);
+      
+      // Check if target is within swing arc (120 degrees)
+      if (angle <= Math.PI / 1.5) {
+        return true;
+      }
+    }
+    return false;
   };
 
   return (
@@ -262,6 +296,25 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
             isSwinging={isSwinging}
             onSwingComplete={handleSwingComplete}
           />
+        )}
+
+        {/* Add HP bar if not player */}
+        {!isPlayer && (
+          <Billboard
+            position={[0, 2, 0]}
+            lockX={false}
+            lockY={false}
+            lockZ={false}
+          >
+            <mesh>
+              <planeGeometry args={[1, 0.1]} />
+              <meshBasicMaterial color="#333333" />
+            </mesh>
+            <mesh position={[-0.5 + (health / maxHealth) * 0.5, 0, 0.001]}>
+              <planeGeometry args={[(health / maxHealth), 0.08]} />
+              <meshBasicMaterial color="#ff3333" />
+            </mesh>
+          </Billboard>
         )}
       </group>
 

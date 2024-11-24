@@ -4,18 +4,28 @@ import styles from './Panel.module.css';
 interface PanelProps {
   currentWeapon: WeaponType;
   onWeaponSelect: (weapon: WeaponType) => void;
+  playerHealth: number;
+  maxHealth: number;
 }
 
 const weaponIconStyle = {
-  width: '70px',
-  height: '70px',
+  width: '50px',
+  height: '50px',
   objectFit: 'contain' as const,
   cursor: 'pointer'
 };
 
-export default function Panel({ currentWeapon, onWeaponSelect }: PanelProps) {
+export default function Panel({ currentWeapon, onWeaponSelect, playerHealth, maxHealth }: PanelProps) {
   return (
     <div className={styles.bottomPanel}>
+      <div className={styles.healthBar}>
+        <div 
+          className={styles.healthBarInner} 
+          style={{ width: `${(playerHealth / maxHealth) * 100}%` }}
+        >
+          <span className={styles.healthText}>{playerHealth}/{maxHealth}</span>
+        </div>
+      </div>
       <div 
         className={currentWeapon === WeaponType.SCYTHE ? styles.activeWeapon : ''}
         onClick={() => onWeaponSelect(WeaponType.SCYTHE)}

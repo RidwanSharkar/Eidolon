@@ -1,13 +1,12 @@
-import { useRef, useEffect, useMemo } from 'react';
-import { Mesh, Vector3, Color } from 'three';
+import {  useMemo } from 'react';
+import {  Vector3, Color } from 'three';
 import * as THREE from 'three';
 import React from 'react';
 
 interface TreeProps {
+  position: Vector3;
+  scale: number;
   health: number;
-  position?: Vector3;
-  scale?: number;
-  isInteractive?: boolean;
   trunkColor: Color;
   leafColor: Color;
 }
@@ -21,28 +20,17 @@ const varyColor = (baseColor: Color, range: number = 0.1) => {
 };
 
 const TreeComponent: React.FC<TreeProps> = ({ 
-  health, 
   position = new Vector3(0, 2, -5),
   scale = 1,
-  isInteractive = false,
+  health,
   trunkColor,
   leafColor,
 }: TreeProps) => {
-  const treeRef = useRef<Mesh>(null);
-
-  // Memoize the varied colors to ensure they are calculated only once
   const variedTrunkColor = useMemo(() => varyColor(trunkColor), [trunkColor]);
   const variedLeafColor = useMemo(() => varyColor(leafColor), [leafColor]);
 
-  useEffect(() => {
-    if (isInteractive && health <= 0 && treeRef.current) {
-      treeRef.current.parent?.remove(treeRef.current);
-    }
-  }, [health, isInteractive]);
+  if (health <= 0) return null;
 
-  if (isInteractive && health <= 0) return null;
-
-  // Calculate trunk dimensions based on scale
   const trunkRadius = 0.25 * scale;
   const trunkHeight = 4.2 * scale;
   const leafSize = 1.5 * scale;
@@ -50,7 +38,7 @@ const TreeComponent: React.FC<TreeProps> = ({
 
   return (
     <group name="tree" position={position} scale={scale}>
-      <mesh ref={treeRef}>
+      <mesh>
         {/* Trunk */}
         <cylinderGeometry args={[trunkRadius, trunkRadius * 1.2, trunkHeight, 8]} />
         <meshStandardMaterial 
@@ -93,5 +81,4 @@ const TreeComponent: React.FC<TreeProps> = ({
   );
 };
 
-// Memoize the Tree component to prevent unnecessary re-renders
 export default React.memo(TreeComponent);

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -20,9 +20,25 @@ const FireballTrail: React.FC<FireballTrailProps> = ({
   const positionsRef = useRef<Float32Array>(new Float32Array(particlesCount * 3));
   const opacitiesRef = useRef<Float32Array>(new Float32Array(particlesCount));
   const scalesRef = useRef<Float32Array>(new Float32Array(particlesCount));
+  const isInitialized = useRef(false);
+
+  // Initialize positions only when mesh is available
+  useEffect(() => {
+    if (meshRef.current && !isInitialized.current) {
+      const { x, y, z } = meshRef.current.position;
+      for (let i = 0; i < particlesCount; i++) {
+        positionsRef.current[i * 3] = x;
+        positionsRef.current[i * 3 + 1] = y;
+        positionsRef.current[i * 3 + 2] = z;
+        opacitiesRef.current[i] = 0;
+        scalesRef.current[i] = 0;
+      }
+      isInitialized.current = true;
+    }
+  }, [meshRef]);
 
   useFrame(() => {
-    if (!particlesRef.current?.parent || !meshRef.current) return;
+    if (!particlesRef.current?.parent || !meshRef.current || !isInitialized.current) return;
 
     const { x, y, z } = meshRef.current.position;
 
