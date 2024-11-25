@@ -20,35 +20,37 @@ interface TextMesh extends Mesh {
 export default function DamageNumber({ damage, position, isCritical = false, onComplete }: DamageNumberProps) {
   const textRef = useRef<TextMesh>(null);
   const startTime = useRef(Date.now());
-  const startY = position.y + 2; // Start above the target
+  const startY = position.y + 3.5;
+  
+  // Calculate vertical offset for multiple hits
+  const hitOffset = (Date.now() % 500) / 500 * 0.5; // 0 to 0.5 based on timestamp
 
   useFrame(() => {
     if (!textRef.current) return;
     
     const elapsed = (Date.now() - startTime.current) / 1000;
-    const lifespan = 3; // 3 seconds duration
+    const lifespan = 2;
     
     if (elapsed >= lifespan) {
       onComplete();
       return;
     }
 
-    // Float upward and fade out
-    textRef.current.position.y = startY + (elapsed * 0.5);
+    textRef.current.position.y = startY + hitOffset + (elapsed * 0.8);
     textRef.current.material.opacity = 1 - (elapsed / lifespan);
   });
 
   return (
     <Text
       ref={textRef}
-      position={[position.x, startY, position.z]}
-      fontSize={0.5}
+      position={[position.x, startY + hitOffset, position.z]}
+      fontSize={0.8}
       color={isCritical ? '#ff0000' : '#ffffff'}
       anchorX="center"
       anchorY="middle"
       fontWeight={isCritical ? 'bold' : 'normal'}
     >
-      {isCritical ? ' ' : ''}{damage}
+      {damage}
     </Text>
   );
 } 

@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { Group, Vector3 } from 'three';
-import { Billboard } from '@react-three/drei';
+import { Billboard, Text } from '@react-three/drei';
 
 interface TrainingDummyProps {
   position: Vector3;
@@ -64,14 +64,27 @@ export default function TrainingDummy({ position, health, maxHealth, onHit }: Tr
         lockY={false}
         lockZ={false}
       >
+        {/* Background bar */}
         <mesh>
-          <planeGeometry args={[1, 0.1]} />
+          <planeGeometry args={[1.2, 0.2]} />
           <meshBasicMaterial color="#333333" />
         </mesh>
-        <mesh position={[-0.5 + (health / maxHealth) * 0.5, 0, 0.001]}>
-          <planeGeometry args={[(health / maxHealth), 0.08]} />
+        {/* Health bar */}
+        <mesh position={[-0.6 + (health / maxHealth) * 0.6, 0, 0.001]}>
+          <planeGeometry args={[(health / maxHealth) * 1.2, 0.18]} />
           <meshBasicMaterial color="#ff3333" />
         </mesh>
+        {/* Health text */}
+        <Text
+          position={[0, 0, 0.002]}
+          fontSize={0.12}
+          color="#ffffff"
+          anchorX="center"
+          anchorY="middle"
+          fontWeight="bold"
+        >
+          {`${health}/${maxHealth}`}
+        </Text>
       </Billboard>
     </group>
   );

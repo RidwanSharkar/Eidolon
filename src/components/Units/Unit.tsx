@@ -1,24 +1,19 @@
 import { useRef, useState, useEffect } from 'react';
 import { Mesh, Vector3, Group } from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
-import Fireball from './Fireball';
+import Fireball from '../Spells/Fireball';
 import { OrbitControls as OrbitControlsImpl } from 'three/examples/jsm/controls/OrbitControls';
-import Scythe from './Scythe';
-import Sword from './Sword';
-import GhostTrail from './GhostTrail';
-import Sabres from './Sabres';
-import Sabres2 from './Sabres2';
-import Billboard from './Billboard';
-import Smite from './Smite';
-import DamageNumber from './DamageNumber';
-
-// WeaponType enum
-export enum WeaponType {
-  SCYTHE = 'scythe',
-  SWORD = 'sword',
-  SABRES = 'sabres',
-  SABRES2 = 'sabres2'
-}
+import Scythe from '../Weapons/Scythe';
+import Sword from '../Weapons/Sword';
+import GhostTrail from '../Effects/GhostTrail';
+import Sabres from '../Weapons/Sabres';
+import Sabres2 from '../Weapons/Sabres2';
+import Billboard from '../UI/Billboard';
+import Smite from '../Spells/Smite';
+import DamageNumber from '../UI/DamageNumber';
+import * as THREE from 'three';
+import { WeaponType, WeaponInfo } from '../../types/weapons';
+import { WEAPON_DAMAGES } from '../../constants/weaponStats';
 
 // Add export to the interface declaration
 export interface UnitProps {
@@ -31,19 +26,13 @@ export interface UnitProps {
   isPlayer?: boolean;
   abilities: WeaponInfo;
   onAbilityUse: (weapon: WeaponType, ability: 'q' | 'e') => void;
+  onPositionUpdate: (position: THREE.Vector3) => void;
 }
 
 const calculateDamage = (baseAmount: number): { damage: number; isCritical: boolean } => {
   const isCritical = Math.random() < 0.15; // 15% chance
   const damage = isCritical ? baseAmount * 2 : baseAmount;
   return { damage, isCritical };
-};
-
-const WEAPON_DAMAGES = {
-  [WeaponType.SWORD]: { normal: 10, special: 25 },
-  [WeaponType.SCYTHE]: { normal: 7, special: 15 },
-  [WeaponType.SABRES]: { normal: 6, special: 0 }, // Special not used
-  [WeaponType.SABRES2]: { normal: 6, special: 0 }, // Special not used
 };
 
 const OrbitalParticles = ({ parentRef }: { parentRef: React.RefObject<Group> }) => {
@@ -89,7 +78,7 @@ const OrbitalParticles = ({ parentRef }: { parentRef: React.RefObject<Group> }) 
   );
 };
 
-export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponSelect, health, maxHealth, isPlayer = false, abilities, onAbilityUse }: UnitProps) {
+export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponSelect, health, maxHealth, isPlayer = false, abilities, onAbilityUse, onPositionUpdate }: UnitProps) {
   const groupRef = useRef<Group>(null);
   const [isSwinging, setIsSwinging] = useState(false);
   const [fireballs, setFireballs] = useState<{ id: number; position: Vector3; direction: Vector3 }[]>([]);
@@ -112,6 +101,8 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
     isCritical: boolean;
   }[]>([]);
   const nextDamageNumberId = useRef(0);
+  const [hitCountThisSwing, setHitCountThisSwing] = useState<Record<string, number>>({});
+  const [activeSwingPhase, setActiveSwingPhase] = useState<'left' | 'right' | null>(null);
 
   const shootFireball = () => {
     if (!groupRef.current) return;
@@ -133,21 +124,64 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
     setFireballs(prev => prev.filter(fireball => fireball.id !== id));
   };
 
-  const handleWeaponHit = (targetPosition: Vector3) => {
+  const handleWeaponHit = (targetPosition: Vector3, targetId: 'dummy1' | 'dummy2') => {
     if (!groupRef.current || !isSwinging) return null;
+    
+    const isDualWielding = currentWeapon === WeaponType.SABRES || currentWeapon === WeaponType.SABRES2;
+    const maxHits = isDualWielding ? 2 : 1;
+    const currentHits = hitCountThisSwing[targetId] || 0;
+    
+    if (isDualWielding) {
+      if (activeSwingPhase === 'left' && currentHits >= 1) return null;
+      if (activeSwingPhase === 'right' && currentHits >= 2) return null;
+    } else if (currentHits >= maxHits) {
+      return null;
+    }
     
     const distance = groupRef.current.position.distanceTo(targetPosition);
     const weaponRange = 3;
     
     if (distance <= weaponRange) {
-      const baseDamage = isSmiting && currentWeapon === WeaponType.SWORD
-        ? WEAPON_DAMAGES[WeaponType.SWORD].special 
-        : WEAPON_DAMAGES[currentWeapon].normal;
-
+      setHitCountThisSwing(prev => ({
+        ...prev,
+        [targetId]: (prev[targetId] || 0) + 1
+      }));
+      
+      let baseDamage;
+      if (currentWeapon === WeaponType.SWORD && isSmiting) {
+        baseDamage = 10; // Regular swing damage during smite
+        setTimeout(() => {
+          const { damage, isCritical } = calculateDamage(30); // Smite lightning damage
+          onDummyHit(targetId, damage);
+          setDamageNumbers(prev => [...prev, {
+            id: nextDamageNumberId.current++,
+            damage,
+            position: targetPosition,
+            isCritical
+          }]);
+        }, 250); // 250ms delay to match the visual effect
+      } else {
+        baseDamage = WEAPON_DAMAGES[currentWeapon].normal;
+      }
+      
       const { damage, isCritical } = calculateDamage(baseDamage);
       return { damage, isCritical };
     }
     return null;
+  };
+
+  const handleLeftSwingStart = () => {
+    setActiveSwingPhase('left');
+  };
+
+  const handleRightSwingStart = () => {
+    setActiveSwingPhase('right');
+  };
+
+  const handleSwingComplete = () => {
+    setIsSwinging(false);
+    setActiveSwingPhase(null);
+    setHitCountThisSwing({});
   };
 
   useFrame(() => {
@@ -188,8 +222,8 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
       const dummyPosition = new Vector3(5, 0, 5);
       const dummy2Position = new Vector3(-5, 0, 5);
       
-      const dummy1Hit = handleWeaponHit(dummyPosition);
-      const dummy2Hit = handleWeaponHit(dummy2Position);
+      const dummy1Hit = handleWeaponHit(dummyPosition, 'dummy1');
+      const dummy2Hit = handleWeaponHit(dummy2Position, 'dummy2');
       
       if (dummy1Hit) {
         onDummyHit('dummy1', dummy1Hit.damage);
@@ -210,6 +244,10 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
           isCritical: dummy2Hit.isCritical
         }]);
       }
+    }
+
+    if (groupRef.current) {
+      onPositionUpdate(groupRef.current.position);
     }
   });
 
@@ -284,10 +322,6 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
     };
   }, [isSwinging, onWeaponSelect, isSmiting, currentWeapon, abilities, onAbilityUse]);
 
-  const handleSwingComplete = () => {
-    setIsSwinging(false);
-  };
-
   const handleSmiteComplete = () => {
     setIsSmiting(false);
   };
@@ -299,6 +333,13 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
   const handleDamageNumberComplete = (id: number) => {
     setDamageNumbers(prev => prev.filter(dn => dn.id !== id));
   };
+
+  useEffect(() => {
+    if (currentWeapon === WeaponType.SABRES || currentWeapon === WeaponType.SABRES2) {
+      setActiveSwingPhase(null);
+      setHitCountThisSwing({});
+    }
+  }, [currentWeapon]);
 
   return (
     <>
@@ -342,11 +383,15 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
           <Sabres2 
             isSwinging={isSwinging} 
             onSwingComplete={handleSwingComplete}
+            onLeftSwingStart={handleLeftSwingStart}
+            onRightSwingStart={handleRightSwingStart}
           />
         ) : currentWeapon === WeaponType.SABRES ? (
           <Sabres 
             isSwinging={isSwinging} 
             onSwingComplete={handleSwingComplete}
+            onLeftSwingStart={handleLeftSwingStart}
+            onRightSwingStart={handleRightSwingStart}
           />
         ) : currentWeapon === WeaponType.SCYTHE ? (
           <Scythe 

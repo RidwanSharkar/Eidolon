@@ -1,13 +1,15 @@
 interface SabreProps {
     isSwinging: boolean;
     onSwingComplete: () => void;
+    onLeftSwingStart: () => void;
+    onRightSwingStart: () => void;
 }
   
   import { useRef } from 'react';
   import { Group, Shape } from 'three';
   import { useFrame } from '@react-three/fiber';
   
-  export default function Sabre({ isSwinging, onSwingComplete }: SabreProps) {
+  export default function Sabre({ isSwinging, onSwingComplete, onLeftSwingStart, onRightSwingStart }: SabreProps) {
     // Refs and states for the left sabre
     const leftSabreRef = useRef<Group>(null);
     const leftSwingProgress = useRef(0);
@@ -26,6 +28,10 @@ interface SabreProps {
       if (isSwinging) {
         // Handle left sabre swing
         if (leftSabreRef.current) {
+          // Call onLeftSwingStart when the swing begins
+          if (leftSwingProgress.current === 0) {
+            onLeftSwingStart();
+          }
           leftSwingProgress.current += delta * 7; // Slightly faster swing
   
           const swingPhase = Math.min(leftSwingProgress.current / Math.PI, 1);
@@ -57,6 +63,10 @@ interface SabreProps {
           if (rightSwingDelay.current < 0.1) {
             rightSwingDelay.current += delta;
           } else {
+            // Call onRightSwingStart when the delayed swing begins
+            if (rightSwingProgress.current === 0) {
+              onRightSwingStart();
+            }
             rightSwingProgress.current += delta * 7; // Slightly faster swing
   
             const swingPhase = Math.min(rightSwingProgress.current / Math.PI, 1);

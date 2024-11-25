@@ -6,7 +6,6 @@ Super-impulsive prototype game idea inspired by this wallpaper:
 Uhh, trying to restore my body while drifting on a floating space island?
 
 ## v0.2
-
 ![island in space](https://github.com/user-attachments/assets/59274513-1c79-44ea-ab8b-1e81c81812d8)
 
 ## v0.1
@@ -14,9 +13,6 @@ Uhh, trying to restore my body while drifting on a floating space island?
 
 ## v0.0
 ![1121 (1)(8)](https://github.com/user-attachments/assets/9247e7c6-6cd0-4a21-8616-d08d82f591cf)
-
-
-![1121 (1)(9)](https://github.com/user-attachments/assets/9ee8d752-edc4-430d-93f3-aad291caf98c)
 
 ## Controls
 - W,A,S,D - Move
