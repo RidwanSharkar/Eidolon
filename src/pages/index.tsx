@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls as DreiOrbitControls } from '@react-three/drei';
 import { OrbitControls as OrbitControlsImpl } from 'three/examples/jsm/controls/OrbitControls';
-import { useState, useRef, useMemo, useEffect } from 'react';
+import { useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import * as THREE from 'three';
 
 import Scene from '../components/Scene/Scene';
@@ -12,7 +12,6 @@ import { generateMountains, generateTrees, generateMushrooms } from '@/utils/ter
 
 import { Vector3 } from 'three';
 
-// Add these type definitions at the top of the file, after the imports
 interface AbilityButton {
   key: string;
   cooldown: number;
@@ -40,20 +39,20 @@ export default function HomePage() {
   const [dummy2Health, setDummy2Health] = useState(300);
   const [abilities, setAbilities] = useState<WeaponInfo>({
     [WeaponType.SWORD]: {
-      q: { key: 'q', cooldown: 2, currentCooldown: 0, icon: '/icons/sword_q.svg' },
-      e: { key: 'e', cooldown: 5, currentCooldown: 0, icon: '/icons/sword_e.svg' }
+      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/sword_q.svg' },
+      e: { key: 'e', cooldown: 2.5, currentCooldown: 0, icon: '/icons/sword_e.svg' }
     },
     [WeaponType.SCYTHE]: {
-      q: { key: 'q', cooldown: 2, currentCooldown: 0, icon: '/icons/scythe_q.svg' },
-      e: { key: 'e', cooldown: 5, currentCooldown: 0, icon: '/icons/scythe_e.svg' }
+      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/scythe_q.svg' },
+      e: { key: 'e', cooldown: 2.5, currentCooldown: 0, icon: '/icons/scythe_e.svg' }
     },
     [WeaponType.SABRES]: {
-      q: { key: 'q', cooldown: 2, currentCooldown: 0, icon: '/icons/sabres_q.svg' },
-      e: { key: 'e', cooldown: 5, currentCooldown: 0, icon: '/icons/sabres_e.svg' }
+      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/sabres_q.svg' },
+      e: { key: 'e', cooldown: 2.5, currentCooldown: 0, icon: '/icons/sabres_e.svg' }
     },
     [WeaponType.SABRES2]: {
-      q: { key: 'q', cooldown: 2, currentCooldown: 0, icon: '/icons/sabres2_q.svg' },
-      e: { key: 'e', cooldown: 5, currentCooldown: 0, icon: '/icons/sabres2_e.svg' }
+      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/sabres2_q.svg' },
+      e: { key: 'e', cooldown: 2.5, currentCooldown: 0, icon: '/icons/sabres2_e.svg' }
     }
   });
 
@@ -89,10 +88,17 @@ export default function HomePage() {
     const currentTime = Date.now();
     if (currentTime - lastHitTime > 100) { // 100ms cooldown
       if (dummyId === 'dummy1') {
-        setDummyHealth(prev => Math.max(0, prev - damage));
+        if (dummyHealth > 0) {
+          const newHealth = Math.max(0, dummyHealth - damage);
+          setDummyHealth(newHealth);
+        }
       } else {
-        setDummy2Health(prev => Math.max(0, prev - damage));
+        if (dummy2Health > 0) {
+          const newHealth = Math.max(0, dummy2Health - damage);
+          setDummy2Health(newHealth);
+        }
       }
+
       setLastHitTime(currentTime);
     }
   };
@@ -126,6 +132,29 @@ export default function HomePage() {
   // Add unit position state
   const [unitPosition] = useState(new THREE.Vector3(0, 0, 0));
 
+  // Update the dummy reset handlers
+  const handleDummy1Reset = useCallback(() => {
+    console.log('handleDummy1Reset called');
+    console.log('Resetting Dummy 1 health to max');
+    requestAnimationFrame(() => {
+      setDummyHealth(300);
+      console.log('Dummy 1 health set to 300');
+    });
+  }, []);
+
+  const handleDummy2Reset = useCallback(() => {
+    console.log('handleDummy2Reset called');
+    console.log('Resetting Dummy 2 health to max');
+    requestAnimationFrame(() => {
+      setDummy2Health(300);
+      console.log('Dummy 2 health set to 300');
+    });
+  }, []);
+
+  useEffect(() => {
+    console.log(`Dummy 1 Health: ${dummyHealth}`);
+  }, [dummyHealth]);
+
   // Prepare props for Scene component
   const sceneProps = {
     mountainData,
@@ -153,13 +182,13 @@ export default function HomePage() {
         position: new Vector3(5, 0, 5),
         health: dummyHealth,
         maxHealth: 300,
-        onHit: () => setDummyHealth(300),
+        onHit: handleDummy1Reset, // Correctly passed
       },
       {
         position: new Vector3(-5, 0, 5),
         health: dummy2Health,
         maxHealth: 300,
-        onHit: () => setDummy2Health(300),
+        onHit: handleDummy2Reset, // Correctly passed
       },
     ],
   };
@@ -181,8 +210,8 @@ export default function HomePage() {
           }}
         />
       </Canvas>
-      <Panel 
-        currentWeapon={currentWeapon} 
+      <Panel
+        currentWeapon={currentWeapon}
         onWeaponSelect={handleWeaponSelect}
         playerHealth={playerHealth}
         maxHealth={200}

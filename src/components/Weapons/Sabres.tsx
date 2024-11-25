@@ -28,7 +28,6 @@ interface SabreProps {
       if (isSwinging) {
         // Handle left sabre swing
         if (leftSabreRef.current) {
-          // Call onLeftSwingStart when the swing begins
           if (leftSwingProgress.current === 0) {
             onLeftSwingStart();
           }
@@ -55,17 +54,15 @@ interface SabreProps {
           if (leftSwingProgress.current >= Math.PI) {
             leftSwingProgress.current = 0;
             leftSabreRef.current.rotation.set(0, 0, 0);
-            leftSabreRef.current.position.set(leftBasePosition[0], leftBasePosition[1], leftBasePosition[2]);
-            onSwingComplete();
+            leftSabreRef.current.position.set(...leftBasePosition);
           }
         }
   
-        // Handle right sabre swing with delay
+        // Handle right sabre swing with shorter delay
         if (rightSabreRef.current) {
-          if (rightSwingDelay.current < 0.15) {
+          if (rightSwingDelay.current < 0.08) {
             rightSwingDelay.current += delta;
           } else {
-            // Call onRightSwingStart when the delayed swing begins
             if (rightSwingProgress.current === 0) {
               onRightSwingStart();
             }
@@ -92,7 +89,7 @@ interface SabreProps {
             if (rightSwingProgress.current >= Math.PI) {
               rightSwingProgress.current = 0;
               rightSabreRef.current.rotation.set(0, 0, 0);
-              rightSabreRef.current.position.set(rightBasePosition[0], rightBasePosition[1], rightBasePosition[2]);
+              rightSabreRef.current.position.set(...rightBasePosition);
               onSwingComplete();
             }
           }

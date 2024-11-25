@@ -11,6 +11,8 @@ import Planet from '../Environment/Planet';
 import Lights from '../Effects/Lights';
 import { Stars } from '@react-three/drei';
 import * as THREE from 'three';
+import { UnitProps } from '../../types/UnitProps';
+import { TrainingDummyProps } from '../../types/TrainingDummyProps';
 
 // Props Interface
 interface SceneProps {
@@ -25,8 +27,8 @@ interface SceneProps {
   treePositions: { mainTree: THREE.Vector3 };
   interactiveTrunkColor: THREE.Color;
   interactiveLeafColor: THREE.Color;
-  unitProps: any; // Replace with actual props type for Unit
-  dummyProps: Array<any>; // Replace with actual props type for TrainingDummy
+  unitProps: UnitProps;
+  dummyProps: Array<TrainingDummyProps>;
 }
 
 const Scene: React.FC<SceneProps> = ({
