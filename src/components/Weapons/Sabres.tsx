@@ -24,79 +24,88 @@ interface SabreProps {
     // Ref for tracking right swing delay
     const rightSwingDelay = useRef(0);
   
+    // Add a new ref to track swing completion
+    const isSwingComplete = useRef(false);
+  
     useFrame((_, delta) => {
       if (isSwinging) {
-        // Handle left sabre swing
-        if (leftSabreRef.current) {
-          if (leftSwingProgress.current === 0) {
-            onLeftSwingStart();
-          }
-          leftSwingProgress.current += delta * 7;
-  
-          const swingPhase = Math.min(leftSwingProgress.current / Math.PI, 1);
-  
-          // More direct forward slash movement
-          const pivotX = leftBasePosition[0] + Math.sin(swingPhase * Math.PI) * 1.0;
-          const pivotY = leftBasePosition[1] + 
-            (Math.sin(swingPhase * Math.PI * 2) * -0.5);
-          const pivotZ = leftBasePosition[2] + 
-            (Math.sin(swingPhase * Math.PI * 0.5) * 2.0);
-  
-          leftSabreRef.current.position.set(pivotX, pivotY, pivotZ);
-  
-          // Crisper rotation for slash
-          const rotationX = Math.sin(swingPhase * Math.PI) * (Math.PI * 0.7);
-          const rotationY = Math.sin(swingPhase * Math.PI) * (Math.PI * 0.2);
-          const rotationZ = Math.pow(Math.sin(swingPhase * Math.PI), 2) * (Math.PI * 0.4);
-  
-          leftSabreRef.current.rotation.set(rotationX, rotationY, rotationZ);
-  
-          if (leftSwingProgress.current >= Math.PI) {
-            leftSwingProgress.current = 0;
-            leftSabreRef.current.rotation.set(0, 0, 0);
-            leftSabreRef.current.position.set(...leftBasePosition);
-          }
-        }
-  
-        // Handle right sabre swing with shorter delay
-        if (rightSabreRef.current) {
-          if (rightSwingDelay.current < 0.08) {
-            rightSwingDelay.current += delta;
-          } else {
-            if (rightSwingProgress.current === 0) {
-              onRightSwingStart();
+        if (!isSwingComplete.current) {
+          // Handle left sabre swing
+          if (leftSabreRef.current) {
+            if (leftSwingProgress.current === 0) {
+              onLeftSwingStart();
             }
-            rightSwingProgress.current += delta * 7;
+            leftSwingProgress.current += delta * 7;
   
-            const swingPhase = Math.min(rightSwingProgress.current / Math.PI, 1);
+            const swingPhase = Math.min(leftSwingProgress.current / Math.PI, 1);
   
-            // More direct forward slash movement
-            const pivotX = rightBasePosition[0] - Math.sin(swingPhase * Math.PI) * 1.0;
-            const pivotY = rightBasePosition[1] + 
+            // Left sabre movement
+            const pivotX = leftBasePosition[0] + Math.sin(swingPhase * Math.PI) * 1.0;
+            const pivotY = leftBasePosition[1] + 
               (Math.sin(swingPhase * Math.PI * 2) * -0.5);
-            const pivotZ = rightBasePosition[2] + 
+            const pivotZ = leftBasePosition[2] + 
               (Math.sin(swingPhase * Math.PI * 0.5) * 2.0);
   
-            rightSabreRef.current.position.set(pivotX, pivotY, pivotZ);
+            leftSabreRef.current.position.set(pivotX, pivotY, pivotZ);
   
-            // Crisper rotation for slash
             const rotationX = Math.sin(swingPhase * Math.PI) * (Math.PI * 0.7);
             const rotationY = Math.sin(swingPhase * Math.PI) * (Math.PI * 0.2);
             const rotationZ = Math.pow(Math.sin(swingPhase * Math.PI), 2) * (Math.PI * 0.4);
   
-            rightSabreRef.current.rotation.set(rotationX, rotationY, rotationZ);
+            leftSabreRef.current.rotation.set(rotationX, rotationY, rotationZ);
   
-            if (rightSwingProgress.current >= Math.PI) {
-              rightSwingProgress.current = 0;
-              rightSabreRef.current.rotation.set(0, 0, 0);
-              rightSabreRef.current.position.set(...rightBasePosition);
-              onSwingComplete();
+            if (leftSwingProgress.current >= Math.PI) {
+              leftSwingProgress.current = 0;
+              leftSabreRef.current.rotation.set(0, 0, 0);
+              leftSabreRef.current.position.set(...leftBasePosition);
+            }
+          }
+  
+          // Handle right sabre swing - exact copy with mirrored X position
+          if (rightSabreRef.current && !isSwingComplete.current) {
+            if (rightSwingDelay.current < 0.08) {
+              rightSwingDelay.current += delta;
+            } else {
+              if (rightSwingProgress.current === 0) {
+                onRightSwingStart();
+              }
+              rightSwingProgress.current += delta * 7;
+  
+              const swingPhase = Math.min(rightSwingProgress.current / Math.PI, 1);
+  
+              // Right sabre movement - only difference is the X position is mirrored
+              const pivotX = rightBasePosition[0] - Math.sin(swingPhase * Math.PI) * 1.0;
+              const pivotY = rightBasePosition[1] + 
+                (Math.sin(swingPhase * Math.PI * 2) * -0.5);
+              const pivotZ = rightBasePosition[2] + 
+                (Math.sin(swingPhase * Math.PI * 0.5) * 2.0);
+  
+              rightSabreRef.current.position.set(pivotX, pivotY, pivotZ);
+  
+              // Exact same rotation as left sabre
+              const rotationX = Math.sin(swingPhase * Math.PI) * (Math.PI * 0.7);
+              const rotationY = Math.sin(swingPhase * Math.PI) * (Math.PI * 0.2);
+              const rotationZ = Math.pow(Math.sin(swingPhase * Math.PI), 2) * (Math.PI * 0.4);
+  
+              rightSabreRef.current.rotation.set(rotationX, rotationY, rotationZ);
+  
+              if (rightSwingProgress.current >= Math.PI) {
+                rightSwingProgress.current = 0;
+                rightSwingDelay.current = 0;
+                rightSabreRef.current.rotation.set(0, 0, 0);
+                rightSabreRef.current.position.set(...rightBasePosition);
+                isSwingComplete.current = true;
+                onSwingComplete();
+              }
             }
           }
         }
       } else {
-        // Reset delays and swing progress when not swinging
+        // Reset all values when not swinging
+        rightSwingProgress.current = 0;
         rightSwingDelay.current = 0;
+        leftSwingProgress.current = 0;
+        isSwingComplete.current = false;  // Reset completion flag
   
         // Smooth return to the initial position for left sabre
         if (leftSabreRef.current) {

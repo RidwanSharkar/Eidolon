@@ -319,7 +319,8 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
   const releaseBowShot = useCallback((power: number) => {
     if (!groupRef.current) return;
 
-    const damage = power >= 1 ? 40 : 5;
+    // Increase base damage for charged shots
+    const damage = Math.floor(power >= 1 ? 40 : Math.max(20 * power, 5));
     const unitPosition = groupRef.current.position.clone();
     unitPosition.y += 1;
 
@@ -332,7 +333,7 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
     // Create a ray for hit detection
     const ray = new THREE.Ray(rayStart, direction.normalize());
 
-    // Check hits on training dummies
+    // Check hits on training dummies with more forgiving hit detection
     [
       { position: new Vector3(5, 0, 5), id: 'dummy1' as const },
       { position: new Vector3(-5, 0, 5), id: 'dummy2' as const }
@@ -343,14 +344,16 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
       const distanceToRay = ray.distanceToPoint(dummyPos);
       const distanceAlongRay = ray.direction.dot(dummyPos.clone().sub(rayStart));
       
-      const hitRadius = 1;
+      // Increased hit radius and more forgiving hit detection
+      const hitRadius = 1.5;
       if (distanceToRay < hitRadius && distanceAlongRay > 0 && distanceAlongRay < maxRange) {
-        onDummyHit(dummy.id, damage);
+        const { damage: finalDamage, isCritical } = calculateDamage(damage);
+        onDummyHit(dummy.id, finalDamage);
         setDamageNumbers(prev => [...prev, {
           id: nextDamageNumberId.current++,
-          damage,
+          damage: finalDamage,
           position: dummy.position.clone(),
-          isCritical: power >= 1
+          isCritical: power >= 1 || isCritical
         }]);
       }
     });
@@ -401,10 +404,11 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
               position: targetPos 
             }]);
             onAbilityUse(currentWeapon, 'e');
-          } else if (currentWeapon === WeaponType.SABRES || currentWeapon === WeaponType.SABRES2) {
+          } else if ((currentWeapon === WeaponType.SABRES || currentWeapon === WeaponType.SABRES2) && !isBowCharging) {
+            // Only start charging if we're not already charging
             setIsBowCharging(true);
             bowChargeStartTime.current = Date.now();
-          } else {
+          } else if (!(currentWeapon === WeaponType.SABRES || currentWeapon === WeaponType.SABRES2)) {
             shootFireball();
             onAbilityUse(currentWeapon, 'e');
           }
@@ -574,6 +578,7 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
       {smiteEffects?.map(effect => (
         <Smite
           key={effect.id}
+          weaponType={currentWeapon}
           position={effect.position}
           onComplete={() => handleSmiteEffectComplete(effect.id)}
         />

@@ -39,28 +39,28 @@ export default function Panel({ currentWeapon, onWeaponSelect, playerHealth, max
           onClick={() => onWeaponSelect(WeaponType.SCYTHE)}
           style={{ ...weaponIconStyle, position: 'relative' }}
         >
-          <img src="/icons/scythe.svg" alt="Scythe" style={weaponIconStyle} />
+          <img src="/icons/1.svg" alt="Scythe" style={weaponIconStyle} />
         </div>
         <div 
           className={currentWeapon === WeaponType.SWORD ? styles.activeWeapon : ''}
           onClick={() => onWeaponSelect(WeaponType.SWORD)}
           style={{ ...weaponIconStyle, position: 'relative' }}
         >
-          <img src="/icons/sword.svg" alt="Sword" style={weaponIconStyle} />
+          <img src="/icons/2.svg" alt="Sword" style={weaponIconStyle} />
         </div>
         <div 
           className={currentWeapon === WeaponType.SABRES ? styles.activeWeapon : ''}
           onClick={() => onWeaponSelect(WeaponType.SABRES)}
           style={{ ...weaponIconStyle, position: 'relative' }}
         >
-          <img src="/icons/sabres.svg" alt="Sabres" style={weaponIconStyle} />
+          <img src="/icons/3.svg" alt="Sabres" style={weaponIconStyle} />
         </div>
         <div 
           className={currentWeapon === WeaponType.SABRES2 ? styles.activeWeapon : ''}
           onClick={() => onWeaponSelect(WeaponType.SABRES2)}
           style={{ ...weaponIconStyle, position: 'relative' }}
         >
-          <img src="/icons/sabres2.svg" alt="Sabres2" style={weaponIconStyle} />
+          <img src="/icons/3.svg" alt="Sabres2" style={weaponIconStyle} />
         </div>
       </div>
 

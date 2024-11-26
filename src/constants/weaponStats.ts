@@ -14,7 +14,7 @@ export const WEAPON_COOLDOWNS: WeaponCooldowns = {
   },
   [WeaponType.SWORD]: {
     primary: 0.75,
-    secondary: 1.5
+    secondary: 3.0
   },
   [WeaponType.SABRES]: {
     primary: 0.5,

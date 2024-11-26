@@ -15,6 +15,7 @@ export default function EtherealBow({ position, direction, chargeProgress, isCha
   const bowRef = useRef<Group>(null);
   const maxDrawDistance = 2;
   const prevIsCharging = useRef(isCharging);
+  const chargeStartTime = useRef<number | null>(null);
   
   useEffect(() => {
     if (bowRef.current) {
@@ -23,12 +24,21 @@ export default function EtherealBow({ position, direction, chargeProgress, isCha
     }
   }, [direction]);
 
-  // Check for charge release
+  // Check for charge release with improved timing logic
   useFrame(() => {
-    // If we were charging but now we're not, trigger release
-    if (prevIsCharging.current && !isCharging) {
-      onRelease(chargeProgress);
+    // Start charging
+    if (!prevIsCharging.current && isCharging) {
+      chargeStartTime.current = Date.now();
     }
+    
+    // Release charge
+    if (prevIsCharging.current && !isCharging) {
+      const chargeTime = chargeStartTime.current ? (Date.now() - chargeStartTime.current) / 1000 : 0;
+      const finalChargeProgress = Math.min(chargeTime / 2, 1); // 2 seconds for full charge
+      onRelease(finalChargeProgress);
+      chargeStartTime.current = null;
+    }
+    
     prevIsCharging.current = isCharging;
   });
 
@@ -83,7 +93,7 @@ export default function EtherealBow({ position, direction, chargeProgress, isCha
 
       {/* Arrow */}
       {isCharging && (
-        <group position={[0, 0, -chargeProgress * maxDrawDistance]}>
+        <group position={[0, 0, -chargeProgress * maxDrawDistance]} rotation={[Math.PI / 2, 0, 0]}>
           <mesh>
             <cylinderGeometry args={[0.01, 0.01, 0.5, 8]} />
             <meshStandardMaterial 
@@ -94,8 +104,8 @@ export default function EtherealBow({ position, direction, chargeProgress, isCha
               opacity={0.9}
             />
           </mesh>
-          {/* Arrow head */}
-          <mesh position={[0, 0.3, 0]} rotation={[0, 0, 0]}>
+          {/* Arrow head - adjusted position */}
+          <mesh position={[0, 0.25, 0]}>
             <coneGeometry args={[0.03, 0.1, 8]} />
             <meshStandardMaterial 
               color="#00ffff"

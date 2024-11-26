@@ -1,8 +1,10 @@
 import { useRef } from 'react';
 import { Group, Vector3 } from 'three';
 import { useFrame } from '@react-three/fiber';
+import { WeaponType } from '../../types/weapons';
 
 interface SmiteProps {
+  weaponType: WeaponType;
   position: Vector3;
   onComplete: () => void;
 }
@@ -10,9 +12,9 @@ interface SmiteProps {
 export default function Smite({ position, onComplete }: SmiteProps) {
   const lightningRef = useRef<Group>(null);
   const progressRef = useRef(0);
-  const duration = 1.0; // Increased from 0.7 to 1.0 seconds
+  const animationDuration = 1.0; // Fixed animation duration (in seconds)
   const delayTimer = useRef(0);
-  const startDelay = 0.25; // Keep the same delay
+  const startDelay = 0.25; // Same initial delay
 
   useFrame((_, delta) => {
     if (!lightningRef.current) return;
@@ -24,7 +26,7 @@ export default function Smite({ position, onComplete }: SmiteProps) {
     }
 
     progressRef.current += delta;
-    const progress = Math.min(progressRef.current / duration, 1);
+    const progress = Math.min(progressRef.current / animationDuration, 1);
 
     // Animate the lightning bolt
     if (progress < 1) {
@@ -32,8 +34,8 @@ export default function Smite({ position, onComplete }: SmiteProps) {
       const startY = 20;
       const currentY = startY * (1 - progress);
       lightningRef.current.position.y = currentY;
-      
-      // Adjusted scale effect to last longer
+
+      // Adjust scale effect
       const scale = progress < 0.9 ? 1 : 1 - (progress - 0.9) / 0.1;
       lightningRef.current.scale.set(scale, scale, scale);
     } else {
@@ -42,10 +44,14 @@ export default function Smite({ position, onComplete }: SmiteProps) {
   });
 
   return (
-    <group ref={lightningRef} position={[position.x, 25, position.z]} visible={delayTimer.current >= startDelay}>
-      {/* Core lightning bolt - increased width */}
+    <group
+      ref={lightningRef}
+      position={[position.x, 25, position.z]}
+      visible={delayTimer.current >= startDelay}
+    >
+      {/* Core lightning bolt */}
       <mesh>
-        <cylinderGeometry args={[0.35, 0.35, 20, 16]} /> {/* Increased from 0.2 to 0.35 */}
+        <cylinderGeometry args={[0.35, 0.35, 20, 16]} />
         <meshStandardMaterial
           color="#ffffff"
           emissive="#ffdb4d"
@@ -55,9 +61,9 @@ export default function Smite({ position, onComplete }: SmiteProps) {
         />
       </mesh>
 
-      {/* Inner glow - increased width */}
+      {/* Inner glow */}
       <mesh>
-        <cylinderGeometry args={[0.7, 0.7, 20, 16]} /> {/* Increased from 0.4 to 0.7 */}
+        <cylinderGeometry args={[0.7, 0.7, 20, 16]} />
         <meshStandardMaterial
           color="#ffdb4d"
           emissive="#ffdb4d"
@@ -67,9 +73,9 @@ export default function Smite({ position, onComplete }: SmiteProps) {
         />
       </mesh>
 
-      {/* Outer glow - increased width */}
+      {/* Outer glow */}
       <mesh>
-        <cylinderGeometry args={[1.0, 1.0, 20, 16]} /> {/* Increased from 0.6 to 1.0 */}
+        <cylinderGeometry args={[1.0, 1.0, 20, 16]} />
         <meshStandardMaterial
           color="#fff5cc"
           emissive="#fff5cc"
@@ -79,10 +85,10 @@ export default function Smite({ position, onComplete }: SmiteProps) {
         />
       </mesh>
 
-      {/* Spiral effect - increased radius */}
+      {/* Spiral effect */}
       {[...Array(3)].map((_, i) => (
         <mesh key={i} rotation={[0, (i * Math.PI) / 1.5, 0]}>
-          <torusGeometry args={[1.2, 0.08, 8, 32]} /> {/* Increased from 0.8 to 1.2, thickness from 0.05 to 0.08 */}
+          <torusGeometry args={[1.2, 0.08, 8, 32]} />
           <meshStandardMaterial
             color="#ffff00"
             emissive="#ffff00"
@@ -93,14 +99,17 @@ export default function Smite({ position, onComplete }: SmiteProps) {
         </mesh>
       ))}
 
-      {/* Floating particles - increased spread */}
+      {/* Floating particles */}
       {[...Array(8)].map((_, i) => (
-        <mesh key={i} position={[
-          Math.cos(i * Math.PI / 4) * 1.0, // Increased radius from 0.7 to 1.0
-          (i - 4) * 2,
-          Math.sin(i * Math.PI / 4) * 1.0  // Increased radius from 0.7 to 1.0
-        ]}>
-          <sphereGeometry args={[0.15, 8, 8]} /> {/* Increased from 0.1 to 0.15 */}
+        <mesh
+          key={i}
+          position={[
+            Math.cos((i * Math.PI) / 4) * 1.0,
+            (i - 4) * 2,
+            Math.sin((i * Math.PI) / 4) * 1.0,
+          ]}
+        >
+          <sphereGeometry args={[0.15, 8, 8]} />
           <meshStandardMaterial
             color="#ffff00"
             emissive="#ffff00"
@@ -111,21 +120,11 @@ export default function Smite({ position, onComplete }: SmiteProps) {
         </mesh>
       ))}
 
-      {/* Enhanced impact point glow - increased range */}
-      <pointLight
-        position={[0, -10, 0]}
-        color="#ffdb4d"
-        intensity={20}
-        distance={12} // Increased from 8 to 12
-      />
-      
-      {/* Additional ambient glow - increased range */}
-      <pointLight
-        position={[0, 0, 0]}
-        color="#fff5cc"
-        intensity={10}
-        distance={6} // Increased from 4 to 6
-      />
+      {/* Enhanced impact point glow */}
+      <pointLight position={[0, -10, 0]} color="#ffdb4d" intensity={20} distance={12} />
+
+      {/* Additional ambient glow */}
+      <pointLight position={[0, 0, 0]} color="#fff5cc" intensity={10} distance={6} />
     </group>
   );
 }
