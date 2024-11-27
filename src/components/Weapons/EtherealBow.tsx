@@ -67,7 +67,7 @@ export default function EtherealBow({ position, direction, chargeProgress, isCha
 
   return (
     <group ref={bowRef} position={position.toArray()}>
-      {/* Bow frame - rotated to point forward */}
+      {/* Bow frame */}
       <mesh rotation={[Math.PI/2, 0, 0]}>
         <tubeGeometry args={[createBowCurve(), 64, 0.02, 8, false]} />
         <meshStandardMaterial 
@@ -91,12 +91,15 @@ export default function EtherealBow({ position, direction, chargeProgress, isCha
         />
       </mesh>
 
-      {/* Arrow - adjusted to point forward */}
+      {/* Arrow - with increased length */}
       {isCharging && (
-        <group position={[0, 0, -chargeProgress * maxDrawDistance]} rotation={[Math.PI/2, 0, 0]}>
-          {/* Arrow shaft */}
+        <group 
+          position={[0, 0, 0.8 - chargeProgress * maxDrawDistance]}
+          rotation={[Math.PI/2, 0, 0]}
+        >
+          {/* Arrow shaft - increased length from 0.5 to 0.7 */}
           <mesh>
-            <cylinderGeometry args={[0.01, 0.01, 0.5, 8]} />
+            <cylinderGeometry args={[0.01, 0.01, 0.7, 8]} />
             <meshStandardMaterial 
               color="#00ffff"
               emissive="#00ffff"
@@ -105,8 +108,8 @@ export default function EtherealBow({ position, direction, chargeProgress, isCha
               opacity={0.9}
             />
           </mesh>
-          {/* Arrow head */}
-          <mesh position={[0, 0.25, 0]}>
+          {/* Arrow head - adjusted position for longer shaft */}
+          <mesh position={[0, 0.35, 0]}>  {/* Increased from 0.25 to 0.35 to match longer shaft */}
             <coneGeometry args={[0.03, 0.1, 8]} />
             <meshStandardMaterial 
               color="#00ffff"
