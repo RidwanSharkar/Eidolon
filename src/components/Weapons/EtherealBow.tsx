@@ -93,7 +93,8 @@ export default function EtherealBow({ position, direction, chargeProgress, isCha
 
       {/* Arrow */}
       {isCharging && (
-        <group position={[0, 0, -chargeProgress * maxDrawDistance]} rotation={[Math.PI / 2, 0, 0]}>
+        <group position={[0, 0, -chargeProgress * maxDrawDistance]} rotation={[0, 0, 0]}>
+          {/* Arrow shaft */}
           <mesh>
             <cylinderGeometry args={[0.01, 0.01, 0.5, 8]} />
             <meshStandardMaterial 
@@ -104,8 +105,8 @@ export default function EtherealBow({ position, direction, chargeProgress, isCha
               opacity={0.9}
             />
           </mesh>
-          {/* Arrow head - adjusted position */}
-          <mesh position={[0, 0.25, 0]}>
+          {/* Arrow head - pointing forward */}
+          <mesh position={[0, 0, -0.25]}>
             <coneGeometry args={[0.03, 0.1, 8]} />
             <meshStandardMaterial 
               color="#00ffff"
