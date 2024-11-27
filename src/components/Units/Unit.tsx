@@ -289,30 +289,23 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
 
     // Update projectiles with range limit
     setActiveProjectiles(prev => prev.map(projectile => {
-      const elapsed = (Date.now() - projectile.startTime) / 1000;
-      
       // Calculate distance traveled
       const distanceTraveled = projectile.position.distanceTo(projectile.startPosition);
       
       if (distanceTraveled < projectile.maxDistance) {
         const speed = 0.5;
-        const wave = Math.sin(elapsed * 10) * 0.05;
-        
         projectile.position.add(
           projectile.direction
             .clone()
             .multiplyScalar(speed)
-            .add(new Vector3(wave, wave, 0))
         );
         
         return projectile;
       }
       return projectile;
     }).filter(projectile => {
-      // Remove projectiles that have exceeded their range or time limit
-      const elapsed = (Date.now() - projectile.startTime) / 1000;
       const distanceTraveled = projectile.position.distanceTo(projectile.startPosition);
-      return elapsed < 0.5 && distanceTraveled < projectile.maxDistance;
+      return distanceTraveled < projectile.maxDistance;
     }));
   });
 
@@ -609,10 +602,14 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
         <group
           key={projectile.id}
           position={projectile.position.toArray()}
-          rotation={[0, Math.atan2(projectile.direction.x, projectile.direction.z), 0]}
+          rotation={[
+            0,
+            Math.atan2(projectile.direction.x, projectile.direction.z),
+            0
+          ]}
         >
-          {/* Core projectile */}
-          <mesh>
+          {/* Core projectile - Adjusted geometry orientation */}
+          <mesh rotation={[Math.PI/2, 0, 0]}>  {/* Rotate the mesh itself */}
             <cylinderGeometry args={[0.2, 0.4, 1.2, 8]} />
             <meshStandardMaterial
               color="#00ffff"
@@ -624,7 +621,7 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
           </mesh>
 
           {/* Inner energy core */}
-          <mesh>
+          <mesh rotation={[Math.PI/2, 0, 0]}>
             <sphereGeometry args={[0.3, 16, 16]} />
             <meshStandardMaterial
               color="#ffffff"
