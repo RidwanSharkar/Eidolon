@@ -20,7 +20,7 @@ export default function EtherealBow({ position, direction, chargeProgress, isCha
   useEffect(() => {
     if (bowRef.current) {
       const angle = Math.atan2(direction.x, direction.z);
-      bowRef.current.rotation.y = angle;
+      bowRef.current.rotation.set(0, angle, 0);
     }
   }, [direction]);
 
@@ -67,8 +67,8 @@ export default function EtherealBow({ position, direction, chargeProgress, isCha
 
   return (
     <group ref={bowRef} position={position.toArray()}>
-      {/* Bow frame */}
-      <mesh>
+      {/* Bow frame - rotated to point forward */}
+      <mesh rotation={[Math.PI/2, 0, 0]}>
         <tubeGeometry args={[createBowCurve(), 64, 0.02, 8, false]} />
         <meshStandardMaterial 
           color="#00ffff"
@@ -91,9 +91,9 @@ export default function EtherealBow({ position, direction, chargeProgress, isCha
         />
       </mesh>
 
-      {/* Arrow */}
+      {/* Arrow - adjusted to point forward */}
       {isCharging && (
-        <group position={[0, 0, -chargeProgress * maxDrawDistance]} rotation={[0, 0, 0]}>
+        <group position={[0, 0, -chargeProgress * maxDrawDistance]} rotation={[Math.PI/2, 0, 0]}>
           {/* Arrow shaft */}
           <mesh>
             <cylinderGeometry args={[0.01, 0.01, 0.5, 8]} />
@@ -105,8 +105,8 @@ export default function EtherealBow({ position, direction, chargeProgress, isCha
               opacity={0.9}
             />
           </mesh>
-          {/* Arrow head - pointing forward */}
-          <mesh position={[0, 0, -0.25]}>
+          {/* Arrow head */}
+          <mesh position={[0, 0.25, 0]}>
             <coneGeometry args={[0.03, 0.1, 8]} />
             <meshStandardMaterial 
               color="#00ffff"
@@ -121,7 +121,7 @@ export default function EtherealBow({ position, direction, chargeProgress, isCha
 
       {/* Charge indicator line */}
       {isCharging && (
-        <mesh>
+        <mesh rotation={[Math.PI/2, 0, 0]}>
           <tubeGeometry args={[
             new THREE.LineCurve3(
               new THREE.Vector3(0, 0, 0),
