@@ -42,25 +42,25 @@ export default function EtherealBow({ position, direction, chargeProgress, isCha
     prevIsCharging.current = isCharging;
   });
 
-  // Create the bow curve
+  // Create a V-shaped bow curve
   const createBowCurve = () => {
     const curve = new THREE.CubicBezierCurve3(
-      new THREE.Vector3(-0.3, 0, 0),
-      new THREE.Vector3(-0.4, 0.5, 0),
-      new THREE.Vector3(0.4, 0.5, 0),
-      new THREE.Vector3(0.3, 0, 0)
+      new THREE.Vector3(-0.8, 0, 0),      // Left base point
+      new THREE.Vector3(-0.85, 0.3, 0),   // Reduced Y and moved X closer to base for sharper angle
+      new THREE.Vector3(0.85, 0.3, 0),    // Reduced Y and moved X closer to base for sharper angle
+      new THREE.Vector3(0.8, 0, 0)        // Right base point
     );
     return curve;
   };
 
-  // Create the string curve based on draw
+  // String curve remains the same to maintain functionality
   const createStringCurve = (drawAmount: number) => {
     const pullback = drawAmount * maxDrawDistance;
     const curve = new THREE.CubicBezierCurve3(
-      new THREE.Vector3(-0.3, 0, 0),
+      new THREE.Vector3(-0.8, 0, 0),
       new THREE.Vector3(0, -0.1, -pullback),
       new THREE.Vector3(0, 0.1, -pullback),
-      new THREE.Vector3(0.3, 0, 0)
+      new THREE.Vector3(0.8, 0, 0)
     );
     return curve;
   };
