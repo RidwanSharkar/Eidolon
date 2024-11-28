@@ -39,20 +39,20 @@ export default function HomePage() {
   const [dummy2Health, setDummy2Health] = useState(300);
   const [abilities, setAbilities] = useState<WeaponInfo>({
     [WeaponType.SWORD]: {
-      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/sword_q.svg' },
-      e: { key: 'e', cooldown: 2.5, currentCooldown: 0, icon: '/icons/sword_e.svg' }
+      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/q2.svg' },
+      e: { key: 'e', cooldown: 3, currentCooldown: 0, icon: '/icons/e2.svg' }
     },
     [WeaponType.SCYTHE]: {
-      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/scythe_q.svg' },
-      e: { key: 'e', cooldown: 2.5, currentCooldown: 0, icon: '/icons/scythe_e.svg' }
+      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/q1.svg' },
+      e: { key: 'e', cooldown: 1, currentCooldown: 0, icon: '/icons/e1.svg' }
     },
     [WeaponType.SABRES]: {
-      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/sabres_q.svg' },
-      e: { key: 'e', cooldown: 2.5, currentCooldown: 0, icon: '/icons/sabres_e.svg' }
+      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/q3.svg' },
+      e: { key: 'e', cooldown: 1, currentCooldown: 0, icon: '/icons/e3.svg' }
     },
     [WeaponType.SABRES2]: {
       q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/sabres2_q.svg' },
-      e: { key: 'e', cooldown: 2.5, currentCooldown: 0, icon: '/icons/sabres2_e.svg' }
+      e: { key: 'e', cooldown: 3, currentCooldown: 0, icon: '/icons/sabres2_e.svg' }
     }
   });
 

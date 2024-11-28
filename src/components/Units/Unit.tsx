@@ -599,106 +599,156 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
       )}
 
       {activeProjectiles.map(projectile => (
-        <group
-          key={projectile.id}
-          position={projectile.position.toArray()}
-          rotation={[
-            0,
-            Math.atan2(projectile.direction.x, projectile.direction.z),
-            0
-          ]}
-        >
-          {/* Core projectile - Adjusted geometry orientation */}
-          <mesh rotation={[Math.PI/2, 0, 0]}>  {/* Rotate the mesh itself */}
-            <cylinderGeometry args={[0.2, 0.4, 1.2, 8]} />
-            <meshStandardMaterial
-              color="#00ffff"
-              emissive="#00ffff"
-              emissiveIntensity={5}
-              transparent
-              opacity={0.9}
-            />
-          </mesh>
-
-          {/* Inner energy core */}
-          <mesh rotation={[Math.PI/2, 0, 0]}>
-            <sphereGeometry args={[0.3, 16, 16]} />
-            <meshStandardMaterial
-              color="#ffffff"
-              emissive="#ffffff"
-              emissiveIntensity={8}
-              transparent
-              opacity={0.7}
-            />
-          </mesh>
-
-          {/* Outer energy shell */}
-          <mesh scale={[1.2, 1.2, 1.5]}>
-            <sphereGeometry args={[0.4, 16, 16]} />
-            <meshStandardMaterial
-              color="#80ffff"
-              emissive="#40ffff"
-              emissiveIntensity={3}
-              transparent
-              opacity={0.3}
-              blending={THREE.AdditiveBlending}
-            />
-          </mesh>
-
-          {/* Trailing particles */}
-          {[...Array(4)].map((_, i) => (
-            <mesh
-              key={i}
-              position={[
-                Math.sin(Date.now() * 0.01 + i) * 0.2,
-                Math.cos(Date.now() * 0.01 + i) * 0.2,
-                -i * 0.3
-              ]}
-            >
-              <sphereGeometry args={[0.15 - i * 0.03, 8, 8]} />
+        <group key={projectile.id}>
+          <group
+            position={projectile.position.toArray()}
+            rotation={[
+              0,
+              Math.atan2(projectile.direction.x, projectile.direction.z),
+              0
+            ]}
+          >
+            <mesh rotation={[Math.PI/2, 0, 0]}>
+              <cylinderGeometry args={[0.2, 0.4, 1.2, 8]} />
               <meshStandardMaterial
                 color="#00ffff"
                 emissive="#00ffff"
-                emissiveIntensity={4}
+                emissiveIntensity={5}
                 transparent
-                opacity={0.5 - i * 0.1}
+                opacity={0.9}
               />
             </mesh>
-          ))}
 
-          {/* Energy rings */}
-          {[...Array(3)].map((_, i) => (
-            <mesh
-              key={`ring-${i}`}
-              position={[0, 0, -i * 0.4]}
-              rotation={[Math.PI / 2, 0, Date.now() * 0.003 + i * Math.PI / 3]}
-            >
-              <torusGeometry args={[0.4 + i * 0.1, 0.05, 8, 16]} />
+            <mesh rotation={[Math.PI/2, 0, 0]}>
+              <sphereGeometry args={[0.3, 16, 16]} />
               <meshStandardMaterial
-                color="#00ffff"
-                emissive="#00ffff"
+                color="#ffffff"
+                emissive="#ffffff"
+                emissiveIntensity={8}
+                transparent
+                opacity={0.7}
+              />
+            </mesh>
+
+            <mesh scale={[1.2, 1.2, 1.5]}>
+              <sphereGeometry args={[0.4, 16, 16]} />
+              <meshStandardMaterial
+                color="#80ffff"
+                emissive="#40ffff"
                 emissiveIntensity={3}
                 transparent
-                opacity={0.4 - i * 0.1}
+                opacity={0.3}
+                blending={THREE.AdditiveBlending}
               />
             </mesh>
-          ))}
 
-          {/* Strong point light for local illumination */}
-          <pointLight 
-            color="#00ffff" 
-            intensity={4} 
-            distance={5}
-            decay={2}
-          />
+            {[...Array(4)].map((_, i) => (
+              <mesh
+                key={i}
+                position={[
+                  Math.sin(Date.now() * 0.01 + i) * 0.2,
+                  Math.cos(Date.now() * 0.01 + i) * 0.2,
+                  -i * 0.3
+                ]}
+              >
+                <sphereGeometry args={[0.15 - i * 0.03, 8, 8]} />
+                <meshStandardMaterial
+                  color="#00ffff"
+                  emissive="#00ffff"
+                  emissiveIntensity={4}
+                  transparent
+                  opacity={0.5 - i * 0.1}
+                />
+              </mesh>
+            ))}
 
-          {/* Wider ambient glow */}
-          <pointLight
-            color="#80ffff"
-            intensity={2}
-            distance={8}
-            decay={1}
-          />
+            {[...Array(3)].map((_, i) => (
+              <mesh
+                key={`ring-${i}`}
+                position={[0, 0, -i * 0.4]}
+                rotation={[Math.PI / 2, 0, Date.now() * 0.003 + i * Math.PI / 3]}
+              >
+                <torusGeometry args={[0.4 + i * 0.1, 0.05, 8, 16]} />
+                <meshStandardMaterial
+                  color="#00ffff"
+                  emissive="#00ffff"
+                  emissiveIntensity={3}
+                  transparent
+                  opacity={0.4 - i * 0.1}
+                />
+              </mesh>
+            ))}
+
+            <pointLight 
+              color="#00ffff" 
+              intensity={4} 
+              distance={5}
+              decay={2}
+            />
+
+            <pointLight
+              color="#80ffff"
+              intensity={2}
+              distance={8}
+              decay={1}
+            />
+          </group>
+
+          {projectile.power >= 1 && (
+            <group
+              position={projectile.position.toArray()}
+              rotation={[
+                0,
+                Math.atan2(projectile.direction.x, projectile.direction.z),
+                0
+              ]}
+            >
+              {[...Array(12)].map((_, i) => {
+                const scale = 1 - (i * 0.08);
+                const opacity = 0.8 - (i * 0.06);
+                const offset = -i * 0.5;
+                
+                return (
+                  <group 
+                    key={`power-trail-${i}`}
+                    position={[0, 0, offset]}
+                    scale={[scale * 0.6, scale * 0.6, 1]}
+                  >
+                    <mesh>
+                      <torusGeometry args={[0.5, 0.15, 8, 16]} />
+                      <meshStandardMaterial
+                        color="#00ffff"
+                        emissive="#00ffff"
+                        emissiveIntensity={8}
+                        transparent
+                        opacity={opacity}
+                        blending={THREE.AdditiveBlending}
+                      />
+                    </mesh>
+
+                    <mesh scale={1.2}>
+                      <torusGeometry args={[0.5, 0.2, 8, 16]} />
+                      <meshStandardMaterial
+                        color="#ffffff"
+                        emissive="#80ffff"
+                        emissiveIntensity={5}
+                        transparent
+                        opacity={opacity * 0.5}
+                        blending={THREE.AdditiveBlending}
+                      />
+                    </mesh>
+                  </group>
+                );
+              })}
+
+              <pointLight
+                color="#00ffff"
+                intensity={3}
+                distance={6}
+                decay={2}
+              />
+            </group>
+          )}
         </group>
       ))}
     </>
