@@ -148,6 +148,11 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
     if (!groupRef.current || !isSwinging) return null;
 
     const isEnemy = targetId.startsWith('enemy');
+    const isDummy = targetId.startsWith('dummy');
+    
+    if (isEnemy && isDummy) return null;
+    if (!isEnemy && !isDummy) return null;
+
     const maxHits = isEnemy 
       ? 2 
       : (currentWeapon === WeaponType.SABRES || currentWeapon === WeaponType.SABRES2 ? 2 : 1);
@@ -164,12 +169,15 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
         [targetId]: (prev[targetId] || 0) + 1
       }));
 
-      let baseDamage;
-      if (currentWeapon === WeaponType.SWORD && isSmiting) {
-        baseDamage = 10; // Regular swing damage during smite
+      let baseDamage = WEAPON_DAMAGES[currentWeapon].normal;
+      
+      // Smite initial hit damage (10)
+      if (isSmiting && currentWeapon === WeaponType.SWORD) {
+        baseDamage = 10;
         const { damage, isCritical } = calculateDamage(baseDamage);
+        onHit(targetId, damage);
 
-        // Add the damage number for the swing
+        // Add the damage number for the initial hit
         setDamageNumbers(prev => [...prev, {
           id: nextDamageNumberId.current++,
           damage,
@@ -177,9 +185,7 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
           isCritical
         }]);
 
-        onHit(targetId, damage);
-
-        // Add delayed lightning damage
+        // Add delayed lightning damage (250ms instead of 100ms)
         setTimeout(() => {
           const { damage: lightningDamage, isCritical: lightningCrit } = calculateDamage(25);
           onHit(targetId, lightningDamage);
@@ -193,18 +199,35 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
         }, 250);
 
         return { damage, isCritical };
+      }
+
+      // Normal weapon hit handling
+      const { damage, isCritical } = calculateDamage(baseDamage);
+      onHit(targetId, damage);
+
+      // Special handling for Sabres to offset damage numbers
+      if (currentWeapon === WeaponType.SABRES) {
+        const offset = currentHits === 0 ? -0.4 : 0.4;
+        setDamageNumbers(prev => [...prev, {
+          id: nextDamageNumberId.current++,
+          damage,
+          position: new Vector3(
+            targetPosition.x + offset,
+            targetPosition.y,
+            targetPosition.z
+          ),
+          isCritical
+        }]);
       } else {
-        baseDamage = WEAPON_DAMAGES[currentWeapon].normal;
-        const { damage, isCritical } = calculateDamage(baseDamage);
-        onHit(targetId, damage);
         setDamageNumbers(prev => [...prev, {
           id: nextDamageNumberId.current++,
           damage,
           position: targetPosition,
           isCritical
         }]);
-        return { damage, isCritical };
       }
+
+      return { damage, isCritical };
     }
 
     return null;
@@ -255,39 +278,14 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
       const dummy1Position = new Vector3(5, 0, 5);
       const dummy2Position = new Vector3(-5, 0, 5);
       
-      const dummy1Hit = handleWeaponHit(dummy1Position, 'dummy1');
-      const dummy2Hit = handleWeaponHit(dummy2Position, 'dummy2');
+      handleWeaponHit(dummy1Position, 'dummy1');
+      handleWeaponHit(dummy2Position, 'dummy2');
       
-      if (dummy1Hit) {
-        onHit('dummy1', dummy1Hit.damage);
-        setDamageNumbers(prev => [...prev, {
-          id: nextDamageNumberId.current++,
-          damage: dummy1Hit.damage,
-          position: dummy1Position,
-          isCritical: dummy1Hit.isCritical
-        }]);
-      }
-      
-      if (dummy2Hit) {
-        onHit('dummy2', dummy2Hit.damage);
-        setDamageNumbers(prev => [...prev, {
-          id: nextDamageNumberId.current++,
-          damage: dummy2Hit.damage,
-          position: dummy2Position,
-          isCritical: dummy2Hit.isCritical
-        }]);
-      }
-
       // Handle hits for enemy units
       enemyData.forEach(enemy => {
         const enemyPos = enemy.position.clone();
-        enemyPos.y = 1.5; // Adjust based on enemy's height
-        const enemyHit = handleWeaponHit(enemyPos, enemy.id);
-        
-        if (enemyHit) {
-          // The `handleWeaponHit` function already calls `onHit`
-          // which should handle updating enemy health in the Scene
-        }
+        enemyPos.y = 1.5;
+        handleWeaponHit(enemyPos, enemy.id);
       });
     }
 
@@ -311,7 +309,7 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
       }
     }
 
-    // Update projectiles with range limit
+    // Update projectiles with range limit and collision detection
     setActiveProjectiles(prev => prev.map(projectile => {
       // Calculate distance traveled
       const distanceTraveled = projectile.position.distanceTo(projectile.startPosition);
@@ -323,6 +321,14 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
             .clone()
             .multiplyScalar(speed)
         );
+
+        // Check for collisions with enemies
+        enemyData.forEach(enemy => {
+          const distanceToEnemy = projectile.position.distanceTo(enemy.position);
+          if (distanceToEnemy < 1.5) { // Hit radius
+            handleProjectileHit(projectile.id, enemy.id, enemy.position.clone());
+          }
+        });
         
         return projectile;
       }
@@ -513,6 +519,25 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
       setHitCountThisSwing({});
     }
   }, [currentWeapon]);
+
+  const handleProjectileHit = (projectileId: number, targetId: string, targetPosition: Vector3) => {
+    const isEnemy = targetId.startsWith('enemy');
+    if (!isEnemy) return; // Only hit enemies with projectiles
+
+    const baseDamage = WEAPON_DAMAGES[currentWeapon].normal;
+    const { damage, isCritical } = calculateDamage(baseDamage);
+    
+    onHit(targetId, damage);
+    setDamageNumbers(prev => [...prev, {
+      id: nextDamageNumberId.current++,
+      damage,
+      position: targetPosition,
+      isCritical
+    }]);
+
+    // Remove the projectile
+    setActiveProjectiles(prev => prev.filter(p => p.id !== projectileId));
+  };
 
   return (
     <>
