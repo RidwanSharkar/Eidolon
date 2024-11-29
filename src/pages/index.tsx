@@ -1,22 +1,23 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls as DreiOrbitControls } from '@react-three/drei';
-import { OrbitControls as OrbitControlsImpl } from 'three/examples/jsm/controls/OrbitControls';
 import { useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import * as THREE from 'three';
-
 import Scene from '../components/Scene/Scene';
 import Panel from '../components/UI/Panel';
 import { WeaponType } from '../types/weapons';
 import { trunkColors, leafColors } from '@/utils/colors';
 import { generateMountains, generateTrees, generateMushrooms } from '@/utils/terrainGenerators';
-
 import { Vector3 } from 'three';
+import OrbitControls from 'three/examples/jsm/controls/OrbitControls';
+import { SceneProps } from '@/types/SceneProps';
 
 interface AbilityButton {
   key: string;
   cooldown: number;
   currentCooldown: number;
   icon: string;
+  maxCooldown: number;
+  name: string;
 }
 
 interface WeaponInfo {
@@ -26,33 +27,32 @@ interface WeaponInfo {
   };
 }
 
-// Type for TrainingDummy props
-type DummyId = 'dummy1' | 'dummy2';
+
 
 // Home Component
 export default function HomePage() {
   const [currentWeapon, setCurrentWeapon] = useState<WeaponType>(WeaponType.SCYTHE);
-  const controlsRef = useRef<OrbitControlsImpl>(null);
+  const controlsRef = useRef<OrbitControls>(null) as React.MutableRefObject<OrbitControls | null>;
   const [playerHealth] = useState(200);
   const [dummyHealth, setDummyHealth] = useState(300);
   const [lastHitTime, setLastHitTime] = useState(0);
   const [dummy2Health, setDummy2Health] = useState(300);
   const [abilities, setAbilities] = useState<WeaponInfo>({
     [WeaponType.SWORD]: {
-      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/q2.svg' },
-      e: { key: 'e', cooldown: 3, currentCooldown: 0, icon: '/icons/e2.svg' }
+      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/q2.svg', maxCooldown: 1, name: 'Sword Q' },
+      e: { key: 'e', cooldown: 3, currentCooldown: 0, icon: '/icons/e2.svg', maxCooldown: 3, name: 'Sword E' }
     },
     [WeaponType.SCYTHE]: {
-      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/q1.svg' },
-      e: { key: 'e', cooldown: 1, currentCooldown: 0, icon: '/icons/e1.svg' }
+      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/q1.svg', maxCooldown: 1, name: 'Scythe Q' },
+      e: { key: 'e', cooldown: 1, currentCooldown: 0, icon: '/icons/e1.svg', maxCooldown: 1, name: 'Scythe E' }
     },
     [WeaponType.SABRES]: {
-      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/q3.svg' },
-      e: { key: 'e', cooldown: 1, currentCooldown: 0, icon: '/icons/e3.svg' }
+      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/q3.svg', maxCooldown: 1, name: 'Sabres Q' },
+      e: { key: 'e', cooldown: 1, currentCooldown: 0, icon: '/icons/e3.svg', maxCooldown: 1, name: 'Sabres E' }
     },
     [WeaponType.SABRES2]: {
-      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/sabres2_q.svg' },
-      e: { key: 'e', cooldown: 3, currentCooldown: 0, icon: '/icons/sabres2_e.svg' }
+      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/sabres2_q.svg', maxCooldown: 1, name: 'Sabres2 Q' },
+      e: { key: 'e', cooldown: 3, currentCooldown: 0, icon: '/icons/sabres2_e.svg', maxCooldown: 3, name: 'Sabres2 E' }
     }
   });
 
@@ -84,19 +84,21 @@ export default function HomePage() {
     setCurrentWeapon(weapon);
   };
 
-  const handleDummyHit = (dummyId: DummyId, damage: number) => {
+  const handleHit = (targetId: string, damage: number) => {
     const currentTime = Date.now();
     if (currentTime - lastHitTime > 100) { // 100ms cooldown
-      if (dummyId === 'dummy1') {
+      if (targetId === 'dummy1') {
         if (dummyHealth > 0) {
           const newHealth = Math.max(0, dummyHealth - damage);
           setDummyHealth(newHealth);
         }
-      } else {
+      } else if (targetId === 'dummy2') {
         if (dummy2Health > 0) {
           const newHealth = Math.max(0, dummy2Health - damage);
           setDummy2Health(newHealth);
         }
+      } else {
+        // Handle other target types (e.g., enemies) if necessary
       }
 
       setLastHitTime(currentTime);
@@ -155,8 +157,11 @@ export default function HomePage() {
     console.log(`Dummy 1 Health: ${dummyHealth}`);
   }, [dummyHealth]);
 
+  // Add skeleton state
+  const [skeletonHealth, setSkeletonHealth] = useState(150);
+
   // Prepare props for Scene component
-  const sceneProps = {
+  const sceneProps: SceneProps = {
     mountainData,
     treeData,
     mushroomData,
@@ -164,7 +169,7 @@ export default function HomePage() {
     interactiveTrunkColor,
     interactiveLeafColor,
     unitProps: {
-      onDummyHit: handleDummyHit,
+      onHit: handleHit,
       controlsRef,
       currentWeapon,
       onWeaponSelect: handleWeaponSelect,
@@ -176,21 +181,49 @@ export default function HomePage() {
       onPositionUpdate: (newPosition: THREE.Vector3) => {
         unitPosition.copy(newPosition);
       },
+      enemyData: [
+        {
+          id: 'dummy1',
+          position: new Vector3(5, 0, 5),
+          health: dummyHealth,
+          maxHealth: 300,
+        },
+        {
+          id: 'dummy2',
+          position: new Vector3(-5, 0, 5),
+          health: dummy2Health,
+          maxHealth: 300,
+        },
+        {
+          id: 'skeleton1',
+          position: new Vector3(0, 0, 8),
+          health: skeletonHealth,
+          maxHealth: 150,
+        },
+      ],
     },
     dummyProps: [
       {
         position: new Vector3(5, 0, 5),
         health: dummyHealth,
         maxHealth: 300,
-        onHit: handleDummy1Reset, // Correctly passed
+        onHit: handleDummy1Reset,
       },
       {
         position: new Vector3(-5, 0, 5),
         health: dummy2Health,
         maxHealth: 300,
-        onHit: handleDummy2Reset, // Correctly passed
-      },
+        onHit: handleDummy2Reset,
+      }
     ],
+    skeletonProps: {
+      position: new Vector3(0, 0, 8),
+      health: skeletonHealth,
+      maxHealth: 150,
+      onHit: (damage: number) => {
+        setSkeletonHealth(prev => Math.max(0, prev - damage));
+      }
+    }
   };
 
   return (

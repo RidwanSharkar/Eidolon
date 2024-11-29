@@ -40,16 +40,19 @@
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 20px;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
     background: rgba(0, 0, 0, 0.5);
     padding: 15px;
     border-radius: 10px;
     z-index: 1000;
   }
 
-  .activeWeapon {
-    border: 2px solid #39ff14;
-    border-radius: 5px;
+  .weaponIcons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 5px;
   }
 
   .healthBar {
@@ -59,6 +62,7 @@
     border: 2px solid #000;
     border-radius: 5px;
     overflow: hidden;
+    position: relative;
   }
 
   .healthBarInner {
@@ -68,16 +72,21 @@
   }
 
   .healthText {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     color: white;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
     font-weight: bold;
     white-space: nowrap;
+    z-index: 1;
   }
 
   .abilityContainer {
     display: flex;
     gap: 10px;
-    margin-left: 20px;
+    margin-bottom: 5px;
   }
 
   .ability {

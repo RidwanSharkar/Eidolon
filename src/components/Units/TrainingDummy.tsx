@@ -1,22 +1,24 @@
-import { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Group, Vector3 } from 'three';
 import { Billboard, Text } from '@react-three/drei';
 
 interface TrainingDummyProps {
+  id: 'dummy1' | 'dummy2';
   position: Vector3;
   health: number;
   maxHealth: number;
   onHit: () => void;
 }
 
-export default function TrainingDummy({ position, health, maxHealth, onHit }: TrainingDummyProps) {
+export default function TrainingDummy({ id, position, health, maxHealth, onHit }: TrainingDummyProps) {
   const dummyRef = useRef<Group>(null);
   const regenerationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Enhanced regeneration logic
+  // Regeneration logic
   useEffect(() => {
-    console.log(`TrainingDummy Health: ${health}`);
-    // Clear any existing timeout first
+    console.log(`TrainingDummy ${id} Health: ${health}`);
+    
+    // Clear any existing timeout
     if (regenerationTimeoutRef.current) {
       clearTimeout(regenerationTimeoutRef.current);
       regenerationTimeoutRef.current = null;
@@ -24,25 +26,25 @@ export default function TrainingDummy({ position, health, maxHealth, onHit }: Tr
 
     // Set up regeneration when health hits 0
     if (health === 0) {
-      console.log('Setting up regeneration timer...'); // Debug log
+      console.log(`Setting up regeneration timer for ${id}...`);
       regenerationTimeoutRef.current = setTimeout(() => {
-        console.log('Regenerating dummy...'); // Debug log
-        onHit();
-      }, 5000);
+        console.log(`Regenerating dummy ${id}...`);
+        onHit(); // Reset health in Scene.tsx
+      }, 5000); // 5-second delay before regeneration
     }
 
-    // Cleanup
+    // Cleanup on unmount
     return () => {
       if (regenerationTimeoutRef.current) {
         clearTimeout(regenerationTimeoutRef.current);
       }
     };
-  }, [health, onHit]);
+  }, [health, onHit, id]);
 
   return (
     <group 
       ref={dummyRef} 
-      position={position}
+      position={position.toArray()}
     >
       {/* Dummy body */}
       <mesh position={[0, 1, 0]}>

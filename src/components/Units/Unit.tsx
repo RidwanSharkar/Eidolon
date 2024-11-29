@@ -18,7 +18,7 @@ import EtherealBow from '../Weapons/EtherealBow';
 
 // Add export to the interface declaration
 export interface UnitProps {
-  onDummyHit: (dummyId: 'dummy1' | 'dummy2', damage: number) => void;
+  onHit: (targetId: string, damage: number) => void;
   controlsRef: React.RefObject<OrbitControlsImpl>;
   currentWeapon: WeaponType;
   onWeaponSelect: (weapon: WeaponType) => void;
@@ -28,6 +28,12 @@ export interface UnitProps {
   abilities: WeaponInfo;
   onAbilityUse: (weapon: WeaponType, ability: 'q' | 'e') => void;
   onPositionUpdate: (position: THREE.Vector3) => void;
+  enemyData: Array<{
+    id: string;
+    position: Vector3;
+    health: number;
+    maxHealth: number;
+  }>;
 }
 
 const calculateDamage = (baseAmount: number): { damage: number; isCritical: boolean } => {
@@ -79,7 +85,7 @@ const OrbitalParticles = ({ parentRef }: { parentRef: React.RefObject<Group> }) 
   );
 };
 
-export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponSelect, health, maxHealth, isPlayer = false, abilities, onAbilityUse, onPositionUpdate }: UnitProps) {
+export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect, health, maxHealth, isPlayer = false, abilities, onAbilityUse, onPositionUpdate, enemyData }: UnitProps) {
   const groupRef = useRef<Group>(null);
   const [isSwinging, setIsSwinging] = useState(false);
   const [fireballs, setFireballs] = useState<{ id: number; position: Vector3; direction: Vector3 }[]>([]);
@@ -93,7 +99,7 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
     d: false
   });
   const [isSmiting, setIsSmiting] = useState(false);
-  const [smiteEffects, setSmiteEffects] = useState<{ id: number; position: Vector3 }[]>();
+  const [smiteEffects, setSmiteEffects] = useState<{ id: number; position: Vector3 }[]>([]);
   const nextSmiteId = useRef(0);
   const [damageNumbers, setDamageNumbers] = useState<{
     id: number;
@@ -138,29 +144,31 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
     setFireballs(prev => prev.filter(fireball => fireball.id !== id));
   };
 
-  const handleWeaponHit = (targetPosition: Vector3, targetId: 'dummy1' | 'dummy2') => {
+  const handleWeaponHit = (targetPosition: Vector3, targetId: string) => {
     if (!groupRef.current || !isSwinging) return null;
-    
-    const isDualWielding = currentWeapon === WeaponType.SABRES || currentWeapon === WeaponType.SABRES2;
-    const maxHits = isDualWielding ? 2 : 1;
+
+    const isEnemy = targetId.startsWith('enemy');
+    const maxHits = isEnemy 
+      ? 1 
+      : (currentWeapon === WeaponType.SABRES || currentWeapon === WeaponType.SABRES2 ? 2 : 1);
     const currentHits = hitCountThisSwing[targetId] || 0;
-    
+
     if (currentHits >= maxHits) return null;
-    
+
     const distance = groupRef.current.position.distanceTo(targetPosition);
-    const weaponRange = isDualWielding ? 5.0 : 4.5;
-    
+    const weaponRange = (currentWeapon === WeaponType.SABRES || currentWeapon === WeaponType.SABRES2) ? 5.0 : 4.5;
+
     if (distance <= weaponRange) {
       setHitCountThisSwing(prev => ({
         ...prev,
         [targetId]: (prev[targetId] || 0) + 1
       }));
-      
+
       let baseDamage;
       if (currentWeapon === WeaponType.SWORD && isSmiting) {
         baseDamage = 10; // Regular swing damage during smite
         const { damage, isCritical } = calculateDamage(baseDamage);
-        
+
         // Add the damage number for the swing
         setDamageNumbers(prev => [...prev, {
           id: nextDamageNumberId.current++,
@@ -168,12 +176,13 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
           position: targetPosition,
           isCritical
         }]);
-        onDummyHit(targetId, damage);
-        
+
+        onHit(targetId, damage);
+
         // Add delayed lightning damage
         setTimeout(() => {
           const { damage: lightningDamage, isCritical: lightningCrit } = calculateDamage(25);
-          onDummyHit(targetId, lightningDamage);
+          onHit(targetId, lightningDamage);
           setDamageNumbers(prev => [...prev, {
             id: nextDamageNumberId.current++,
             damage: lightningDamage,
@@ -182,12 +191,12 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
             isLightning: true
           }]);
         }, 250);
-        
+
         return { damage, isCritical };
       } else {
         baseDamage = WEAPON_DAMAGES[currentWeapon].normal;
         const { damage, isCritical } = calculateDamage(baseDamage);
-        onDummyHit(targetId, damage);
+        onHit(targetId, damage);
         setDamageNumbers(prev => [...prev, {
           id: nextDamageNumberId.current++,
           damage,
@@ -197,12 +206,14 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
         return { damage, isCritical };
       }
     }
+
     return null;
   };
 
   const handleSwingComplete = () => {
     setIsSwinging(false);
     setHitCountThisSwing({});
+    setIsSmiting(false); // Reset smiting after swing
   };
 
   useFrame((_, delta) => {
@@ -240,24 +251,25 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
     }
 
     if (isSwinging && groupRef.current) {
-      const dummyPosition = new Vector3(5, 0, 5);
+      // Handle hits for training dummies
+      const dummy1Position = new Vector3(5, 0, 5);
       const dummy2Position = new Vector3(-5, 0, 5);
       
-      const dummy1Hit = handleWeaponHit(dummyPosition, 'dummy1');
+      const dummy1Hit = handleWeaponHit(dummy1Position, 'dummy1');
       const dummy2Hit = handleWeaponHit(dummy2Position, 'dummy2');
       
       if (dummy1Hit) {
-        onDummyHit('dummy1', dummy1Hit.damage);
+        onHit('dummy1', dummy1Hit.damage);
         setDamageNumbers(prev => [...prev, {
           id: nextDamageNumberId.current++,
           damage: dummy1Hit.damage,
-          position: dummyPosition,
+          position: dummy1Position,
           isCritical: dummy1Hit.isCritical
         }]);
       }
       
       if (dummy2Hit) {
-        onDummyHit('dummy2', dummy2Hit.damage);
+        onHit('dummy2', dummy2Hit.damage);
         setDamageNumbers(prev => [...prev, {
           id: nextDamageNumberId.current++,
           damage: dummy2Hit.damage,
@@ -265,6 +277,18 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
           isCritical: dummy2Hit.isCritical
         }]);
       }
+
+      // Handle hits for enemy units
+      enemyData.forEach(enemy => {
+        const enemyPos = enemy.position.clone();
+        enemyPos.y = 1.5; // Adjust based on enemy's height
+        const enemyHit = handleWeaponHit(enemyPos, enemy.id);
+        
+        if (enemyHit) {
+          // The `handleWeaponHit` function already calls `onHit`
+          // which should handle updating enemy health in the Scene
+        }
+      });
     }
 
     if (groupRef.current) {
@@ -326,11 +350,33 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
     // Create a ray for hit detection
     const ray = new THREE.Ray(rayStart, direction.normalize());
 
-    // Check hits on training dummies with more forgiving hit detection
-    [
+    // Check hits on training dummies and enemy units
+    const targets: Array<{ position: Vector3; id: string | 'dummy1' | 'dummy2' }> = [
       { position: new Vector3(5, 0, 5), id: 'dummy1' as const },
-      { position: new Vector3(-5, 0, 5), id: 'dummy2' as const }
-    ].forEach(dummy => {
+      { position: new Vector3(-5, 0, 5), id: 'dummy2' as const },
+      // Add enemy positions dynamically
+      // This requires accessing enemy data, possibly via context or props
+    ];
+
+    // Here, you should integrate with your enemy management system
+    // For example, pass enemy positions and IDs via props or context
+    // Assuming you have access to enemy data here
+
+    // Example:
+    // props.enemies.forEach(enemy => {
+    //   targets.push({ position: enemy.position, id: enemy.id });
+    // });
+
+    // For demonstration, we'll assume a static reference
+    // Replace this with dynamic data as per your implementation
+    // ...
+
+    // Update to target enemy units dynamically
+    // This requires passing enemy data to Unit component or using a global state
+    // For simplicity, here's how you might do it with props (not shown here)
+    // Ensure to update the 'targets' array accordingly
+
+    targets.forEach(dummy => {
       const dummyPos = dummy.position.clone();
       dummyPos.y = 1;
       
@@ -341,7 +387,7 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
       const hitRadius = 1.5;
       if (distanceToRay < hitRadius && distanceAlongRay > 0 && distanceAlongRay < maxRange) {
         const { damage: finalDamage, isCritical } = calculateDamage(damage);
-        onDummyHit(dummy.id, finalDamage);
+        onHit(dummy.id, finalDamage);
         setDamageNumbers(prev => [...prev, {
           id: nextDamageNumberId.current++,
           damage: finalDamage,
@@ -366,7 +412,7 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
     setBowChargeProgress(0);
     bowChargeStartTime.current = null;
     onAbilityUse(currentWeapon, 'e');
-  }, [currentWeapon, groupRef, onDummyHit, setDamageNumbers, setActiveProjectiles, onAbilityUse]);
+  }, [currentWeapon, groupRef, onHit, setDamageNumbers, setActiveProjectiles, onAbilityUse]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -392,7 +438,7 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
             setIsSwinging(true);
             const targetPos = groupRef.current!.position.clone();
             targetPos.add(new Vector3(0, 0, 3.5).applyQuaternion(groupRef.current!.quaternion));
-            setSmiteEffects(prev => [...(prev || []), { 
+            setSmiteEffects(prev => [...prev, { 
               id: nextSmiteId.current++, 
               position: targetPos 
             }]);
@@ -455,7 +501,7 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
   };
 
   const handleSmiteEffectComplete = (id: number) => {
-    setSmiteEffects(prev => prev?.filter(effect => effect.id !== id));
+    setSmiteEffects(prev => prev.filter(effect => effect.id !== id));
   };
 
   const handleDamageNumberComplete = (id: number) => {
@@ -568,7 +614,7 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
         />
       ))}
 
-      {smiteEffects?.map(effect => (
+      {smiteEffects.map(effect => (
         <Smite
           key={effect.id}
           weaponType={currentWeapon}
@@ -668,13 +714,14 @@ export default function Unit({ onDummyHit, controlsRef, currentWeapon, onWeaponS
                 position={[0, 0, -i * 0.4]}
                 rotation={[Math.PI / 2, 0, Date.now() * 0.003 + i * Math.PI / 3]}
               >
-                <torusGeometry args={[0.4 + i * 0.1, 0.05, 8, 16]} />
+                <torusGeometry args={[0.5 + i * 0.1, 0.05, 8, 16]} />
                 <meshStandardMaterial
                   color="#00ffff"
                   emissive="#00ffff"
                   emissiveIntensity={3}
                   transparent
                   opacity={0.4 - i * 0.1}
+                  blending={THREE.AdditiveBlending}
                 />
               </mesh>
             ))}
