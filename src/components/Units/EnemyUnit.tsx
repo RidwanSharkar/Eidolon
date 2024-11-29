@@ -5,11 +5,17 @@ import CustomSkeleton from './CustomSkeleton';
 import { Text } from '@react-three/drei';
 import Billboard from '../UI/Billboard';
 import { EnemyUnitProps } from '../../types/EnemyUnitProps';
+import * as THREE from 'three';
 
 const EnemyUnit: React.FC<EnemyUnitProps> = ({ id, initialPosition, health, maxHealth, onTakeDamage }) => {
   const groupRef = useRef<Group>(null);
   const [currentHealth, setCurrentHealth] = useState<number>(health);
   const [isDead, setIsDead] = useState<boolean>(false);
+
+  // Sync currentHealth with health prop
+  useEffect(() => {
+    setCurrentHealth(health);
+  }, [health]);
 
   // Handle taking damage
   const takeDamage = useCallback(
@@ -48,51 +54,59 @@ const EnemyUnit: React.FC<EnemyUnitProps> = ({ id, initialPosition, health, maxH
     };
   }, [takeDamage, id]);
 
-  // Animation or movement logic can go here
+  // Animation for just the skeleton
   useFrame(() => {
     if (groupRef.current) {
-      // Example: Rotate the enemy
-      groupRef.current.rotation.y += 0.01;
+      // Only rotate the skeleton mesh, not the health bar
+      const skeletonMesh = groupRef.current.children[0];
+      if (skeletonMesh) {
+        skeletonMesh.rotation.y += 0.01;
+      }
     }
   });
 
   if (isDead) {
-    return null; // Remove from scene upon death
+    return null;
   }
 
   return (
-    <group ref={groupRef} position={initialPosition.toArray()}>
-      <CustomSkeleton 
-        position={[0, 0, 0]} // Relative to the group
-        isAttacking={false} 
-        isWalking={true} 
-      />
+    // Separate container for position
+    <group position={initialPosition.toArray()}>
+      {/* Rotating skeleton group */}
+      <group ref={groupRef}>
+        <CustomSkeleton 
+          position={[0, 0, 0]}
+          isAttacking={false} 
+          isWalking={true} 
+        />
+      </group>
       
-      {/* HP Bar */}
+      {/* HP Bar - outside the rotating group */}
       <Billboard
         position={[0, 3.0, 0]}
-        lockX={false}
-        lockY={false}
-        lockZ={false}
+        lockX={true}
+        lockY={true}
+        lockZ={true}
       >
         {/* Background bar */}
         <mesh>
-          <planeGeometry args={[1.0, 0.15]} />
-          <meshBasicMaterial color="#333333" opacity={0.8} transparent />
+          <planeGeometry args={[1.5, 0.2]} />
+          <meshBasicMaterial color="#333333" opacity={0.8} transparent side={THREE.DoubleSide} />
         </mesh>
         {/* Health bar */}
-        <mesh position={[-0.5 + (currentHealth / maxHealth) * 0.5, 0, 0.001]}>
-          <planeGeometry args={[(currentHealth / maxHealth) * 1.0, 0.13]} />
-          <meshBasicMaterial color="#ff3333" opacity={0.9} transparent />
+        <mesh position={[-0.75 + (currentHealth / maxHealth) * 0.75, 0, 0.001]}>
+          <planeGeometry args={[(currentHealth / maxHealth) * 1.5, 0.18]} />
+          <meshBasicMaterial color="#ff3333" opacity={0.9} transparent side={THREE.DoubleSide} />
         </mesh>
         {/* Health text */}
         <Text
           position={[0, 0, 0.002]}
-          fontSize={0.1}
+          fontSize={0.15}
           color="#ffffff"
           anchorX="center"
           anchorY="middle"
           fontWeight="bold"
+          renderOrder={1}
         >
           {`${currentHealth}/${maxHealth}`}
         </Text>

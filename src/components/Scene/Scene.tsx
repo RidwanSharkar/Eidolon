@@ -47,15 +47,15 @@ const Scene: React.FC<SceneProps> = ({
     {
       id: `enemy-${uuidv4()}`,
       initialPosition: new THREE.Vector3(10, 0, 10),
-      health: 100,
-      maxHealth: 100,
+      health: 200,
+      maxHealth: 200,
       onTakeDamage: (id, damage) => handleTakeDamage(id, damage),
     },
     {
       id: `enemy-${uuidv4()}`,
       initialPosition: new THREE.Vector3(-10, 0, 10),
-      health: 100,
-      maxHealth: 100,
+      health: 200,
+      maxHealth: 200,
       onTakeDamage: (id, damage) => handleTakeDamage(id, damage),
     },
     // Add more enemies as needed
@@ -66,9 +66,9 @@ const Scene: React.FC<SceneProps> = ({
     setEnemies(prevEnemies => 
       prevEnemies.map(enemy =>
         enemy.id === id 
-          ? { ...enemy, health: enemy.health - damage }
+          ? { ...enemy, health: Math.max(0, enemy.health - damage) }
           : enemy
-      ).filter(enemy => enemy.health > 0) // Remove dead enemies
+      )
     );
   }, []);
 
@@ -77,10 +77,9 @@ const Scene: React.FC<SceneProps> = ({
     {
       id: 'dummy1',
       position: new THREE.Vector3(5, 0, 5),
-      health: 100,
-      maxHealth: 100,
+      health: 200,
+      maxHealth: 200,
       onHit: () => {
-        // Regenerate dummy1 after death
         setDummyProps(prevDummies => prevDummies.map(dummy =>
           dummy.id === 'dummy1'
             ? { ...dummy, health: dummy.maxHealth }
@@ -91,10 +90,9 @@ const Scene: React.FC<SceneProps> = ({
     {
       id: 'dummy2',
       position: new THREE.Vector3(-5, 0, 5),
-      health: 100,
-      maxHealth: 100,
+      health: 200,
+      maxHealth: 200,
       onHit: () => {
-        // Regenerate dummy2 after death
         setDummyProps(prevDummies => prevDummies.map(dummy =>
           dummy.id === 'dummy2'
             ? { ...dummy, health: dummy.maxHealth }

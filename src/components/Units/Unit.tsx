@@ -149,7 +149,7 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
 
     const isEnemy = targetId.startsWith('enemy');
     const maxHits = isEnemy 
-      ? 1 
+      ? 2 
       : (currentWeapon === WeaponType.SABRES || currentWeapon === WeaponType.SABRES2 ? 2 : 1);
     const currentHits = hitCountThisSwing[targetId] || 0;
 

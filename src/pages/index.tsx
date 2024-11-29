@@ -27,7 +27,20 @@ interface WeaponInfo {
   };
 }
 
+// Add this helper function at the top of the file, after the imports
+const generateRandomPosition = () => {
+  const radius = 30; // Increased radius for more spread
+  const angle = Math.random() * Math.PI * 2;
+  const distance = Math.sqrt(Math.random()) * radius; // Using sqrt for more even distribution
+  return new Vector3(
+    Math.cos(angle) * distance,
+    0,
+    Math.sin(angle) * distance
+  );
+};
 
+// Modify the number of skeletons
+const NUM_SKELETONS = 30;  // Add this constant at the top with other constants
 
 // Home Component
 export default function HomePage() {
@@ -97,8 +110,16 @@ export default function HomePage() {
           const newHealth = Math.max(0, dummy2Health - damage);
           setDummy2Health(newHealth);
         }
-      } else {
-        // Handle other target types (e.g., enemies) if necessary
+      } else if (targetId.startsWith('skeleton-')) {
+        const skeletonIndex = parseInt(targetId.split('-')[1]);
+        if (skeletonHealths[skeletonIndex] > 0) {
+          const newHealth = Math.max(0, skeletonHealths[skeletonIndex] - damage);
+          setSkeletonHealths(prev => {
+            const newHealths = [...prev];
+            newHealths[skeletonIndex] = newHealth;
+            return newHealths;
+          });
+        }
       }
 
       setLastHitTime(currentTime);
@@ -157,8 +178,10 @@ export default function HomePage() {
     console.log(`Dummy 1 Health: ${dummyHealth}`);
   }, [dummyHealth]);
 
-  // Add skeleton state
-  const [skeletonHealth, setSkeletonHealth] = useState(150);
+  // Update the skeleton health state to handle 30 skeletons
+  const [skeletonHealths, setSkeletonHealths] = useState(() => 
+    Array(NUM_SKELETONS).fill(200) // Create an array of 30 skeletons with 200 health each
+  );
 
   // Prepare props for Scene component
   const sceneProps: SceneProps = {
@@ -194,36 +217,43 @@ export default function HomePage() {
           health: dummy2Health,
           maxHealth: 300,
         },
-        {
-          id: 'skeleton1',
-          position: new Vector3(0, 0, 8),
-          health: skeletonHealth,
-          maxHealth: 150,
-        },
+        // Generate 30 skeletons with random positions
+        ...Array(NUM_SKELETONS).fill(null).map((_, index) => ({
+          id: `skeleton-${index}`,
+          position: generateRandomPosition(),
+          health: skeletonHealths[index],
+          maxHealth: 200,
+        })),
       ],
     },
     dummyProps: [
       {
+        id: 'dummy1',
         position: new Vector3(5, 0, 5),
         health: dummyHealth,
         maxHealth: 300,
         onHit: handleDummy1Reset,
       },
       {
+        id: 'dummy2',
         position: new Vector3(-5, 0, 5),
         health: dummy2Health,
         maxHealth: 300,
         onHit: handleDummy2Reset,
       }
     ],
-    skeletonProps: {
-      position: new Vector3(0, 0, 8),
-      health: skeletonHealth,
-      maxHealth: 150,
-      onHit: (damage: number) => {
-        setSkeletonHealth(prev => Math.max(0, prev - damage));
+    
+    skeletonProps: Array(NUM_SKELETONS).fill(null).map((_, index) => ({
+      id: `skeleton-${index}`,
+      initialPosition: generateRandomPosition(),
+      health: skeletonHealths[index],
+      maxHealth: 200,
+      onTakeDamage: (id: string, damage: number) => {
+        setSkeletonHealths(prev => prev.map((health, i) => 
+          i === index ? Math.max(0, health - damage) : health
+        ));
       }
-    }
+    }))
   };
 
   return (
