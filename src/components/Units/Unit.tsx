@@ -726,6 +726,7 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
         </mesh>
 
         <OrbitalParticles parentRef={groupRef} fireballCharges={fireballCharges} />
+        <BoneAura parentRef={groupRef} />
         {currentWeapon === WeaponType.SABRES2 ? (
           <Sabres2 
             isSwinging={isSwinging} 
@@ -973,8 +974,6 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
           )}
         </group>
       ))}
-
-      <BoneAura parentRef={groupRef} />
     </>
   );
 }

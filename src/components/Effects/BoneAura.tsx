@@ -21,14 +21,12 @@ export default function BoneAura({ parentRef }: BoneAuraProps) {
       const z = Math.sin(angle) * radius;
       const y = Math.sin(Date.now() * 0.002 + i) * 0.08;
       
-      bone.position.set(x, y + 0.1, z);
-      bone.rotation.y = angle + Math.PI / 2;
-      bone.rotation.x = Math.sin(Date.now() * 0.001 + i) * 0.3;
+      bone.position.set(x, y, z);
     });
   });
 
   return (
-    <group position={[0, 0.1, 0]}>
+    <group position={[0, 1, 0]}>
       {Array.from({ length: boneCount }).map((_, i) => (
         <mesh
           key={i}
