@@ -738,6 +738,7 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
             onSwingComplete={handleSwingComplete}
             onLeftSwingStart={() => {}}
             onRightSwingStart={() => {}}
+            isBowCharging={isBowCharging}
           />
         ) : currentWeapon === WeaponType.SCYTHE ? (
           <Scythe 
