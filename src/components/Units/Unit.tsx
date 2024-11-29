@@ -42,14 +42,15 @@ const calculateDamage = (baseAmount: number): { damage: number; isCritical: bool
   return { damage, isCritical };
 };
 
-const OrbitalParticles = ({ parentRef }: { parentRef: React.RefObject<Group> }) => {
+const OrbitalParticles = ({ parentRef, fireballCharges }: { 
+  parentRef: React.RefObject<Group>;
+  fireballCharges: Array<{ id: number; available: boolean; cooldownStartTime: number | null }>;
+}) => {
   const particlesRef = useRef<Mesh[]>([]);
   const particleCount = 8;
   const orbitRadius = 1.0;
   const orbitSpeed = 1.75;
   const particleSize = 0.13;
-
-  const colors = Array(particleCount).fill('#39ff14');
 
   useFrame(() => {
     if (!parentRef.current) return;
@@ -66,29 +67,58 @@ const OrbitalParticles = ({ parentRef }: { parentRef: React.RefObject<Group> }) 
 
   return (
     <>
-      {Array.from({ length: particleCount }).map((_, i) => (
-        <mesh
-          key={i}
-          ref={(el) => {
-            if (el) particlesRef.current[i] = el;
-          }}
-        >
-          <sphereGeometry args={[particleSize, 8, 8]} />
-          <meshBasicMaterial
-            color={colors[i]}
-            transparent
-            opacity={0.6}
-          />
-        </mesh>
-      ))}
+      {Array.from({ length: particleCount }).map((_, i) => {
+        // First 3 particles are fireball charges, rest are normal orbital particles
+        const isChargeOrb = i < 3;
+        const chargeStatus = isChargeOrb ? fireballCharges[i] : null;
+        
+        return (
+          <mesh
+            key={i}
+            ref={(el) => {
+              if (el) particlesRef.current[i] = el;
+            }}
+          >
+            <sphereGeometry args={[particleSize, 8, 8]} />
+            <meshStandardMaterial
+              color={isChargeOrb 
+                ? (chargeStatus?.available ? "#00ff44" : "#333333")
+                : "#39ff14"
+              }
+              emissive={isChargeOrb 
+                ? (chargeStatus?.available ? "#00ff44" : "#333333")
+                : "#39ff14"
+              }
+              emissiveIntensity={isChargeOrb 
+                ? (chargeStatus?.available ? 2 : 0.5)
+                : 1
+              }
+              transparent
+              opacity={isChargeOrb 
+                ? (chargeStatus?.available ? 0.8 : 0.4)
+                : 0.6
+              }
+            />
+          </mesh>
+        );
+      })}
     </>
   );
 };
 
+interface FireballData {
+  id: number;
+  position: Vector3;
+  direction: Vector3;
+  startPosition: Vector3;
+  maxDistance: number;
+}
+
+
 export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect, health, maxHealth, isPlayer = false, abilities, onAbilityUse, onPositionUpdate, enemyData }: UnitProps) {
   const groupRef = useRef<Group>(null);
   const [isSwinging, setIsSwinging] = useState(false);
-  const [fireballs, setFireballs] = useState<{ id: number; position: Vector3; direction: Vector3 }[]>([]);
+  const [fireballs, setFireballs] = useState<FireballData[]>([]);
   const nextFireballId = useRef(0);
   const speed = 0.20; // MOVEMENT SPEED
   const { camera } = useThree();
@@ -123,9 +153,22 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
     maxDistance: number;
     startPosition: Vector3;
   }>>([]);
+  const [fireballCharges, setFireballCharges] = useState<Array<{
+    id: number;
+    available: boolean;
+    cooldownStartTime: number | null;
+  }>>([
+    { id: 1, available: true, cooldownStartTime: null },
+    { id: 2, available: true, cooldownStartTime: null },
+    { id: 3, available: true, cooldownStartTime: null }
+  ]);
 
-  const shootFireball = () => {
+  const shootFireball = useCallback(() => {
     if (!groupRef.current) return;
+
+    // Find the first available charge
+    const availableChargeIndex = fireballCharges.findIndex(charge => charge.available);
+    if (availableChargeIndex === -1) return; // No charges available
 
     const unitPosition = groupRef.current.position.clone();
     unitPosition.y += 1;
@@ -133,12 +176,21 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
     const direction = new Vector3(0, 0, 1);
     direction.applyQuaternion(groupRef.current.quaternion);
 
+    // Use the charge and start its cooldown
+    setFireballCharges(prev => prev.map((charge, index) => 
+      index === availableChargeIndex
+        ? { ...charge, available: false, cooldownStartTime: Date.now() }
+        : charge
+    ));
+
     setFireballs(prev => [...prev, {
       id: nextFireballId.current++,
-      position: unitPosition,
-      direction: direction.normalize()
+      position: unitPosition.clone(),
+      startPosition: unitPosition.clone(),
+      direction: direction.normalize(),
+      maxDistance: 15
     }]);
-  };
+  }, [groupRef, fireballCharges, setFireballCharges, setFireballs]);
 
   const handleFireballImpact = (id: number) => {
     setFireballs(prev => prev.filter(fireball => fireball.id !== id));
@@ -337,6 +389,60 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
       const distanceTraveled = projectile.position.distanceTo(projectile.startPosition);
       return distanceTraveled < projectile.maxDistance;
     }));
+
+    // Update fireballs with collision detection
+    setFireballs(prev => prev.map(fireball => {
+      const distanceTraveled = fireball.position.distanceTo(fireball.startPosition);
+      
+      if (distanceTraveled >= fireball.maxDistance) {
+        return null;
+      }
+
+      // Move the fireball
+      const speed = 0.5;
+      fireball.position.add(
+        fireball.direction
+          .clone()
+          .multiplyScalar(speed)
+      );
+
+      // Check dummy collisions
+      const dummy1Pos = new Vector3(5, 1.5, 5);
+      const dummy2Pos = new Vector3(-5, 1.5, 5);
+      
+      if (fireball.position.distanceTo(dummy1Pos) < 1.5) {
+        handleFireballHit(fireball.id, 'dummy1', dummy1Pos);
+        return null;
+      }
+      
+      if (fireball.position.distanceTo(dummy2Pos) < 1.5) {
+        handleFireballHit(fireball.id, 'dummy2', dummy2Pos);
+        return null;
+      }
+
+      // Check enemy collisions
+      for (const enemy of enemyData) {
+        const enemyPos = enemy.position.clone();
+        enemyPos.y = 1.5;
+        if (fireball.position.distanceTo(enemyPos) < 1.5) {
+          handleFireballHit(fireball.id, enemy.id, enemyPos);
+          return null;
+        }
+      }
+
+      return fireball;
+    }).filter(Boolean) as FireballData[]);
+
+    // Update fireball charge cooldowns
+    setFireballCharges(prev => prev.map(charge => {
+      if (!charge.available && charge.cooldownStartTime) {
+        const elapsed = Date.now() - charge.cooldownStartTime;
+        if (elapsed >= 3000) { // 3 seconds cooldown
+          return { ...charge, available: true, cooldownStartTime: null };
+        }
+      }
+      return charge;
+    }));
   });
 
   const releaseBowShot = useCallback((power: number) => {
@@ -498,7 +604,7 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [isSwinging, onWeaponSelect, isSmiting, currentWeapon, abilities, onAbilityUse, isBowCharging, bowChargeProgress, releaseBowShot]);
+  }, [shootFireball, isSwinging, onWeaponSelect, isSmiting, currentWeapon, abilities, onAbilityUse, isBowCharging, bowChargeProgress, releaseBowShot]);
 
   const handleSmiteComplete = () => {
     setIsSmiting(false);
@@ -539,6 +645,27 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
     setActiveProjectiles(prev => prev.filter(p => p.id !== projectileId));
   };
 
+  const handleFireballHit = (fireballId: number, targetId: string, targetPosition: Vector3) => {
+    const isEnemy = targetId.startsWith('enemy');
+    const isDummy = targetId.startsWith('dummy');
+    
+    if (!isEnemy && !isDummy) return;
+
+    const baseDamage = 15; // Fixed fireball damage
+    const { damage, isCritical } = calculateDamage(baseDamage);
+    
+    onHit(targetId, damage);
+    setDamageNumbers(prev => [...prev, {
+      id: nextDamageNumberId.current++,
+      damage,
+      position: targetPosition.clone(),
+      isCritical
+    }]);
+
+    // Remove the fireball
+    handleFireballImpact(fireballId);
+  };
+
   return (
     <>
       <group ref={groupRef} position={[0, 1, 0]}>
@@ -576,7 +703,7 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
           />
         </mesh>
 
-        <OrbitalParticles parentRef={groupRef} />
+        <OrbitalParticles parentRef={groupRef} fireballCharges={fireballCharges} />
         {currentWeapon === WeaponType.SABRES2 ? (
           <Sabres2 
             isSwinging={isSwinging} 
