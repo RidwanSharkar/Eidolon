@@ -15,8 +15,7 @@ interface BoneWingsProps {
 
 export default function BoneWings({ collectedBones, isLeftWing }: BoneWingsProps) {
   const wingsRef = useRef<Group>(null);
-  
-  const wingBonePositions: BonePosition[] = [
+    const wingBonePositions: BonePosition[] = [
     // Main central arm bone
     { 
       pos: new Vector3(isLeftWing ? -0.3 : 0.3, 0.4, 0), 
@@ -45,64 +44,6 @@ export default function BoneWings({ collectedBones, isLeftWing }: BoneWingsProps
       rot: new Euler(0.2, 0, isLeftWing ? -Math.PI / 2 : Math.PI / 2), 
       scale: 0.8 
     },
-
-    // Second finger (longer, more horizontal)
-    { 
-      pos: new Vector3(isLeftWing ? -0.9 : 0.9, 0.6, 0), 
-      rot: new Euler(0, 0, isLeftWing ? -Math.PI / 2 : Math.PI / 2), 
-      scale: 1.0 
-    },
-    { 
-      pos: new Vector3(isLeftWing ? -1.2 : 1.2, 0.65, 0.1), 
-      rot: new Euler(0.1, 0, isLeftWing ? -Math.PI / 1.8 : Math.PI / 1.8), 
-      scale: 0.9 
-    },
-    { 
-      pos: new Vector3(isLeftWing ? -1.5 : 1.5, 0.7, 0.2), 
-      rot: new Euler(0.2, 0, isLeftWing ? -Math.PI / 1.6 : Math.PI / 1.6), 
-      scale: 0.8 
-    },
-
-    // Third finger (middle, longest)
-    { 
-      pos: new Vector3(isLeftWing ? -1.0 : 1.0, 0.4, 0), 
-      rot: new Euler(0, 0, isLeftWing ? -Math.PI / 1.8 : Math.PI / 1.8), 
-      scale: 1.0 
-    },
-    { 
-      pos: new Vector3(isLeftWing ? -1.3 : 1.3, 0.35, 0.1), 
-      rot: new Euler(0.1, 0, isLeftWing ? -Math.PI / 1.6 : Math.PI / 1.6), 
-      scale: 0.9 
-    },
-    { 
-      pos: new Vector3(isLeftWing ? -1.6 : 1.6, 0.3, 0.2), 
-      rot: new Euler(0.2, 0, isLeftWing ? -Math.PI / 1.4 : Math.PI / 1.4), 
-      scale: 0.8 
-    },
-
-    // Fourth finger (lower, sweeping down)
-    { 
-      pos: new Vector3(isLeftWing ? -0.9 : 0.9, 0.2, 0), 
-      rot: new Euler(0, 0, isLeftWing ? -Math.PI / 1.6 : Math.PI / 1.6), 
-      scale: 0.9 
-    },
-    { 
-      pos: new Vector3(isLeftWing ? -1.2 : 1.2, 0.1, 0.1), 
-      rot: new Euler(-0.1, 0, isLeftWing ? -Math.PI / 1.4 : Math.PI / 1.4), 
-      scale: 0.8 
-    },
-    { 
-      pos: new Vector3(isLeftWing ? -1.5 : 1.5, 0.0, 0.2), 
-      rot: new Euler(-0.2, 0, isLeftWing ? -Math.PI / 1.2 : Math.PI / 1.2), 
-      scale: 0.7 
-    },
-
-    // Bottom finger (shortest, most downward)
-    { 
-      pos: new Vector3(isLeftWing ? -0.8 : 0.8, 0.0, 0), 
-      rot: new Euler(0, 0, isLeftWing ? -Math.PI / 1.4 : Math.PI / 1.4), 
-      scale: 0.8 
-    }
   ];
 
   const createBonePiece = () => (
@@ -139,7 +80,11 @@ export default function BoneWings({ collectedBones, isLeftWing }: BoneWingsProps
   );
 
   return (
-    <group ref={wingsRef}>
+    <group 
+      ref={wingsRef}
+      rotation={new Euler(0, Math.PI, 0)}
+      position={new Vector3(0, -0.3, 0)}
+    >
       {wingBonePositions.slice(0, Math.min(15, collectedBones)).map((bone, i) => (
         <group
           key={`bone-${i}`}
