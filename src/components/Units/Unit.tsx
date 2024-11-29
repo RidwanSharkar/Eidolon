@@ -101,7 +101,7 @@ interface FireballData {
   maxDistance: number;
 }
 
-// constant for the cooldown duration (in milliseconds)
+// ORB CHARGE COOLDOWN
 const FIREBALL_COOLDOWN = 9000; // 6 seconds 
 
 export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect, health, maxHealth, isPlayer = false, abilities, onAbilityUse, onPositionUpdate, enemyData }: UnitProps) {
