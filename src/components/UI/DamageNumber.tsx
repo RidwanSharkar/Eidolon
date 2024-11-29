@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { Text } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { Vector3, Material, Mesh } from 'three';
 
 interface DamageNumberProps {
@@ -22,52 +22,56 @@ export default function DamageNumber({ damage, position, isCritical = false, isL
   const textRef = useRef<TextMesh>(null);
   const startTime = useRef(Date.now());
   const startY = position.y + 3.5;
+  const { camera } = useThree();
   
   // Adjust offsets for better spacing
   const timeOffset = (Date.now() % 1000) / 1000;
-  const horizontalOffset = Math.sin(timeOffset * Math.PI * 2) * 0.3; // Reduced from 0.5
-  const verticalOffset = Math.cos(timeOffset * Math.PI * 2) * 0.2; // Reduced from 0.3
+  const horizontalOffset = Math.sin(timeOffset * Math.PI * 2) * 0.3;
+  const verticalOffset = Math.cos(timeOffset * Math.PI * 2) * 0.2;
 
   useFrame(() => {
     if (!textRef.current) return;
     
     const elapsed = (Date.now() - startTime.current) / 1000;
-    const lifespan = 1.5; // Reduced from 2.0 for snappier feedback
+    const lifespan = 1.5;
     
     if (elapsed >= lifespan) {
       onComplete();
       return;
     }
 
+    // Make text always face the camera
+    textRef.current.quaternion.copy(camera.quaternion);
+    
     // Smooth movement using easing
     const progress = elapsed / lifespan;
-    const easedProgress = 1 - Math.pow(1 - progress, 3); // Cubic easing out
+    const easedProgress = 1 - Math.pow(1 - progress, 3);
     
-    // Smooth floating motion
-    const floatHeight = startY + (easedProgress * 1.2); // Reduced vertical travel
+    const floatHeight = startY + (easedProgress * 1.2);
     const finalY = floatHeight + verticalOffset;
     const finalX = position.x + horizontalOffset;
     
-    // Apply smooth position updates
     textRef.current.position.set(
       finalX,
       finalY,
       position.z
     );
     
-    // Smooth opacity transition
     textRef.current.material.opacity = Math.min(1, 3 * (1 - progress));
   });
 
   return (
     <Text
       ref={textRef}
-      position={[position.x + horizontalOffset, startY + verticalOffset, position.z]}
-      fontSize={isCritical ? 1.0 : 0.8}
-      color={isCritical ? '#ff0000' : isLightning ? '#ffdb4d' : '#ffffff'}
+      position={[position.x, startY, position.z]}
+      fontSize={0.5}
+      color={isCritical ? "#ff0000" : (isLightning ? "#ffff00" : "#ffffff")}
       anchorX="center"
       anchorY="middle"
-      fontWeight={isCritical ? 'bold' : 'normal'}
+      outlineWidth={0.1}
+      outlineColor="#000000"
+      material-transparent={true}
+      material-depthTest={false}
     >
       {damage}
     </Text>

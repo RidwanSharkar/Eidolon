@@ -1,133 +1,172 @@
-.leftPanel {
-    position: absolute;
-    top: 50%;
-    left: 10px;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .rightPanel {
-    position: absolute;
-    top: 50%;
-    right: 10px;
-    transform: translateY(-50%);
-  }
-  
-  .leftPanel img {
-    width: 50px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    filter: brightness(0.7);
-  }
+.bottomPanel {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: linear-gradient(to right, rgba(0,0,0,0.3), rgba(0,0,0,0.7), rgba(0,0,0,0.3));
+  padding: 15px 30px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 0 30px rgba(0,0,0,0.5);
+  z-index: 1000;
+}
 
-  .leftPanel img:hover {
-    filter: brightness(0.9);
-    transform: scale(1.1);
-  }
+.healthBarSection {
+  position: relative;
+  width: 200px;
+}
 
-  .activeWeapon {
-    filter: brightness(1) !important;
-    transform: scale(1.1);
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-    border-radius: 50%;
-  }
+.healthBar {
+  height: 8px;
+  background-color: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
 
-  .bottomPanel {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 15px;
-    border-radius: 10px;
-    z-index: 1000;
-  }
+.healthBarInner {
+  height: 100%;
+  background: linear-gradient(90deg, #ff3333, #ff6666);
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px rgba(255,51,51,0.5);
+}
 
-  .weaponIcons {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 5px;
-  }
+.healthBarGlow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,51,51,0.2), transparent);
+  animation: healthGlow 2s infinite;
+}
 
-  .healthBar {
-    width: 200px;
-    height: 30px;
-    background-color: #333;
-    border: 2px solid #000;
-    border-radius: 5px;
-    overflow: hidden;
-    position: relative;
-  }
+.healthText {
+  position: absolute;
+  left: 50%;
+  top: -20px;
+  transform: translateX(-50%);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
 
-  .healthBarInner {
-    height: 100%;
-    background-color: #ff3333;
-    transition: width 0.3s ease;
-  }
+.abilityContainer {
+  display: flex;
+  gap: 10px;
+}
 
-  .healthText {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-    font-weight: bold;
-    white-space: nowrap;
-    z-index: 1;
-  }
+.ability {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  overflow: visible;
+  transition: transform 0.2s ease;
+}
 
-  .abilityContainer {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 5px;
-  }
+.ability:hover {
+  transform: translateY(-2px);
+}
 
-  .ability {
-    position: relative;
-    width: 50px;
-    height: 50px;
-  }
+.abilityIcon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
 
-  .abilityIcon {
-    width: 100%;
-    height: 100%;
-    border-radius: 8px;
-    overflow: hidden;
-  }
+.weaponIcons {
+  display: flex;
+  gap: 10px;
+}
 
-  .cooldownOverlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+.weaponSlot {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
 
-  .cooldownText {
-    position: absolute;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    pointer-events: none;
-  }
+.keyBind {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: rgba(0,0,0,0.8);
+  color: #39ff14;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  z-index: 2;
+  border: 1px solid rgba(57,255,20,0.3);
+}
 
-  .roundedSquareProgress {
-    transform: rotate(-90deg);
-  }
+.activeWeapon {
+  transform: translateY(-2px);
+}
 
-  .progressForeground {
-    transition: stroke-dashoffset 0.3s ease;
-    transform-origin: center;
-    /* To ensure the stroke starts from the top-left corner */
-  }
+.activeWeapon .weaponIcon {
+  border-color: #39ff14;
+  box-shadow: 0 0 15px rgba(57,255,20,0.5);
+}
+
+.weaponIcon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+@keyframes healthGlow {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.cooldownOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cooldownText {
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  text-shadow: 0 0 5px rgba(0,0,0,0.8);
+}
+
+.roundedSquareProgress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+.progressForeground {
+  transition: stroke-dashoffset 0.3s ease;
+  transform-origin: center;
+}
+
+.ability img {
+  border-radius: 10px;
+  display: block;
+}

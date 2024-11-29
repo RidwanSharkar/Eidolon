@@ -65,21 +65,27 @@ const RoundedSquareProgress: React.FC<{
   );
 };
 
-const weaponIconStyle = {
-  width: '50px',
-  height: '50px',
-  objectFit: 'contain' as const,
-  cursor: 'pointer',
-  borderRadius: '8px'
-};
-
 export default function Panel({ currentWeapon, onWeaponSelect, playerHealth, maxHealth, abilities }: PanelProps) {
   return (
     <div className={styles.bottomPanel}>
+      {/* Health Bar Section */}
+      <div className={styles.healthBarSection}>
+        <div className={styles.healthBar}>
+          <div 
+            className={styles.healthBarInner} 
+            style={{ width: `${(playerHealth / maxHealth) * 100}%` }}
+          />
+          <div className={styles.healthBarGlow} />
+        </div>
+        <span className={styles.healthText}>{`${playerHealth}/${maxHealth}`}</span>
+      </div>
+
+      {/* Abilities Section */}
       <div className={styles.abilityContainer}>
         {abilities[currentWeapon] && (
           <>
             <div className={styles.ability}>
+              <div className={styles.keyBind}>Q</div>
               <Image 
                 src={abilities[currentWeapon].q.icon} 
                 alt="Q ability" 
@@ -103,6 +109,7 @@ export default function Panel({ currentWeapon, onWeaponSelect, playerHealth, max
             </div>
 
             <div className={styles.ability}>
+              <div className={styles.keyBind}>E</div>
               <Image 
                 src={abilities[currentWeapon].e.icon} 
                 alt="E ability" 
@@ -128,37 +135,26 @@ export default function Panel({ currentWeapon, onWeaponSelect, playerHealth, max
         )}
       </div>
 
+      {/* Weapons Section */}
       <div className={styles.weaponIcons}>
-        <div 
-          className={currentWeapon === WeaponType.SCYTHE ? styles.activeWeapon : ''}
-          onClick={() => onWeaponSelect(WeaponType.SCYTHE)}
-          style={{ position: 'relative' }}
-        >
-          <Image src="/icons/1.svg" alt="Scythe" width={50} height={50} style={weaponIconStyle} />
-        </div>
-        <div 
-          className={currentWeapon === WeaponType.SWORD ? styles.activeWeapon : ''}
-          onClick={() => onWeaponSelect(WeaponType.SWORD)}
-          style={{ position: 'relative' }}
-        >
-          <Image src="/icons/2.svg" alt="Sword" width={50} height={50} style={weaponIconStyle} />
-        </div>
-        <div 
-          className={currentWeapon === WeaponType.SABRES ? styles.activeWeapon : ''}
-          onClick={() => onWeaponSelect(WeaponType.SABRES)}
-          style={{ position: 'relative' }}
-        >
-          <Image src="/icons/3.svg" alt="Sabres" width={50} height={50} style={weaponIconStyle} />
-        </div>
-      </div>
-
-      <div className={styles.healthBar}>
-        <div 
-          className={styles.healthBarInner} 
-          style={{ width: `${(playerHealth / maxHealth) * 100}%` }}
-        >
-          <span className={styles.healthText}>{`${playerHealth}/${maxHealth}`}</span>
-        </div>
+        {Object.values(WeaponType)
+          .filter((_, index) => index < 3) // Only show first 3 weapons
+          .map((weapon, index) => (
+            <div 
+              key={weapon}
+              className={`${styles.weaponSlot} ${currentWeapon === weapon ? styles.activeWeapon : ''}`}
+              onClick={() => onWeaponSelect(weapon)}
+            >
+              <div className={styles.keyBind}>{index + 1}</div>
+              <Image 
+                src={`/icons/${index + 1}.svg`} 
+                alt={weapon} 
+                width={50} 
+                height={50} 
+                className={styles.weaponIcon}
+              />
+            </div>
+          ))}
       </div>
     </div>
   );

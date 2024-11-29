@@ -68,9 +68,7 @@ const OrbitalParticles = ({ parentRef, fireballCharges }: {
   return (
     <>
       {Array.from({ length: particleCount }).map((_, i) => {
-        // First 3 particles are fireball charges, rest are normal orbital particles
-        const isChargeOrb = i < 3;
-        const chargeStatus = isChargeOrb ? fireballCharges[i] : null;
+        const chargeStatus = fireballCharges[i];
         
         return (
           <mesh
@@ -81,23 +79,11 @@ const OrbitalParticles = ({ parentRef, fireballCharges }: {
           >
             <sphereGeometry args={[particleSize, 8, 8]} />
             <meshStandardMaterial
-              color={isChargeOrb 
-                ? (chargeStatus?.available ? "#00ff44" : "#333333")
-                : "#39ff14"
-              }
-              emissive={isChargeOrb 
-                ? (chargeStatus?.available ? "#00ff44" : "#333333")
-                : "#39ff14"
-              }
-              emissiveIntensity={isChargeOrb 
-                ? (chargeStatus?.available ? 2 : 0.5)
-                : 1
-              }
+              color={chargeStatus?.available ? "#00ff44" : "#333333"}
+              emissive={chargeStatus?.available ? "#00ff44" : "#333333"}
+              emissiveIntensity={chargeStatus?.available ? 2 : 0.5}
               transparent
-              opacity={isChargeOrb 
-                ? (chargeStatus?.available ? 0.8 : 0.4)
-                : 0.6
-              }
+              opacity={chargeStatus?.available ? 0.8 : 0.4}
             />
           </mesh>
         );
@@ -114,6 +100,8 @@ interface FireballData {
   maxDistance: number;
 }
 
+// constant for the cooldown duration (in milliseconds)
+const FIREBALL_COOLDOWN = 9000; // 6 seconds 
 
 export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect, health, maxHealth, isPlayer = false, abilities, onAbilityUse, onPositionUpdate, enemyData }: UnitProps) {
   const groupRef = useRef<Group>(null);
@@ -160,15 +148,19 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
   }>>([
     { id: 1, available: true, cooldownStartTime: null },
     { id: 2, available: true, cooldownStartTime: null },
-    { id: 3, available: true, cooldownStartTime: null }
+    { id: 3, available: true, cooldownStartTime: null },
+    { id: 4, available: true, cooldownStartTime: null },
+    { id: 5, available: true, cooldownStartTime: null },
+    { id: 6, available: true, cooldownStartTime: null },
+    { id: 7, available: true, cooldownStartTime: null },
+    { id: 8, available: true, cooldownStartTime: null }
   ]);
 
   const shootFireball = useCallback(() => {
     if (!groupRef.current) return;
 
-    // Find the first available charge
     const availableChargeIndex = fireballCharges.findIndex(charge => charge.available);
-    if (availableChargeIndex === -1) return; // No charges available
+    if (availableChargeIndex === -1) return;
 
     const unitPosition = groupRef.current.position.clone();
     unitPosition.y += 1;
@@ -176,7 +168,6 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
     const direction = new Vector3(0, 0, 1);
     direction.applyQuaternion(groupRef.current.quaternion);
 
-    // Use the charge and start its cooldown
     setFireballCharges(prev => prev.map((charge, index) => 
       index === availableChargeIndex
         ? { ...charge, available: false, cooldownStartTime: Date.now() }
@@ -436,8 +427,8 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
     // Update fireball charge cooldowns
     setFireballCharges(prev => prev.map(charge => {
       if (!charge.available && charge.cooldownStartTime) {
-        const elapsed = Date.now() - charge.cooldownStartTime;
-        if (elapsed >= 3000) { // 3 seconds cooldown
+        const elapsedTime = Date.now() - charge.cooldownStartTime;
+        if (elapsedTime >= FIREBALL_COOLDOWN) {
           return { ...charge, available: true, cooldownStartTime: null };
         }
       }
