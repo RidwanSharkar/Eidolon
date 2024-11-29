@@ -13,47 +13,160 @@
   border: 1px solid rgba(255,255,255,0.1);
   box-shadow: 0 0 30px rgba(0,0,0,0.5);
   z-index: 1000;
+  margin-top: 60px;
 }
 
 .healthBarSection {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+}
+
+.healthBarContainer {
   position: relative;
-  width: 200px;
+  padding: 15px;
+}
+
+.healthBarDecoration {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.healthBarOrnamentLeft,
+.healthBarOrnamentRight {
+  position: absolute;
+  width: 30px;
+  height: 40px;
+  background: linear-gradient(135deg, #ffd700, #ff6b6b);
+  clip-path: polygon(0 50%, 50% 0, 100% 50%, 50% 100%);
+  animation: glowPulse 2s infinite;
+}
+
+.healthBarOrnamentLeft {
+  left: -15px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.healthBarOrnamentRight {
+  right: -15px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .healthBar {
-  height: 8px;
-  background-color: rgba(255,255,255,0.1);
-  border-radius: 4px;
+  height: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid #ffd700;
+  border-radius: 10px;
   overflow: hidden;
   position: relative;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.healthBarBackground {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.2),
+    rgba(0, 0, 0, 0.2) 10px,
+    rgba(0, 0, 0, 0.3) 10px,
+    rgba(0, 0, 0, 0.3) 20px
+  );
 }
 
 .healthBarInner {
   height: 100%;
-  background: linear-gradient(90deg, #ff3333, #ff6666);
+  background: linear-gradient(
+    90deg,
+    #ff3333,
+    #ff6666 50%,
+    #ff3333
+  );
   transition: width 0.3s ease;
-  box-shadow: 0 0 10px rgba(255,51,51,0.5);
+  position: relative;
+  box-shadow: 0 0 15px rgba(255, 51, 51, 0.7);
 }
 
-.healthBarGlow {
+.healthBarShine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: shine 3s infinite;
+}
+
+.healthBarPulse {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,51,51,0.2), transparent);
-  animation: healthGlow 2s infinite;
+  background: radial-gradient(
+    circle,
+    rgba(255, 51, 51, 0.3),
+    transparent 70%
+  );
+  animation: pulse 2s infinite;
 }
 
 .healthText {
   position: absolute;
   left: 50%;
-  top: -20px;
+  top: -25px;
   transform: translateX(-50%);
-  color: white;
-  font-size: 14px;
+  color: #ffd700;
+  font-size: 18px;
   font-weight: bold;
-  text-shadow: 0 0 10px rgba(0,0,0,0.5);
+  text-shadow: 
+    0 0 10px rgba(255, 215, 0, 0.5),
+    0 0 20px rgba(255, 215, 0, 0.3);
+  white-space: nowrap;
+}
+
+.healthCurrent {
+  color: #ff6666;
+}
+
+.healthSeparator {
+  margin: 0 5px;
+  color: #ffd700;
+}
+
+.healthMax {
+  color: #ffd700;
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.5; }
+}
+
+@keyframes glowPulse {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+  100% { filter: brightness(1); }
 }
 
 .abilityContainer {
@@ -126,11 +239,6 @@
   border: 2px solid rgba(255,255,255,0.2);
   border-radius: 10px;
   transition: all 0.2s ease;
-}
-
-@keyframes healthGlow {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
 }
 
 .cooldownOverlay {

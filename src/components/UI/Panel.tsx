@@ -70,14 +70,26 @@ export default function Panel({ currentWeapon, onWeaponSelect, playerHealth, max
     <div className={styles.bottomPanel}>
       {/* Health Bar Section */}
       <div className={styles.healthBarSection}>
-        <div className={styles.healthBar}>
-          <div 
-            className={styles.healthBarInner} 
-            style={{ width: `${(playerHealth / maxHealth) * 100}%` }}
-          />
-          <div className={styles.healthBarGlow} />
+        <div className={styles.healthBarContainer}>
+          <div className={styles.healthBarDecoration}>
+            <div className={styles.healthBarOrnamentLeft} />
+            <div className={styles.healthBarOrnamentRight} />
+          </div>
+          <div className={styles.healthBar}>
+            <div className={styles.healthBarBackground} />
+            <div 
+              className={styles.healthBarInner} 
+              style={{ width: `${(playerHealth / maxHealth) * 100}%` }}
+            />
+            <div className={styles.healthBarShine} />
+            <div className={styles.healthBarPulse} />
+          </div>
+          <span className={styles.healthText}>
+            <span className={styles.healthCurrent}>{playerHealth}</span>
+            <span className={styles.healthSeparator}>/</span>
+            <span className={styles.healthMax}>{maxHealth}</span>
+          </span>
         </div>
-        <span className={styles.healthText}>{`${playerHealth}/${maxHealth}`}</span>
       </div>
 
       {/* Abilities Section */}
