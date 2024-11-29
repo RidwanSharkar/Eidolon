@@ -13,11 +13,9 @@ const createBonePiece = () => (
     <mesh>
       <cylinderGeometry args={[0.02, 0.015, 0.2, 4]} />
       <meshStandardMaterial 
-        color="#67f2b9"
-        emissive="#39ff14"
-        emissiveIntensity={2}
-        transparent
-        opacity={0.8}
+        color="#e8e8e8"
+        roughness={0.4}
+        metalness={0.3}
       />
     </mesh>
     
@@ -25,22 +23,18 @@ const createBonePiece = () => (
     <mesh position={new THREE.Vector3(0, 0.1, 0)} rotation={new THREE.Euler(0, 0, Math.PI / 6)}>
       <sphereGeometry args={[0.025, 4, 4]} />
       <meshStandardMaterial 
-        color="#67f2b9"
-        emissive="#39ff14"
-        emissiveIntensity={2}
-        transparent
-        opacity={0.8}
+        color="#d8d8d8"
+        roughness={0.5}
+        metalness={0.2}
       />
     </mesh>
 
     <mesh position={new THREE.Vector3(0, -0.1, 0)} rotation={new THREE.Euler(0, 0, -Math.PI / 6)}>
       <sphereGeometry args={[0.02, 4, 4]} />
       <meshStandardMaterial 
-        color="#67f2b9"
-        emissive="#39ff14"
-        emissiveIntensity={2}
-        transparent
-        opacity={0.8}
+        color="#d8d8d8"
+        roughness={0.5}
+        metalness={0.2}
       />
     </mesh>
   </group>
@@ -55,18 +49,15 @@ export default function BoneAura({ parentRef }: BoneAuraProps) {
   useFrame(() => {
     if (!parentRef.current || !groupRef.current) return;
     
-    // Update the group position to follow the parent
     const parentPosition = parentRef.current.position;
     groupRef.current.position.set(parentPosition.x, 0, parentPosition.z);
     
-    // Update bones in local space relative to the group
     bonesRef.current.forEach((bone, i) => {
       const angle = (i / boneCount) * Math.PI * 2 + Date.now() * 0.001;
       const x = Math.cos(angle) * radius;
       const z = Math.sin(angle) * radius;
       const y = Math.sin(Date.now() * 0.002 + i) * 0.08;
       
-      // Position bones relative to group (local space)
       bone.position.set(x, y + 0.1, z);
       bone.rotation.y = angle + Math.PI / 2;
     });
@@ -84,17 +75,6 @@ export default function BoneAura({ parentRef }: BoneAuraProps) {
           {createBonePiece()}
         </mesh>
       ))}
-
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-        <planeGeometry args={[2, 2]} />
-        <meshBasicMaterial
-          color="#39ff14"
-          transparent
-          opacity={0.2}
-          side={THREE.DoubleSide}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
     </group>
   );
 } 
