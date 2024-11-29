@@ -15,8 +15,9 @@ import * as THREE from 'three';
 import { WeaponType, WeaponInfo } from '../../types/weapons';
 import { WEAPON_DAMAGES } from '../../constants/weaponStats';
 import EtherealBow from '../Weapons/EtherealBow';
+import BoneWings from './BoneWings';
+// NEEDS COLLOSAL REFACTORING hamie
 
-// Add export to the interface declaration
 export interface UnitProps {
   onHit: (targetId: string, damage: number) => void;
   controlsRef: React.RefObject<OrbitControlsImpl>;
@@ -155,6 +156,7 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
     { id: 7, available: true, cooldownStartTime: null },
     { id: 8, available: true, cooldownStartTime: null }
   ]);
+  const [collectedBones, setCollectedBones] = useState<number>(15); // Start with 15 bones for testing
 
   const shootFireball = useCallback(() => {
     if (!groupRef.current) return;
@@ -657,6 +659,13 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
     handleFireballImpact(fireballId);
   };
 
+  const handleEnemyDefeat = useCallback((enemyId: string) => {
+    // Increment collected bones (max 30)
+    setCollectedBones(prev => Math.min(prev + 1, 30));
+    
+    // ... rest of your existing defeat handling logic
+  }, []);
+
   return (
     <>
       <group ref={groupRef} position={[0, 1, 0]}>
@@ -681,6 +690,27 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
             depthWrite={false}
           />
         </mesh>
+
+        {/* Add Bone Wings with proper position/rotation vectors */}
+        <group position={[0, 0.2, -0.2]}>
+          {/* Left Wing */}
+          <group rotation={[0, Math.PI / 8, 0]}>
+            <BoneWings 
+              collectedBones={collectedBones} 
+              isLeftWing={true}
+              parentRef={groupRef} 
+            />
+          </group>
+          
+          {/* Right Wing */}
+          <group rotation={[0, -Math.PI / 8, 0]}>
+            <BoneWings 
+              collectedBones={collectedBones} 
+              isLeftWing={false}
+              parentRef={groupRef} 
+            />
+          </group>
+        </group>
 
         {/* Skull decoration with ethereal effect */}
         <mesh position={[0, 0.2, 0.3]} scale={0.4}>
