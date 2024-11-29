@@ -91,6 +91,33 @@ export default function EtherealBow({ position, direction, chargeProgress, isCha
         />
       </mesh>
 
+      {/* Decorative wing elements */}
+      <group>
+        {/* Left wing */}
+        <mesh position={[-0.3, 0, 0.32]} rotation={[Math.PI/2, 0, Math.PI/6]}>
+          <boxGeometry args={[0.6, 0.02, 0.05]} />
+          <meshStandardMaterial 
+            color="#00ffff"
+            emissive="#00ffff"
+            emissiveIntensity={2}
+            transparent
+            opacity={0.8}
+          />
+        </mesh>
+
+        {/* Right wing */}
+        <mesh position={[0.3, 0, 0.32]} rotation={[Math.PI/2, 0, -Math.PI/6]}>
+          <boxGeometry args={[0.6, 0.02, 0.05]} />
+          <meshStandardMaterial 
+            color="#00ffff"
+            emissive="#00ffff"
+            emissiveIntensity={2}
+            transparent
+            opacity={0.8}
+          />
+        </mesh>
+      </group>
+
       {/* Arrow - with increased length */}
       {isCharging && (
         <group 
@@ -109,7 +136,7 @@ export default function EtherealBow({ position, direction, chargeProgress, isCha
             />
           </mesh>
           {/* Arrow head - adjusted position for longer shaft */}
-          <mesh position={[0, 0.35, 0]}>  {/* Increased from 0.25 to 0.35 to match longer shaft */}
+          <mesh position={[0, 0.35, 0]}>  
             <coneGeometry args={[0.03, 0.1, 8]} />
             <meshStandardMaterial 
               color="#00ffff"

@@ -200,48 +200,67 @@ export default function Sword({ isSwinging, isSmiting, onSwingComplete, onSmiteC
       <group position={[0, 0.15, 0]} rotation={[Math.PI, 1.5, Math.PI]}>
         {/* Larger torus */}
         <mesh>
-          <torusGeometry args={[0.25, 0.07, 16, 32]} />  {/* Increased radius from 0.2 to 0.25, thickness from 0.04 to 0.07 */}
+          <torusGeometry args={[0.25, 0.07, 16, 32]} />
           <meshStandardMaterial 
             color="#4a5b6c" 
-            metalness={0.9}          // Increased metalness
-            roughness={0.1}          // Reduced roughness for more shine
+            metalness={0.9}
+            roughness={0.1}
           />
         </mesh>
         
-        {/* Much larger and more intense glowing center gem */}
+        {/* Core orb -   yellow */}
         <mesh>
-          <sphereGeometry args={[0.09, 16, 16]} />  {/* Increased from 0.06 to 0.09 */}
+          <sphereGeometry args={[0.09, 16, 16]} />
           <meshStandardMaterial
-            color="#ffff00"           // Bright yellow
-            emissive="#ffff00"
-            emissiveIntensity={12}    // Significantly increased from 5 to 12
+            color="#ff9900"           // Much warmer yellow/orange
+            emissive="#ff8800"        // Even warmer emissive
+            emissiveIntensity={30}    // Dramatically increased intensity
             transparent
             opacity={0.95}
           />
         </mesh>
         
-        {/* Additional outer glow layers for more intense effect */}
+        {/* Multiple glow layers for depth */}
         <mesh>
-          <sphereGeometry args={[0.11, 16, 16]} />
+          <sphereGeometry args={[0.1, 16, 16]} />
           <meshStandardMaterial
-            color="#ffff80"
-            emissive="#ffff80"
-            emissiveIntensity={8}
+            color="#ff9900"
+            emissive="#ff8800"
+            emissiveIntensity={25}
             transparent
-            opacity={0.4}
+            opacity={0.8}
           />
         </mesh>
         
         <mesh>
-          <sphereGeometry args={[0.13, 16, 16]} />
+          <sphereGeometry args={[0.12, 16, 16]} />
           <meshStandardMaterial
-            color="#ffffaa"
-            emissive="#ffffaa"
-            emissiveIntensity={6}
+            color="#ff9900"
+            emissive="#ff8800"
+            emissiveIntensity={20}
             transparent
-            opacity={0.2}
+            opacity={0.6}
           />
         </mesh>
+        
+        <mesh>
+          <sphereGeometry args={[0.15, 16, 16]} />
+          <meshStandardMaterial
+            color="#ff9900"
+            emissive="#ff8800"
+            emissiveIntensity={15}
+            transparent
+            opacity={0.4}
+          />
+        </mesh>
+
+        {/* Enhanced point light */}
+        <pointLight 
+          color="#ff8800"
+          intensity={4}
+          distance={1.5}
+          decay={2}
+        />
       </group>
       
       {/* Blade  */}

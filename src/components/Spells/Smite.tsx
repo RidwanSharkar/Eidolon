@@ -53,9 +53,9 @@ export default function Smite({ position, onComplete }: SmiteProps) {
       <mesh>
         <cylinderGeometry args={[0.35, 0.35, 20, 16]} />
         <meshStandardMaterial
-          color="#ffffff"
-          emissive="#ffdb4d"
-          emissiveIntensity={10}
+          color="#ff6600"
+          emissive="#ff4400"
+          emissiveIntensity={15}
           transparent
           opacity={0.95}
         />
@@ -65,9 +65,9 @@ export default function Smite({ position, onComplete }: SmiteProps) {
       <mesh>
         <cylinderGeometry args={[0.7, 0.7, 20, 16]} />
         <meshStandardMaterial
-          color="#ffdb4d"
-          emissive="#ffdb4d"
-          emissiveIntensity={6}
+          color="#ff6600"
+          emissive="#ff4400"
+          emissiveIntensity={10}
           transparent
           opacity={0.7}
         />
@@ -77,9 +77,9 @@ export default function Smite({ position, onComplete }: SmiteProps) {
       <mesh>
         <cylinderGeometry args={[1.0, 1.0, 20, 16]} />
         <meshStandardMaterial
-          color="#fff5cc"
-          emissive="#fff5cc"
-          emissiveIntensity={4}
+          color="#ff8800"
+          emissive="#ff6600"
+          emissiveIntensity={8}
           transparent
           opacity={0.4}
         />
@@ -90,9 +90,9 @@ export default function Smite({ position, onComplete }: SmiteProps) {
         <mesh key={i} rotation={[0, (i * Math.PI) / 1.5, 0]}>
           <torusGeometry args={[1.2, 0.08, 8, 32]} />
           <meshStandardMaterial
-            color="#ffff00"
-            emissive="#ffff00"
-            emissiveIntensity={5}
+            color="#ff6600"
+            emissive="#ff4400"
+            emissiveIntensity={8}
             transparent
             opacity={0.3}
           />
@@ -111,9 +111,9 @@ export default function Smite({ position, onComplete }: SmiteProps) {
         >
           <sphereGeometry args={[0.15, 8, 8]} />
           <meshStandardMaterial
-            color="#ffff00"
-            emissive="#ffff00"
-            emissiveIntensity={8}
+            color="#ff6600"
+            emissive="#ff4400"
+            emissiveIntensity={12}
             transparent
             opacity={0.6}
           />
@@ -121,10 +121,10 @@ export default function Smite({ position, onComplete }: SmiteProps) {
       ))}
 
       {/* Enhanced impact point glow */}
-      <pointLight position={[0, -10, 0]} color="#ffdb4d" intensity={20} distance={12} />
+      <pointLight position={[0, -10, 0]} color="#ff4400" intensity={25} distance={12} />
 
       {/* Additional ambient glow */}
-      <pointLight position={[0, 0, 0]} color="#fff5cc" intensity={10} distance={6} />
+      <pointLight position={[0, 0, 0]} color="#ff6600" intensity={15} distance={6} />
     </group>
   );
 }

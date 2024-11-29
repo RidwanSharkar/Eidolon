@@ -49,9 +49,9 @@ const OrbitalParticles = ({ parentRef, fireballCharges }: {
 }) => {
   const particlesRef = useRef<Mesh[]>([]);
   const particleCount = 8;
-  const orbitRadius = 1.0;
+  const orbitRadius = 0.875;
   const orbitSpeed = 1.75;
-  const particleSize = 0.13;
+  const particleSize = 0.125;
 
   useFrame(() => {
     if (!parentRef.current) return;
@@ -199,7 +199,7 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
     if (!isEnemy && !isDummy) return null;
 
     const maxHits = isEnemy 
-      ? 2 
+      ? 2 // SWING RADIUS>!? forgot
       : (currentWeapon === WeaponType.SABRES || currentWeapon === WeaponType.SABRES2 ? 2 : 1);
     const currentHits = hitCountThisSwing[targetId] || 0;
 
