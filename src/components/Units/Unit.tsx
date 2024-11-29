@@ -16,6 +16,7 @@ import { WeaponType, WeaponInfo } from '../../types/weapons';
 import { WEAPON_DAMAGES } from '../../constants/weaponStats';
 import EtherealBow from '../Weapons/EtherealBow';
 import BoneWings from './BoneWings';
+import BoneAura from '../Effects/BoneAura';
 // NEEDS COLLOSAL REFACTORING hamie
 
 export interface UnitProps {
@@ -972,6 +973,8 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
           )}
         </group>
       ))}
+
+      <BoneAura parentRef={groupRef} />
     </>
   );
 }
