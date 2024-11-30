@@ -13,7 +13,7 @@ const BonePlate: React.FC = () => {
           rotation={[1, Math.PI / 2, 0]} // Moved rotation to mesh
         >
           <torusGeometry 
-            args={[0.2, 0.015, 8, 12, Math.PI / 2]} 
+            args={[0.2, 0.015, 8, 12, Math.PI * 0.75]} 
           />
           <meshStandardMaterial 
             color="#e8e8e8"
@@ -40,7 +40,7 @@ const BonePlate: React.FC = () => {
           rotation={[0, -Math.PI / 2, 0]} // Moved rotation to mesh
         >
           <torusGeometry 
-            args={[0.2, 0.015, 8, 12, Math.PI / 2]} 
+            args={[0.2, 0.015, 8, 12, Math.PI * 0.75]} 
           />
           <meshStandardMaterial 
             color="#e8e8e8"
@@ -115,7 +115,7 @@ const BonePlate: React.FC = () => {
     <group 
       ref={plateRef}
       position={[0, 0.09, 0]}
-      rotation={[0.2, Math.PI /1.08, 0]}
+      rotation={[0.2, Math.PI + Math.PI /0.97, 0]}
     >
       <group>
         {/* Create spine first */}
