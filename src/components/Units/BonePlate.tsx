@@ -114,7 +114,7 @@ const BonePlate: React.FC = () => {
   return (
     <group 
       ref={plateRef}
-      position={[0, 0.09, 0]}
+      position={[0, 0.04, -0.1]}
       rotation={[0.2, Math.PI + Math.PI /0.97, 0]}
     >
       <group>

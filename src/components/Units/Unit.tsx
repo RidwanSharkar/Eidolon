@@ -18,6 +18,7 @@ import EtherealBow from '../Weapons/EtherealBow';
 import BoneWings from './BoneWings';
 import BoneAura from './BoneAura';
 import BonePlate from './BonePlate';
+import BoneTail from './BoneTail';
 // NEEDS COLLOSAL REFACTORING hamie
 
 export interface UnitProps {
@@ -727,6 +728,9 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
         </mesh>
 
         <OrbitalParticles parentRef={groupRef} fireballCharges={fireballCharges} />
+        <BonePlate />
+        <BoneTail />
+        
         {currentWeapon === WeaponType.SABRES2 ? (
           <Sabres2 
             isSwinging={isSwinging} 
@@ -775,8 +779,6 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
             </mesh>
           </Billboard>
         )}
-
-        <BonePlate />
       </group>
 
       {/* Add ghost trail effect */}
