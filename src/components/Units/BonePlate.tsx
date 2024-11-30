@@ -10,7 +10,7 @@ const BonePlate: React.FC = () => {
       <group rotation={[0, 0, -Math.PI / 3]}>
         <mesh 
           position={[0.1, 0, 0]}
-          rotation={[0, Math.PI / 2, 0]} // Moved rotation to mesh
+          rotation={[1, Math.PI / 2, 0]} // Moved rotation to mesh
         >
           <torusGeometry 
             args={[0.2, 0.015, 8, 12, Math.PI / 2]} 
@@ -114,8 +114,8 @@ const BonePlate: React.FC = () => {
   return (
     <group 
       ref={plateRef}
-      position={[0, 0.3, 0.4]}
-      rotation={[0.2, 0, 0]}
+      position={[0, 0.09, 0]}
+      rotation={[0.2, Math.PI /1.08, 0]}
     >
       <group>
         {/* Create spine first */}
@@ -123,11 +123,13 @@ const BonePlate: React.FC = () => {
         
         {/* Create rib pairs that connect to spine */}
         <group position={[0, 0, 0]}>
+          {createRibPiece(0.45, 0.7)} 
           {createRibPiece(0.3, 0.8)}   
           {createRibPiece(0.15, 0.9)}  
           {createRibPiece(0, 1)}    
           {createRibPiece(-0.15, 0.9)}
           {createRibPiece(-0.3, 0.8)}  
+          {createRibPiece(-0.45, 0.7)}  
         </group>
       </group>
     </group>
