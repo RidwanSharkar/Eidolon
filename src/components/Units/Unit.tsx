@@ -16,7 +16,8 @@ import { WeaponType, WeaponInfo } from '../../types/weapons';
 import { WEAPON_DAMAGES } from '../../constants/weaponStats';
 import EtherealBow from '../Weapons/EtherealBow';
 import BoneWings from './BoneWings';
-import BoneAura from '../Effects/BoneAura';
+import BoneAura from './BoneAura';
+import BonePlate from './BonePlate';
 // NEEDS COLLOSAL REFACTORING hamie
 
 export interface UnitProps {
@@ -774,6 +775,8 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
             </mesh>
           </Billboard>
         )}
+
+        <BonePlate />
       </group>
 
       {/* Add ghost trail effect */}
