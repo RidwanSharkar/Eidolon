@@ -1,102 +1,75 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { Group } from 'three';
-import { useFrame } from '@react-three/fiber';
+import React, { useRef, useEffect } from 'react';
+import { Group, Vector3 } from 'three';
+import { Billboard, Text } from '@react-three/drei';
 import CustomSkeleton from './CustomSkeleton';
-import { Text } from '@react-three/drei';
-import Billboard from '../UI/Billboard';
-import { EnemyUnitProps } from '../../types/EnemyUnitProps';
-import * as THREE from 'three';
 
-const EnemyUnit: React.FC<EnemyUnitProps> = ({ id, initialPosition, health, maxHealth, onTakeDamage }) => {
-  const groupRef = useRef<Group>(null);
-  const [currentHealth, setCurrentHealth] = useState<number>(health);
-  const [isDead, setIsDead] = useState<boolean>(false);
+interface EnemyUnitProps {
+  id: string;
+  initialPosition: Vector3;
+  health: number;
+  maxHealth: number;
+  onTakeDamage: (id: string, damage: number) => void;
+}
 
-  // Sync currentHealth with health prop
+export default function EnemyUnit({ id, initialPosition, health, maxHealth, onTakeDamage }: EnemyUnitProps) {
+  const enemyRef = useRef<Group>(null);
+  const regenerationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Regeneration logic
   useEffect(() => {
-    setCurrentHealth(health);
-  }, [health]);
-
-  // Handle taking damage
-  const takeDamage = useCallback(
-    (damage: number) => {
-      if (!isDead) {
-        onTakeDamage(id, damage);
-        setCurrentHealth((prev) => Math.max(prev - damage, 0));
-      }
-    },
-    [id, onTakeDamage, isDead]
-  );
-
-  // Update health and handle death
-  useEffect(() => {
-    if (currentHealth <= 0 && !isDead) {
-      setIsDead(true);
-      // Additional logic like playing a death animation can be added here
+    console.log(`Enemy ${id} Health: ${health}`);
+    
+    // Clear any existing timeout
+    if (regenerationTimeoutRef.current) {
+      clearTimeout(regenerationTimeoutRef.current);
+      regenerationTimeoutRef.current = null;
     }
-  }, [currentHealth, isDead]);
 
-  // Example: Simulate taking damage via an external trigger (e.g., a weapon hit)
-  useEffect(() => {
-    // Replace this with actual interaction logic (e.g., collision detection)
-    // For demonstration, we'll simulate taking damage when a certain condition is met
-    const handleDamageTrigger = (event: CustomEvent) => {
-      if (event.detail.targetId === id) {
-        takeDamage(event.detail.damage);
-      }
-    };
+    // Set up regeneration when health hits 0
+    if (health === 0) {
+      console.log(`Setting up regeneration timer for ${id}...`);
+      regenerationTimeoutRef.current = setTimeout(() => {
+        console.log(`Regenerating enemy ${id}...`);
+        onTakeDamage(id, 0); // Reset health by passing 0 damage
+      }, 5000); // 5-second delay before regeneration
+    }
 
-    // Listen for a custom event to trigger damage
-    window.addEventListener('enemyAttack', handleDamageTrigger as EventListener);
-
+    // Cleanup on unmount
     return () => {
-      window.removeEventListener('enemyAttack', handleDamageTrigger as EventListener);
-    };
-  }, [takeDamage, id]);
-
-  // Animation for just the skeleton
-  useFrame(() => {
-    if (groupRef.current) {
-      // Only rotate the skeleton mesh, not the health bar
-      const skeletonMesh = groupRef.current.children[0];
-      if (skeletonMesh) {
-        skeletonMesh.rotation.y += 0.01;
+      if (regenerationTimeoutRef.current) {
+        clearTimeout(regenerationTimeoutRef.current);
       }
-    }
-  });
-
-  if (isDead) {
-    return null;
-  }
+    };
+  }, [health, onTakeDamage, id]);
 
   return (
-    // Separate container for position
-    <group position={initialPosition.toArray()}>
-      {/* Rotating skeleton group */}
-      <group ref={groupRef}>
-        <CustomSkeleton 
-          position={[0, 0, 0]}
-          isAttacking={false} 
-          isWalking={true} 
-        />
-      </group>
-      
-      {/* HP Bar - outside the rotating group */}
+    <group 
+      ref={enemyRef} 
+      position={initialPosition.toArray()}
+    >
+      {/* Skeleton Model */}
+      <CustomSkeleton 
+        position={[0, 0, 0]}
+        isAttacking={false}
+        isWalking={true}
+      />
+
+      {/* HP Bar */}
       <Billboard
         position={[0, 3.0, 0]}
-        lockX={true}
-        lockY={true}
-        lockZ={true}
+        lockX={false}
+        lockY={false}
+        lockZ={false}
       >
         {/* Background bar */}
         <mesh>
           <planeGeometry args={[1.5, 0.2]} />
-          <meshBasicMaterial color="#333333" opacity={0.8} transparent side={THREE.DoubleSide} />
+          <meshBasicMaterial color="#333333" opacity={0.8} transparent />
         </mesh>
         {/* Health bar */}
-        <mesh position={[-0.75 + (currentHealth / maxHealth) * 0.75, 0, 0.001]}>
-          <planeGeometry args={[(currentHealth / maxHealth) * 1.5, 0.18]} />
-          <meshBasicMaterial color="#ff3333" opacity={0.9} transparent side={THREE.DoubleSide} />
+        <mesh position={[-0.75 + (health / maxHealth) * 0.75, 0, 0.001]}>
+          <planeGeometry args={[(health / maxHealth) * 1.5, 0.18]} />
+          <meshBasicMaterial color="#ff3333" opacity={0.9} transparent />
         </mesh>
         {/* Health text */}
         <Text
@@ -106,13 +79,10 @@ const EnemyUnit: React.FC<EnemyUnitProps> = ({ id, initialPosition, health, maxH
           anchorX="center"
           anchorY="middle"
           fontWeight="bold"
-          renderOrder={1}
         >
-          {`${currentHealth}/${maxHealth}`}
+          {`${health}/${maxHealth}`}
         </Text>
       </Billboard>
     </group>
   );
-}
-
-export default EnemyUnit; 
+} 
