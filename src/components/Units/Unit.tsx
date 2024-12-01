@@ -19,8 +19,9 @@ import BoneWings from './BoneWings';
 import BoneAura from './BoneAura';
 import BonePlate from './BonePlate';
 import BoneTail from './BoneTail';
-// NEEDS COLLOSAL REFACTORING hamie
+import BoneVortex from './BoneVortex';
 
+// NEEDS COLLOSAL REFACTORING hamie
 export interface UnitProps {
   onHit: (targetId: string, damage: number) => void;
   controlsRef: React.RefObject<OrbitControlsImpl>;
@@ -979,6 +980,7 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
         </group>
       ))}
 
+      <BoneVortex parentRef={groupRef} />
       <BoneAura parentRef={groupRef} />
     </>
   );
