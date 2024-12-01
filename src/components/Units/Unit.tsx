@@ -52,9 +52,9 @@ const OrbitalParticles = ({ parentRef, fireballCharges }: {
 }) => {
   const particlesRef = useRef<Mesh[]>([]);
   const particleCount = 8;
-  const orbitRadius = 0.875;
-  const orbitSpeed = 1.75;
-  const particleSize = 0.125;
+  const orbitRadius = 0.65;
+  const orbitSpeed = 1.2;
+  const particleSize = 0.10;
 
   useFrame(() => {
     if (!parentRef.current) return;
@@ -63,7 +63,7 @@ const OrbitalParticles = ({ parentRef, fireballCharges }: {
       const angle = (i / particleCount) * Math.PI * 2 + Date.now() * 0.001 * orbitSpeed;
       const x = Math.cos(angle) * orbitRadius;
       const z = Math.sin(angle) * orbitRadius;
-      const y = Math.sin(Date.now() * 0.002 + i) * 0.2;
+      const y = Math.sin(Date.now() * 0.002 + i) * 0.1;
 
       particle.position.set(x, y, z);
     });
@@ -105,14 +105,14 @@ interface FireballData {
 }
 
 // ORB CHARGE COOLDOWN
-const FIREBALL_COOLDOWN = 9000; // 6 seconds 
+const FIREBALL_COOLDOWN = 12000; // 6 seconds 
 
 export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect, health, maxHealth, isPlayer = false, abilities, onAbilityUse, onPositionUpdate, enemyData }: UnitProps) {
   const groupRef = useRef<Group>(null);
   const [isSwinging, setIsSwinging] = useState(false);
   const [fireballs, setFireballs] = useState<FireballData[]>([]);
   const nextFireballId = useRef(0);
-  const speed = 0.20; // MOVEMENT SPEED
+  const speed = 0.175; // MOVEMENT SPEED
   const { camera } = useThree();
   const keys = useRef({
     w: false,

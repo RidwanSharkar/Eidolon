@@ -71,7 +71,7 @@ const BoneTail: React.FC = () => {
               metalness={0.2}
             />
           </mesh>
-          <mesh position={[-0.05, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <mesh position={[-0.085, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
             <coneGeometry args={[0.015, 0.04, 4]} />
             <meshStandardMaterial 
               color="#d8d8d8"
@@ -96,7 +96,7 @@ const BoneTail: React.FC = () => {
   return (
     <group 
       ref={tailRef}
-      position={[0, -0.5, -0.45]}
+      position={[0, -0.65, -0.35]}
       rotation={[-0.1, 0, 0]}
     >
       {[...Array(15)].map((_, index) => (
