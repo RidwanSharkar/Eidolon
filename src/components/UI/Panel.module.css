@@ -5,10 +5,10 @@
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   background: linear-gradient(to right, rgba(0,0,0,0.3), rgba(0,0,0,0.7), rgba(0,0,0,0.3));
-  padding: 15px 30px;
-  border-radius: 20px;
+  padding: 12px 25px;
+  border-radius: 16px;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255,255,255,0.1);
   box-shadow: 0 0 30px rgba(0,0,0,0.5);
@@ -18,15 +18,15 @@
 
 .healthBarSection {
   position: absolute;
-  top: -50px;
+  top: -45px;
   left: 50%;
   transform: translateX(-50%);
-  width: 300px;
+  width: 260px;
 }
 
 .healthBarContainer {
   position: relative;
-  padding: 15px;
+  padding: 12px;
 }
 
 .healthBarDecoration {
@@ -41,8 +41,8 @@
 .healthBarOrnamentLeft,
 .healthBarOrnamentRight {
   position: absolute;
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  height: 35px;
   background: linear-gradient(135deg, #39ff14, #2db80e);
   border-radius: 50%;
   box-shadow: 
@@ -64,7 +64,7 @@
 }
 
 .healthBar {
-  height: 35px;
+  height: 30px;
   background: rgba(0, 0, 0, 0.7);
   border: 2px solid #ffd700;
   border-radius: 10px;
@@ -134,7 +134,7 @@
   top: 50%;
   transform: translate(-50%, -50%);
   color: #ffffff;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   text-shadow: 
     0 0 10px rgba(0, 0, 0, 0.8),
@@ -189,8 +189,8 @@
 
 .ability {
   position: relative;
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   border-radius: 10px;
   overflow: visible;
   transition: transform 0.2s ease;
@@ -217,8 +217,8 @@
 
 .weaponSlot {
   position: relative;
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   border-radius: 10px;
   transition: all 0.2s ease;
 }
@@ -229,8 +229,8 @@
   right: -10px;
   background: rgba(0,0,0,0.8);
   color: #39ff14;
-  font-size: 12px;
-  padding: 2px 6px;
+  font-size: 11px;
+  padding: 1px 5px;
   border-radius: 4px;
   z-index: 2;
   border: 1px solid rgba(57,255,20,0.3);
@@ -267,7 +267,7 @@
 
 .cooldownText {
   color: white;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
   text-shadow: 0 0 5px rgba(0,0,0,0.8);
 }

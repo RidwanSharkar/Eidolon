@@ -53,9 +53,9 @@ const OrbitalParticles = ({ parentRef, fireballCharges }: {
 }) => {
   const particlesRef = useRef<Mesh[]>([]);
   const particleCount = 8;
-  const orbitRadius = 0.65;
+  const orbitRadius = 0.6;
   const orbitSpeed = 1.2;
-  const particleSize = 0.10;
+  const particleSize = 0.08;
 
   useFrame(() => {
     if (!parentRef.current) return;
@@ -673,25 +673,60 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
   return (
     <>
       <group ref={groupRef} position={[0, 1, 0]}>
-        {/* HEAD  undead orb with more ethereal appearance */}
+        {/* HEAD - core sphere with striped pattern */}
         <mesh>
-          <sphereGeometry args={[0.5, 32, 32]} />
+          <sphereGeometry args={[0.45, 32, 32]} />
           <meshPhongMaterial
             color="#67f2b9"
             transparent
-            opacity={0.7}
-            shininess={100}
+            opacity={0.2}
+            shininess={80}
+          />
+        </mesh>
+        
+        {/* Decorative rings around core */}
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.47, 0.02, 16, 32]} />
+          <meshStandardMaterial
+            color="#39ff14"
+            emissive="#39ff14"
+            emissiveIntensity={1.0}
+            transparent
+            opacity={0.15}
+          />
+        </mesh>
+
+        <mesh rotation={[0, Math.PI / 2, 0]}>
+          <torusGeometry args={[0.47, 0.02, 16, 32]} />
+          <meshStandardMaterial
+            color="#39ff14"
+            emissive="#39ff14"
+            emissiveIntensity={1.0}
+            transparent
+            opacity={0.15}
           />
         </mesh>
         
         {/* Enhanced outer glow */}
-        <mesh scale={1.4}>
-          <sphereGeometry args={[0.5, 32, 32]} />
+        <mesh scale={1.3}>
+          <sphereGeometry args={[0.45, 32, 32]} />
           <meshBasicMaterial
             color="#39ff14"
             transparent
-            opacity={0.15}
+            opacity={0.1}
             depthWrite={false}
+          />
+        </mesh>
+
+        {/* Skull decoration - made smaller and more ethereal */}
+        <mesh position={[0, 0.2, 0.3]} scale={0.35}>
+          <sphereGeometry args={[0.4, 32, 32]} />
+          <meshPhongMaterial
+            color="#67f2b9"
+            transparent
+            opacity={0.6}
+            emissive="#67f2b9"
+            emissiveIntensity={0.3}
           />
         </mesh>
 
@@ -715,18 +750,6 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
             />
           </group>
         </group>
-
-        {/* Skull decoration with ethereal effect */}
-        <mesh position={[0, 0.2, 0.3]} scale={0.4}>
-          <sphereGeometry args={[0.4, 32, 32]} />
-          <meshPhongMaterial
-            color="#67f2b9"
-            transparent
-            opacity={0.9}
-            emissive="#000000"
-            emissiveIntensity={0.2}
-          />w
-        </mesh>
 
         <OrbitalParticles parentRef={groupRef} fireballCharges={fireballCharges} />
         <BonePlate />

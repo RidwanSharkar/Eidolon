@@ -51,7 +51,7 @@ export default function BoneVortex({ parentRef }: BoneVortexProps) {
       if (!piece) return;
       
       const time = clock.getElapsedTime();
-      const heightOffset = ((i / pieceCount) * 0.8);
+      const heightOffset = ((i / pieceCount) * 0.6);
       const radiusMultiplier = 1 - (heightOffset * 0.8);
       
       const angle = (i / pieceCount) * Math.PI * 4 + time * 2;
