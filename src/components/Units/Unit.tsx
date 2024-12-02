@@ -666,8 +666,7 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
   const handleEnemyDefeat = useCallback((enemyId: string) => {
     // Increment collected bones (max 30)
     setCollectedBones(prev => Math.min(prev + 1, 30));
-    
-    // ... rest of your existing defeat handling logic
+
   }, []);
 
   return (
@@ -684,28 +683,7 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
           />
         </mesh>
         
-        {/* Decorative rings around core */}
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.47, 0.02, 16, 32]} />
-          <meshStandardMaterial
-            color="#39ff14"
-            emissive="#39ff14"
-            emissiveIntensity={1.0}
-            transparent
-            opacity={0.15}
-          />
-        </mesh>
 
-        <mesh rotation={[0, Math.PI / 2, 0]}>
-          <torusGeometry args={[0.47, 0.02, 16, 32]} />
-          <meshStandardMaterial
-            color="#39ff14"
-            emissive="#39ff14"
-            emissiveIntensity={1.0}
-            transparent
-            opacity={0.15}
-          />
-        </mesh>
         
         {/* Enhanced outer glow */}
         <mesh scale={1.3}>

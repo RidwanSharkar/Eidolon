@@ -31,6 +31,13 @@ interface SceneProps {
   interactiveTrunkColor: THREE.Color;
   interactiveLeafColor: THREE.Color;
   unitProps: UnitProps;
+  skeletonProps: Array<{
+    id: string;
+    initialPosition: THREE.Vector3;
+    health: number;
+    maxHealth: number;
+    onTakeDamage: (id: string, damage: number) => void;
+  }>;
 }
 
 const Scene: React.FC<SceneProps> = ({
@@ -41,6 +48,7 @@ const Scene: React.FC<SceneProps> = ({
   interactiveTrunkColor,
   interactiveLeafColor,
   unitProps,
+  skeletonProps
 }) => {
   // State to manage enemies
   const [enemies, setEnemies] = useState<Array<EnemyUnitProps>>([
@@ -126,6 +134,20 @@ const Scene: React.FC<SceneProps> = ({
     }
   }, []);
 
+  const [playerPosition, setPlayerPosition] = useState(new THREE.Vector3(0, 0, 0));
+  const [playerHealth, setPlayerHealth] = useState(200);
+
+  // Add player position update handler
+  const handlePlayerPositionUpdate = (newPosition: THREE.Vector3) => {
+    setPlayerPosition(newPosition);
+  };
+
+  // Add player damage handler
+  const handlePlayerDamage = (damage: number) => {
+    setPlayerHealth(prev => Math.max(0, prev - damage));
+    console.log(`Player took ${damage} damage, health now: ${playerHealth}`);
+  };
+
   return (
     <>
       <CustomSky />
@@ -170,7 +192,7 @@ const Scene: React.FC<SceneProps> = ({
         leafColor={interactiveLeafColor}
       />
 
-      {/* Player Unit */}
+      {/* Player Unit with position update handler */}
       <Unit 
         onHit={handleHit}
         controlsRef={unitProps.controlsRef}
@@ -181,7 +203,7 @@ const Scene: React.FC<SceneProps> = ({
         isPlayer={unitProps.isPlayer}
         abilities={unitProps.abilities}
         onAbilityUse={unitProps.onAbilityUse}
-        onPositionUpdate={unitProps.onPositionUpdate}
+        onPositionUpdate={handlePlayerPositionUpdate}
         enemyData={enemies.map(enemy => ({
           id: enemy.id,
           position: enemy.initialPosition,
@@ -211,6 +233,22 @@ const Scene: React.FC<SceneProps> = ({
           health={enemy.health}
           maxHealth={enemy.maxHealth}
           onTakeDamage={enemy.onTakeDamage}
+          playerPosition={playerPosition}
+          onAttackPlayer={handlePlayerDamage}
+        />
+      ))}
+
+      {/* Render skeletons with all required props */}
+      {skeletonProps.map(skeleton => (
+        <EnemyUnit
+          key={skeleton.id}
+          id={skeleton.id}
+          initialPosition={skeleton.initialPosition}
+          health={skeleton.health}
+          maxHealth={skeleton.maxHealth}
+          onTakeDamage={skeleton.onTakeDamage}
+          playerPosition={playerPosition}
+          onAttackPlayer={handlePlayerDamage}
         />
       ))}
     </>

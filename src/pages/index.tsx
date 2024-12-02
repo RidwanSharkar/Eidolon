@@ -40,7 +40,7 @@ const generateRandomPosition = () => {
 };
 
 // Modify the number of skeletons
-const NUM_SKELETONS = 30;  // Add this constant at the top with other constants
+const NUM_SKELETONS = 5;  // Changed from 30 to 5
 
 // Home Component
 export default function HomePage() {
@@ -57,11 +57,11 @@ export default function HomePage() {
     },
     [WeaponType.SCYTHE]: {
       q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/q1.svg', maxCooldown: 1, name: 'Scythe Q' },
-      e: { key: 'e', cooldown: 1, currentCooldown: 0, icon: '/icons/e1.svg', maxCooldown: 1, name: 'Scythe E' }
+      e: { key: 'e', cooldown: 0.33, currentCooldown: 0, icon: '/icons/e1.svg', maxCooldown: 1, name: 'Scythe E' }
     },
     [WeaponType.SABRES]: {
       q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/q3.svg', maxCooldown: 1, name: 'Sabres Q' },
-      e: { key: 'e', cooldown: 1, currentCooldown: 0, icon: '/icons/e3.svg', maxCooldown: 1, name: 'Sabres E' }
+      e: { key: 'e', cooldown: 0.5, currentCooldown: 0, icon: '/icons/e3.svg', maxCooldown: 1, name: 'Sabres E' }
     },
     [WeaponType.SABRES2]: {
       q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/sabres2_q.svg', maxCooldown: 1, name: 'Sabres2 Q' },
@@ -183,6 +183,21 @@ export default function HomePage() {
     Array(NUM_SKELETONS).fill(200) // Create an array of 30 skeletons with 200 health each
   );
 
+  // Initialize skeletonProps once
+  const [skeletonProps] = useState(() => 
+    Array(NUM_SKELETONS).fill(null).map((_, index) => ({
+      id: `skeleton-${index}`,
+      initialPosition: generateRandomPosition(),
+      health: 200,
+      maxHealth: 200,
+      onTakeDamage: (id: string, damage: number) => {
+        setSkeletonHealths(prev => prev.map((health, i) => 
+          i === index ? Math.max(0, health - damage) : health
+        ));
+      }
+    }))
+  );
+
   // Prepare props for Scene component
   const sceneProps: SceneProps = {
     mountainData,
@@ -242,18 +257,7 @@ export default function HomePage() {
         onHit: handleDummy2Reset,
       }
     ],
-    
-    skeletonProps: Array(NUM_SKELETONS).fill(null).map((_, index) => ({
-      id: `skeleton-${index}`,
-      initialPosition: generateRandomPosition(),
-      health: skeletonHealths[index],
-      maxHealth: 200,
-      onTakeDamage: (id: string, damage: number) => {
-        setSkeletonHealths(prev => prev.map((health, i) => 
-          i === index ? Math.max(0, health - damage) : health
-        ));
-      }
-    }))
+    skeletonProps // Use the memoized skeletonProps
   };
 
   return (

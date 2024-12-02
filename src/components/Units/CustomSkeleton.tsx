@@ -73,25 +73,25 @@ export default function CustomSkeleton({ position, isAttacking, isWalking }: Cus
     <group ref={groupRef} position={position}>
       {/* Body */}
       <mesh name="Body" position={[0, 1, 0]}>
-        <cylinderGeometry args={[0.2, 0.2, 1, 32]} />
+        <cylinderGeometry args={[0.2, 0.2, 2, 32]} />
         <meshStandardMaterial color="#888888" />
       </mesh>
 
       {/* Head */}
-      <mesh name="Head" position={[0, 1.75, 0]}>
+      <mesh name="Head" position={[0, 2, 0]}>
         <sphereGeometry args={[0.25, 32, 32]} />
         <meshStandardMaterial color="#555555" />
       </mesh>
 
       {/* Left Arm */}
       <mesh name="LeftArm" position={[-0.4, 1.5, 0]}>
-        <cylinderGeometry args={[0.07, 0.07, 0.8, 32]} />
+        <cylinderGeometry args={[0.07, 0.07, 1, 32]} />
         <meshStandardMaterial color="#777777" />
       </mesh>
 
       {/* Right Arm */}
       <mesh name="RightArm" position={[0.4, 1.5, 0]}>
-        <cylinderGeometry args={[0.07, 0.07, 0.8, 32]} />
+        <cylinderGeometry args={[0.07, 0.07, 1, 32]} />
         <meshStandardMaterial color="#777777" />
       </mesh>
 

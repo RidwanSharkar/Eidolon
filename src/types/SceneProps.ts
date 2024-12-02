@@ -29,4 +29,4 @@ export interface SceneProps {
   unitProps: UnitProps;
   dummyProps: TrainingDummyProps[];
   skeletonProps: SkeletonProps[];
-} 
+}
