@@ -108,7 +108,19 @@ interface FireballData {
 // ORB CHARGE COOLDOWN
 const FIREBALL_COOLDOWN = 12000; // 6 seconds 
 
-export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect, health, maxHealth, isPlayer = false, abilities, onAbilityUse, onPositionUpdate, enemyData }: UnitProps) {
+export default function Unit({
+  onHit,
+  controlsRef,
+  currentWeapon,
+  onWeaponSelect,
+  health,
+  maxHealth,
+  isPlayer = false,
+  abilities,
+  onAbilityUse,
+  onPositionUpdate,
+  enemyData,
+}: UnitProps) {
   const groupRef = useRef<Group>(null);
   const [isSwinging, setIsSwinging] = useState(false);
   const [fireballs, setFireballs] = useState<FireballData[]>([]);
@@ -668,6 +680,13 @@ export default function Unit({ onHit, controlsRef, currentWeapon, onWeaponSelect
     setCollectedBones(prev => Math.min(prev + 1, 30));
 
   }, []);
+
+  useFrame(() => {
+    if (groupRef.current) {
+      const position = groupRef.current.position.clone();
+      onPositionUpdate(position);
+    }
+  });
 
   return (
     <>

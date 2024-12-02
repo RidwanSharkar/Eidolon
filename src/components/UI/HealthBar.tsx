@@ -1,28 +1,35 @@
-import styles from './Panel.module.css';
+import { Vector3 } from 'three';
+import { Billboard, Text } from '@react-three/drei';
 
-interface HealthBarProps {
+export interface HealthBarProps {
   current: number;
   max: number;
+  position: Vector3 | [number, number, number];
 }
 
-export default function HealthBar({ current, max }: HealthBarProps) {
+export default function HealthBar({ current, max, position }: HealthBarProps) {
   const percentage = (current / max) * 100;
   
   return (
-    <div className={styles.healthBar}>
-      <div 
-        className={styles.healthBarInner} 
-        style={{ 
-          width: `${percentage}%`,
-          height: '30px',
-          fontSize: '18px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
+    <Billboard position={position}>
+      <mesh>
+        <planeGeometry args={[2, 0.3]} />
+        <meshBasicMaterial color="#333333" opacity={0.8} transparent />
+      </mesh>
+      <mesh position={[-1 + (percentage / 100), 0, 0.001]}>
+        <planeGeometry args={[(percentage / 100) * 2, 0.28]} />
+        <meshBasicMaterial color="#ff3333" opacity={0.9} transparent />
+      </mesh>
+      <Text
+        position={[0, 0, 0.002]}
+        fontSize={0.15}
+        color="#ffffff"
+        anchorX="center"
+        anchorY="middle"
+        fontWeight="bold"
       >
-        <span className={styles.healthText}>{`${current}/${max}`}</span>
-      </div>
-    </div>
+        {`${current}/${max}`}
+      </Text>
+    </Billboard>
   );
 }

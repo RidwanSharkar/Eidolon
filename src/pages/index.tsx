@@ -52,7 +52,7 @@ export default function HomePage() {
   const [dummy2Health, setDummy2Health] = useState(300);
   const [abilities, setAbilities] = useState<WeaponInfo>({
     [WeaponType.SWORD]: {
-      q: { key: 'q', cooldown: 1, currentCooldown: 0, icon: '/icons/q2.svg', maxCooldown: 1, name: 'Sword Q' },
+      q: { key: 'q', cooldown: 1.4, currentCooldown: 0, icon: '/icons/q2.svg', maxCooldown: 1, name: 'Sword Q' },
       e: { key: 'e', cooldown: 3, currentCooldown: 0, icon: '/icons/e2.svg', maxCooldown: 3, name: 'Sword E' }
     },
     [WeaponType.SCYTHE]: {
@@ -207,6 +207,7 @@ export default function HomePage() {
     interactiveTrunkColor,
     interactiveLeafColor,
     unitProps: {
+      dummyProps: [],
       onHit: handleHit,
       controlsRef,
       currentWeapon,

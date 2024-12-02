@@ -4,6 +4,7 @@ import OrbitControls from 'three/examples/jsm/controls/OrbitControls';
 import { WeaponType, WeaponInfo } from './weapons';
 import { TargetId } from './TargetId';
 import * as THREE from 'three';
+import { TrainingDummyProps } from './TrainingDummyProps';
 
 export interface UnitProps {
   onHit: (targetId: TargetId, damage: number) => void;
@@ -22,5 +23,5 @@ export interface UnitProps {
     health: number;
     maxHealth: number;
   }>;
-  playerPosition: THREE.Vector3;
+  dummyProps: TrainingDummyProps[];
 }

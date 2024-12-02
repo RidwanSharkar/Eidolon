@@ -1,4 +1,5 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
+import { Vector3 } from 'three';
 import Terrain from '../Environment/Terrain';
 import Mountain from '../Environment/Mountain';
 import GravelPath from '../Environment/GravelPath';
@@ -6,41 +7,16 @@ import Tree from '../Environment/Tree';
 import Mushroom from '../Environment/Mushroom';
 import Unit from '../Units/Unit';
 import TrainingDummy from '../Units/TrainingDummy';
-import CustomSky from '../Effects/CustomSky';
-import Planet from '../Environment/Planet';
-import Lights from '../Effects/Lights';
-import { Stars } from '@react-three/drei';
-import * as THREE from 'three';
-import { UnitProps } from '../../types/UnitProps';
-import { TrainingDummyProps } from '../../types/TrainingDummyProps';
 import EnemyUnit from '../Units/EnemyUnit';
 import { v4 as uuidv4 } from 'uuid';
-import { EnemyUnitProps } from '../../types/EnemyUnitProps';
+import { SceneProps as SceneType } from '../../types/SceneProps';
+import { Group } from 'three';
+import { TrainingDummyProps } from '../../types/TrainingDummyProps';
+import { UnitProps } from '../../types/UnitProps';
+import { TargetId } from '../../types/TargetId';
+import HealthBar from '../UI/HealthBar';
 
-// Props Interface
-interface SceneProps {
-  mountainData: Array<{ position: THREE.Vector3; scale: number }>;
-  treeData: Array<{
-    position: THREE.Vector3;
-    scale: number;
-    trunkColor: THREE.Color;
-    leafColor: THREE.Color;
-  }>;
-  mushroomData: Array<{ position: THREE.Vector3; scale: number }>;
-  treePositions: { mainTree: THREE.Vector3 };
-  interactiveTrunkColor: THREE.Color;
-  interactiveLeafColor: THREE.Color;
-  unitProps: UnitProps;
-  skeletonProps: Array<{
-    id: string;
-    initialPosition: THREE.Vector3;
-    health: number;
-    maxHealth: number;
-    onTakeDamage: (id: string, damage: number) => void;
-  }>;
-}
-
-const Scene: React.FC<SceneProps> = ({
+export default function Scene({
   mountainData,
   treeData,
   mushroomData,
@@ -48,120 +24,106 @@ const Scene: React.FC<SceneProps> = ({
   interactiveTrunkColor,
   interactiveLeafColor,
   unitProps,
-  skeletonProps
-}) => {
-  // State to manage enemies
-  const [enemies, setEnemies] = useState<Array<EnemyUnitProps>>([
+  skeletonProps,
+}: SceneType) {
+  // State for enemies
+  const [enemies, setEnemies] = useState<Array<{
+    id: string;
+    initialPosition: Vector3;
+    health: number;
+    maxHealth: number;
+  }>>([
+    // Regular enemies
     {
       id: `enemy-${uuidv4()}`,
-      initialPosition: new THREE.Vector3(10, 0, 10),
+      initialPosition: new Vector3(10, 0, 10),
       health: 200,
       maxHealth: 200,
-      onTakeDamage: (id, damage) => handleTakeDamage(id, damage),
     },
     {
       id: `enemy-${uuidv4()}`,
-      initialPosition: new THREE.Vector3(-10, 0, 10),
+      initialPosition: new Vector3(-10, 0, 10),
       health: 200,
       maxHealth: 200,
-      onTakeDamage: (id, damage) => handleTakeDamage(id, damage),
     },
-    // Add more enemies as needed
+    // Skeletons
+    ...useMemo(() =>
+      skeletonProps.map((skeleton, index) => ({
+        id: `enemy-skeleton-${index}`, // Ensure consistent prefix
+        initialPosition: skeleton.initialPosition,
+        health: skeleton.health,
+        maxHealth: skeleton.maxHealth,
+      })), [skeletonProps]
+    ),
   ]);
 
-  // Handle taking damage
-  const handleTakeDamage = useCallback((id: string, damage: number) => {
-    setEnemies(prevEnemies => 
-      prevEnemies.map(enemy =>
-        enemy.id === id 
+  // Update playerHealth state to be used with HealthBar
+  const [playerHealth, setPlayerHealth] = useState<number>(unitProps.health);
+
+  // Ref to track player position
+  const playerRef = useRef<Group>(null);
+
+  // State to store player position
+  const [playerPosition, setPlayerPosition] = useState<Vector3>(new Vector3(0, 0, 0));
+
+  // Callback to handle damage to enemies
+  const handleTakeDamage = useCallback((targetId: TargetId, damage: number) => {
+    console.log(`Target ${targetId} takes ${damage} damage.`);
+    setEnemies((prevEnemies) =>
+      prevEnemies.map((enemy) =>
+        enemy.id === targetId
           ? { ...enemy, health: Math.max(0, enemy.health - damage) }
           : enemy
       )
     );
   }, []);
 
-  // State to manage dummies
-  const [dummyProps, setDummyProps] = useState<Array<TrainingDummyProps>>([
-    {
-      id: 'dummy1',
-      position: new THREE.Vector3(5, 0, 5),
-      health: 200,
-      maxHealth: 200,
-      onHit: () => {
-        setDummyProps(prevDummies => prevDummies.map(dummy =>
-          dummy.id === 'dummy1'
-            ? { ...dummy, health: dummy.maxHealth }
-            : dummy
-        ));
-      },
-    },
-    {
-      id: 'dummy2',
-      position: new THREE.Vector3(-5, 0, 5),
-      health: 200,
-      maxHealth: 200,
-      onHit: () => {
-        setDummyProps(prevDummies => prevDummies.map(dummy =>
-          dummy.id === 'dummy2'
-            ? { ...dummy, health: dummy.maxHealth }
-            : dummy
-        ));
-      },
-    },
-    // Add more dummies if needed
-  ]);
-
-  // Unified hit handler
-  const handleHit = useCallback((targetId: string, damage: number) => {
-    if (targetId === 'dummy1' || targetId === 'dummy2') {
-      // Handle dummies
-      setDummyProps(prevDummies =>
-        prevDummies.map(dummy =>
-          dummy.id === targetId
-            ? { ...dummy, health: Math.max(dummy.health - damage, 0) }
-            : dummy
-        )
-      );
-    } else if (targetId.startsWith('enemy-')) { // Adjusted to match prefixed IDs
-      // Handle enemies
-      setEnemies(prevEnemies =>
-        prevEnemies.map(enemy =>
-          enemy.id === targetId
-            ? { ...enemy, health: Math.max(enemy.health - damage, 0) }
-            : enemy
-        ).filter(enemy => enemy.health > 0) // Remove dead enemies
-      );
-    }
+  // Callback to handle regeneration of enemies
+  const handleRegenerate = useCallback((id: string) => {
+    console.log(`Enemy ${id} regenerates to max health.`);
+    setEnemies((prevEnemies) =>
+      prevEnemies.map((enemy) =>
+        enemy.id === id
+          ? { ...enemy, health: enemy.maxHealth }
+          : enemy
+      )
+    );
   }, []);
 
-  const [playerPosition, setPlayerPosition] = useState(new THREE.Vector3(0, 0, 0));
-  const [playerHealth, setPlayerHealth] = useState(200);
+  // Update handlePlayerDamage to use setPlayerHealth
+  const handlePlayerDamage = useCallback((damage: number) => {
+    setPlayerHealth(prevHealth => Math.max(0, prevHealth - damage));
+  }, []);
 
-  // Add player position update handler
-  const handlePlayerPositionUpdate = (newPosition: THREE.Vector3) => {
-    setPlayerPosition(newPosition);
-  };
+  // Callback to update player position
+  const handlePlayerPositionUpdate = useCallback((position: Vector3) => {
+    setPlayerPosition(position);
+  }, []);
 
-  // Add player damage handler
-  const handlePlayerDamage = (damage: number) => {
-    setPlayerHealth(prev => Math.max(0, prev - damage));
-    console.log(`Player took ${damage} damage, health now: ${playerHealth}`);
+  // Update unitComponentProps to use playerHealth
+  const unitComponentProps: UnitProps = {
+    onHit: handleTakeDamage as (targetId: string, damage: number) => void,
+    controlsRef: unitProps.controlsRef,
+    currentWeapon: unitProps.currentWeapon,
+    onWeaponSelect: unitProps.onWeaponSelect,
+    health: playerHealth, // Use playerHealth here instead of unitProps.health
+    maxHealth: unitProps.maxHealth,
+    isPlayer: unitProps.isPlayer,
+    abilities: unitProps.abilities,
+    onAbilityUse: unitProps.onAbilityUse,
+    onPositionUpdate: handlePlayerPositionUpdate,
+    enemyData: enemies.map((enemy) => ({
+      id: enemy.id,
+      position: enemy.initialPosition,
+      health: enemy.health,
+      maxHealth: enemy.maxHealth,
+    })),
+    dummyProps: unitProps.dummyProps,
   };
 
   return (
     <>
-      <CustomSky />
-      <Planet />
-      <Stars
-        radius={100}
-        depth={50}
-        count={5000}
-        factor={4}
-        saturation={0}
-        fade
-        speed={1}
-      />
-      <Lights />
+      {/* Other Environment Components */}
       <Terrain />
       {mountainData.map((data, index) => (
         <Mountain key={`mountain-${index}`} position={data.position} scale={data.scale} />
@@ -170,10 +132,10 @@ const Scene: React.FC<SceneProps> = ({
 
       {/* Render all trees */}
       {treeData.map((data, index) => (
-        <Tree 
-          key={`tree-${index}`} 
-          position={data.position} 
-          scale={data.scale} 
+        <Tree
+          key={`tree-${index}`}
+          position={data.position}
+          scale={data.scale}
           trunkColor={data.trunkColor}
           leafColor={data.leafColor}
         />
@@ -185,74 +147,51 @@ const Scene: React.FC<SceneProps> = ({
       ))}
 
       {/* Render the main interactive tree */}
-      <Tree 
-        position={treePositions.mainTree} 
-        scale={1} 
+      <Tree
+        position={treePositions.mainTree}
+        scale={1}
         trunkColor={interactiveTrunkColor}
         leafColor={interactiveLeafColor}
       />
 
-      {/* Player Unit with position update handler */}
-      <Unit 
-        onHit={handleHit}
-        controlsRef={unitProps.controlsRef}
-        currentWeapon={unitProps.currentWeapon}
-        onWeaponSelect={unitProps.onWeaponSelect}
-        health={unitProps.health}
-        maxHealth={200}
-        isPlayer={unitProps.isPlayer}
-        abilities={unitProps.abilities}
-        onAbilityUse={unitProps.onAbilityUse}
-        onPositionUpdate={handlePlayerPositionUpdate}
-        enemyData={enemies.map(enemy => ({
-          id: enemy.id,
-          position: enemy.initialPosition,
-          health: enemy.health,
-          maxHealth: enemy.maxHealth
-        }))}
-      />
+      {/* Player Unit with ref */}
+      <group ref={playerRef}>
+        <Unit {...unitComponentProps} />
+      </group>
 
       {/* Training Dummies */}
-      {dummyProps.map((dummy) => (
-        <TrainingDummy 
-          key={`dummy-${dummy.id}`} 
-          id={dummy.id} 
-          position={dummy.position} 
+      {unitProps.dummyProps && unitProps.dummyProps.map((dummy: TrainingDummyProps) => (
+        <TrainingDummy
+          key={`dummy-${dummy.id}`}
+          id={dummy.id}
+          position={dummy.position}
           health={dummy.health}
-          maxHealth={dummy.maxHealth} 
-          onHit={dummy.onHit}
+          maxHealth={dummy.maxHealth}
+          onHit={() => handleTakeDamage(dummy.id, 15)} // Example damage value
         />
       ))}
 
-      {/* Enemy Units */}
-      {enemies.map(enemy => (
+      {/* Enemy Units (Regular Enemies and Skeletons) */}
+      {enemies.map((enemy) => (
         <EnemyUnit
           key={enemy.id}
           id={enemy.id}
           initialPosition={enemy.initialPosition}
           health={enemy.health}
           maxHealth={enemy.maxHealth}
-          onTakeDamage={enemy.onTakeDamage}
-          playerPosition={playerPosition}
-          onAttackPlayer={handlePlayerDamage}
+          onTakeDamage={handleTakeDamage}
+          onRegenerate={handleRegenerate}
+          playerPosition={playerPosition} // Pass the correct player position
+          onAttackPlayer={handlePlayerDamage} // Pass the correct function
         />
       ))}
 
-      {/* Render skeletons with all required props */}
-      {skeletonProps.map(skeleton => (
-        <EnemyUnit
-          key={skeleton.id}
-          id={skeleton.id}
-          initialPosition={skeleton.initialPosition}
-          health={skeleton.health}
-          maxHealth={skeleton.maxHealth}
-          onTakeDamage={skeleton.onTakeDamage}
-          playerPosition={playerPosition}
-          onAttackPlayer={handlePlayerDamage}
-        />
-      ))}
+      {/* Display Player Health */}
+      <HealthBar 
+        current={playerHealth}  // Changed from 'health' to 'current'
+        max={100}              // Changed from 'maxHealth' to 'max'
+        position={[0, 5, -10]}
+      />
     </>
   );
-};
-
-export default Scene;
+}
