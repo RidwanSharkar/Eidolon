@@ -13,10 +13,11 @@ Devour the essence of unwitting tributes that challenge your claim - their fadin
 
 dis sound crazy, might tweak 
 
+![EidolonCover2](https://github.com/user-attachments/assets/ab21c879-3dcf-4c63-b71a-4d41af848805)
 
 ## Controls
 - Movement - WASD
-- Camera - Hold Right Click
+- Camera - Hold Click
 - Swap Weapon - 123 
     - 1 - Scythe 
         - Q - Weapon Attack
@@ -29,11 +30,11 @@ dis sound crazy, might tweak
         - E - Bow Shot - hold to charge, damage scaling; ranged
 
 
-### v0.9 - Orb Charges
+### v0.9 - Orb Charges 
 ![8orbcharges](https://github.com/user-attachments/assets/90c55e1c-8263-4d38-96b0-38ea42274176)
 
-### v0.8 - Ether Bow
-![etherbow](https://github.com/user-attachments/assets/9cddd312-ab8f-419e-b90b-ba37089e777f)
+### v0.8 - Sabre Bow
+![SabreBow2](https://github.com/user-attachments/assets/4de5e2c6-ce47-4229-9151-49f68e870600)
 
 ### v0.7 - Starter Corpse
 ![bonewingsribcage](https://github.com/user-attachments/assets/a82fc47a-7fa0-4026-9fc5-9281ae64d43a)
@@ -44,15 +45,15 @@ dis sound crazy, might tweak
 ### v0.5 - Swing Animations
 ![swing animations](https://github.com/user-attachments/assets/a7cea382-d56e-442f-8ef9-c9d9229f9a38)
 
-### v0.4 - Weapon Models + Swapping
+### v0.4 - Weapon Swapping
 ![weapon models+swap](https://github.com/user-attachments/assets/ed580b7c-4e8e-411b-b29e-fe6ae3f4ff36)
 
-### v0.3 - Setting + Environment
+### v0.3 - Scene Environment
 ![island in space](https://github.com/user-attachments/assets/59274513-1c79-44ea-ab8b-1e81c81812d8)
 
-### v0.2 - Weapon Creation
+### v0.2 - Weapon Models
 ![better scythe](https://github.com/user-attachments/assets/974f8599-24f1-45c0-a624-ba313d6ced2b)
 
-### v0.1 - 
+### v0.1 - Baseline
 ![1121 (1)(8)](https://github.com/user-attachments/assets/9247e7c6-6cd0-4a21-8616-d08d82f591cf)
 
