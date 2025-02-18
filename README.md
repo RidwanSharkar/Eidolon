@@ -1,7 +1,12 @@
 # Eidolon IV
 > In this graveyard of stars, Death grants all a bleak choice: <br>
 > - Linger in an ossuary for the restless, eternally locked in combat—where ambition and despair intertwine, and where the fallen fuel the ascent of those hungrier to covet hope.  <br>
-> - Devour the essence of unwitting tributes that challenge your claim—their fading hopes now yours to wield, crystallizing within your form. Weave the harvested bones into the tapestry of your destiny, forging a being from the echoes of those who dared to dream and ascended to scale the jagged peaks anchoring the souls to this stygian ark.
+> - Devour the essence of unwitting tributes that challenge your claim—their fading hopes now yours to wield. Scale the jagged peaks anchoring the souls to this stygian ark.
+
+**SPOILERS:**
+Scythe - https://www.youtube.com/watch?v=6diT8YBz7PE
+Sword - https://www.youtube.com/watch?v=b_OwMZfS7dI
+Sabres - [https://youtu.be/5dNfJ9K1egk](https://www.youtube.com/watch?v=5dNfJ9K1egk)
 
 ![Eidolon Cover 1](https://github.com/user-attachments/assets/1535c3e9-b8fa-4581-aaae-669cecab789e)
 
