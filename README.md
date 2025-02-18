@@ -3,9 +3,11 @@
 > - Linger in an ossuary for the restless, eternally locked in combat—where ambition and despair intertwine, and where the fallen fuel the ascent of those hungrier to covet hope.  <br>
 > - Devour the essence of unwitting tributes that challenge your claim—their fading hopes now yours to wield. Scale the jagged peaks anchoring the souls to this stygian ark.
 
+---
+
 ## Spoilers
-Scythe - https://www.youtube.com/watch?v=6diT8YBz7PE <br>
-Sword - https://www.youtube.com/watch?v=b_OwMZfS7dI <br> 
+Scythe - [https://www.youtube.com/watch?v=6diT8YBz7PE](https://youtu.be/6diT8YBz7PE) <br>
+Sword - https://youtu.be/b_OwMZfS7dI <br>
 Sabres - [https://youtu.be/5dNfJ9K1egk](https://www.youtube.com/watch?v=5dNfJ9K1egk)
 
 
@@ -13,7 +15,6 @@ Sabres - [https://youtu.be/5dNfJ9K1egk](https://www.youtube.com/watch?v=5dNfJ9K1
 
 **NOTE: For optimal experience, close unecessary browser tabs, keep the game tab in focus, and use a mouse.**
 
----
 
 ## Table of Contents
 
