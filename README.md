@@ -6,8 +6,8 @@
 ---
 
 ### SPOILERS <br>
-Scythe - [https://www.youtube.com/watch?v=6diT8YBz7PE](https://youtu.be/6diT8YBz7PE) <br>
-Sword - [https://www.youtube.com/watch?v=b_OwMZfS7dI)](https://www.youtube.com/watch?v=b_OwMZfS7dI) <br>
+Scythe - [https://www.youtube.com/watch?v=f_JpPkWXjVM)](https://www.youtube.com/watch?v=f_JpPkWXjVM) <br>
+Sword - [https://www.youtube.com/watch?v=b_OwMZfS7dI)](https://www.youtube.com/watch?v=b_OwMZfS7dI)  <br>
 Sabres - [https://www.youtube.com/watch?v=5dNfJ9K1egk](https://www.youtube.com/watch?v=5dNfJ9K1egk)
 
 ---
