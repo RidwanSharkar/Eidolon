@@ -2,8 +2,8 @@
 
 # Eidolon V
 
-**• https://www.youtube.com/watch?v=EjstwQHASVw <br>
-• https://youtube.com/shorts/OIOcZsC4-bk?feature=share**
+- **https://www.youtube.com/watch?v=EjstwQHASVw** <br>
+- **https://youtube.com/shorts/OIOcZsC4-bk?feature=share**
 
 ![Scythe](https://github.com/user-attachments/assets/5b0d3bbc-ed54-4401-825f-dc7a62add477)
 
@@ -25,9 +25,9 @@
 
 ![Eidolon Cover 1](https://github.com/user-attachments/assets/1535c3e9-b8fa-4581-aaae-669cecab789e)
 
-**• https://www.youtube.com/watch?v=f_JpPkWXjVM <br>
-• https://www.youtube.com/watch?v=b_OwMZfS7dI&t=69s <br>
-• https://www.youtube.com/watch?v=5dNfJ9K1egk **
+- **https://www.youtube.com/watch?v=f_JpPkWXjVM** <br>
+- **https://www.youtube.com/watch?v=b_OwMZfS7dI&t=69s** <br>
+- **https://www.youtube.com/watch?v=5dNfJ9K1egk**
 
 ---
 
