@@ -1,5 +1,9 @@
 # Eidolon V
 
+![Eidolon Cover 2](https://github.com/user-attachments/assets/8e8d251d-fa7c-40f6-a7cd-58865aeec3bf)
+
+---
+
 ![Scythe](https://github.com/user-attachments/assets/5b0d3bbc-ed54-4401-825f-dc7a62add477)
 
 ---
@@ -69,9 +73,6 @@ https://youtube.com/shorts/OIOcZsC4-bk?feature=share
   8. [Epilogue](#epilogue)
 
 ---
-
-![Eidolon Cover 2](https://github.com/user-attachments/assets/8e8d251d-fa7c-40f6-a7cd-58865aeec3bf)
-
 
 ## Introduction
 Eidolon IV is a sci-fi fantasy & cosmic horror-themed 3D action combat game built with React Three Fiber (R3F), Three.js, and TypeScript. Drawing inspiration from classic hack-and-slash RPGs and roguelikes, it combines fast-paced combat with character progression and ability unlocks on level completion.
