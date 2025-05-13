@@ -1,7 +1,7 @@
 # Eidolon V
 
 ## Gameplay Trailers:
-https://www.youtube.com/watch?v=EjstwQHASVw
+https://www.youtube.com/watch?v=EjstwQHASVw <br>
 https://youtube.com/shorts/OIOcZsC4-bk?feature=share
 
 ![Scythe](https://github.com/user-attachments/assets/5b0d3bbc-ed54-4401-825f-dc7a62add477)
