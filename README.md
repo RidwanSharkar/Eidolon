@@ -1,5 +1,3 @@
----
-
 # Eidolon V
 
 - **https://www.youtube.com/watch?v=EjstwQHASVw** <br>
