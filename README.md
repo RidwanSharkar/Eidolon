@@ -1,15 +1,20 @@
 # Eidolon V
 
+![Scythe](https://github.com/user-attachments/assets/5b0d3bbc-ed54-4401-825f-dc7a62add477)
+
+---
+
 ## Gameplay Trailers:
 https://www.youtube.com/watch?v=EjstwQHASVw <br>
 https://youtube.com/shorts/OIOcZsC4-bk?feature=share
 
-![Scythe](https://github.com/user-attachments/assets/5b0d3bbc-ed54-4401-825f-dc7a62add477)
+
 ![Sabres](https://github.com/user-attachments/assets/9da0c22e-6851-46ae-ab3f-b96c15d321ee)
 ![Bow](https://github.com/user-attachments/assets/5cc64502-39e1-4019-9de7-83ce6c885097)
 ![Spear](https://github.com/user-attachments/assets/a01ba167-76cf-4808-b008-2777f7f67ea7)
 ![Sword](https://github.com/user-attachments/assets/f0759b25-2d42-4e25-bc8d-da9583478855)
 
+---
 
 # Eidolon IV
 
