@@ -1,14 +1,16 @@
+---
+
 # Eidolon V
 
-## Gameplay Trailers:
-**https://www.youtube.com/watch?v=EjstwQHASVw <br>
-https://youtube.com/shorts/OIOcZsC4-bk?feature=share**
+**• https://www.youtube.com/watch?v=EjstwQHASVw <br>
+• https://youtube.com/shorts/OIOcZsC4-bk?feature=share**
 
 ![Scythe](https://github.com/user-attachments/assets/5b0d3bbc-ed54-4401-825f-dc7a62add477)
 
 ---
 
 ![Eidolon Cover 2](https://github.com/user-attachments/assets/8e8d251d-fa7c-40f6-a7cd-58865aeec3bf)
+**NOTE: For optimal experience, close unecessary browser tabs, keep the game tab in focus, and use a mouse.**
 
 ---
 
@@ -23,7 +25,9 @@ https://youtube.com/shorts/OIOcZsC4-bk?feature=share**
 
 ![Eidolon Cover 1](https://github.com/user-attachments/assets/1535c3e9-b8fa-4581-aaae-669cecab789e)
 
-**NOTE: For optimal experience, close unecessary browser tabs, keep the game tab in focus, and use a mouse.**
+**• https://www.youtube.com/watch?v=f_JpPkWXjVM <br>
+• https://www.youtube.com/watch?v=b_OwMZfS7dI&t=69s <br>
+• https://www.youtube.com/watch?v=5dNfJ9K1egk **
 
 ---
 
@@ -74,7 +78,7 @@ https://youtube.com/shorts/OIOcZsC4-bk?feature=share**
 ---
 
 ## Introduction
-Eidolon IV is a sci-fi fantasy & cosmic horror-themed 3D action combat game built with React Three Fiber (R3F), Three.js, and TypeScript. Drawing inspiration from classic hack-and-slash RPGs and roguelikes, it combines fast-paced combat with character progression and ability unlocks on level completion.
+Eidolon is a sci-fi fantasy & cosmic horror-themed 3D action combat game built with React Three Fiber (R3F), Three.js, and TypeScript. Drawing inspiration from classic hack-and-slash RPGs and roguelikes, it combines fast-paced combat with character progression and ability unlocks on level completion.
 
 ### Game Overview
 - **Genre**: Action RPG / Hack-and-Slash / Roguelike
