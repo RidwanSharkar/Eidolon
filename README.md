@@ -5,10 +5,11 @@
 
 ![Scythe](https://github.com/user-attachments/assets/5b0d3bbc-ed54-4401-825f-dc7a62add477)
 
+**NOTE: For optimal experience, close unecessary browser tabs, keep the game tab in focus, and use a mouse.**
+
 ---
 
 ![Eidolon Cover 2](https://github.com/user-attachments/assets/8e8d251d-fa7c-40f6-a7cd-58865aeec3bf)
-**NOTE: For optimal experience, close unecessary browser tabs, keep the game tab in focus, and use a mouse.**
 
 ---
 
