@@ -1,17 +1,16 @@
 # Eidolon V
 
-![Eidolon Cover 2](https://github.com/user-attachments/assets/8e8d251d-fa7c-40f6-a7cd-58865aeec3bf)
-
----
+## Gameplay Trailers:
+**https://www.youtube.com/watch?v=EjstwQHASVw <br>
+https://youtube.com/shorts/OIOcZsC4-bk?feature=share**
 
 ![Scythe](https://github.com/user-attachments/assets/5b0d3bbc-ed54-4401-825f-dc7a62add477)
 
 ---
 
-## Gameplay Trailers:
-https://www.youtube.com/watch?v=EjstwQHASVw <br>
-https://youtube.com/shorts/OIOcZsC4-bk?feature=share
+![Eidolon Cover 2](https://github.com/user-attachments/assets/8e8d251d-fa7c-40f6-a7cd-58865aeec3bf)
 
+---
 
 ![Sabres](https://github.com/user-attachments/assets/9da0c22e-6851-46ae-ab3f-b96c15d321ee)
 ![Bow](https://github.com/user-attachments/assets/5cc64502-39e1-4019-9de7-83ce6c885097)
