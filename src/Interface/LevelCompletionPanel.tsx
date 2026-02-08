@@ -32,37 +32,39 @@ export default function LevelCompletionPanel({
   } | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+
   const getAbilityIcons = () => {
     switch (currentWeapon) {
       case WeaponType.SCYTHE:
         return { 
-          r: '/Eidolon/icons/r1.svg', 
-          p: '/Eidolon/icons/p1.svg',
-          s: '/Eidolon/icons/a1.svg'
+          r: `${basePath}/icons/r1.svg`, 
+          p: `${basePath}/icons/p1.svg`,
+          s: `${basePath}/icons/a1.svg`
         };
       case WeaponType.SWORD:
         return { 
-          r: '/Eidolon/icons/r2.svg', 
-          p: '/Eidolon/icons/p2.svg',
-          s: '/Eidolon/icons/a2.svg'
+          r: `${basePath}/icons/r2.svg`, 
+          p: `${basePath}/icons/p2.svg`,
+          s: `${basePath}/icons/a2.svg`
         };
       case WeaponType.SABRES:
         return { 
-          r: '/Eidolon/icons/r3.svg', 
-          p: '/Eidolon/icons/p3.svg',
-          s: '/Eidolon/icons/a3.svg'
+          r: `${basePath}/icons/r3.svg`, 
+          p: `${basePath}/icons/p3.svg`,
+          s: `${basePath}/icons/a3.svg`
         };
       case WeaponType.SPEAR:
         return { 
-          r: '/Eidolon/icons/r4.svg', 
-          p: '/Eidolon/icons/p4.svg',
-          s: '/Eidolon/icons/a4.svg'
+          r: `${basePath}/icons/r4.svg`, 
+          p: `${basePath}/icons/p4.svg`,
+          s: `${basePath}/icons/a4.svg`
         };
       case WeaponType.BOW:
         return { 
-          r: '/Eidolon/icons/r5.svg', 
-          p: '/Eidolon/icons/p5.svg',
-          s: '/Eidolon/icons/a5.svg'
+          r: `${basePath}/icons/r5.svg`, 
+          p: `${basePath}/icons/p5.svg`,
+          s: `${basePath}/icons/a5.svg`
         };
     }
   };
